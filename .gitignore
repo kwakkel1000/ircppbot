@@ -1,0 +1,11 @@
+conf/test.ini
+conf/tranogn.ini
+conf/trantweak.ini
+conf/warblegarble.ini
+bot
+ircppbot.cbp
+*.o
+*.so
+*.svn
+.svn
+.svn*
