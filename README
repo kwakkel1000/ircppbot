@@ -1,0 +1,30 @@
+building:
+edit makefile
+change wich modules you like.
+
+make clean
+make all
+
+copy conf/conf.ini.example to conf/yourconf.ini
+edit it to your needs.
+
+./bot -c conf/yourconf.ini
+
+
+
+
+
+making modules:
+copy src/modules/Test.cpp to src/modules/yourmodule.cpp
+copy include/Test.cpp to include/yourmodule.cpp
+
+edit both files.
+
+add yourmodule in the makefile (look at Test and those files)
+if you want your module to start on startup. add the module to conf/yourconf.ini to the loadmods= line (space seperated)
+
+make clean
+make all
+or 
+make cleanYourmodule
+make Yourmodule
