@@ -9,3 +9,4 @@ ircppbot.cbp
 *.svn
 .svn
 .svn*
+ircppbot_build_log.html
