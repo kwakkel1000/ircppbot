@@ -28,13 +28,13 @@ class Global
         void set_BotNick(std::string _BotNick);
         std::string get_BotNick();
 
-        void set_Users(Users& _Users);
+        void set_Users(Users* _Users);
         Users& get_Users();
 
-        void set_Channels(Channels& _Channels);
+        void set_Channels(Channels* _Channels);
         Channels& get_Channels();
 
-        void set_IrcData(IrcData& _IrcData);
+        void set_IrcData(IrcData* _IrcData);
         IrcData& get_IrcData();
 
         void set_Reply(Reply& _Reply);
@@ -48,9 +48,9 @@ class Global
         ~Global() {}
 
         std::string m_BotNick;
-        Users m_Users;
-        Channels m_Channels;
-        IrcData m_IrcData;
+        Users* m_Users;
+        Channels* m_Channels;
+        IrcData* m_IrcData;
         Reply m_Reply;
         ConfigReader m_ConfigReader;
 

@@ -162,7 +162,8 @@ void ModuleBase::PRIVMSG(std::vector< std::string > data)
 }
 bool ModuleBase::Send(std::string data)
 {
-    IrcData& ID = Global::GetSingleton().get_IrcData();
+    cout << "test" << endl;
+    IrcData& ID = Global::Instance().get_IrcData();
     ID.AddSendQueue(data);
     return true;
 }

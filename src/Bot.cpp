@@ -6,6 +6,7 @@
 #include "../include/Parse.h"
 #include "../include/ConfigReader.h"
 #include "../include/IrcData.h"
+#include "../include/Global.h"
 #include <iostream>
 #include <vector>
 
@@ -63,7 +64,8 @@ void Bot::adminrun()
 
 void Bot::parseinit()
 {
-    IrcData *ID = new IrcData();
+    Global& G = Global::Instance();
+    G.set_IrcData(new IrcData());
     cout << "parseinit" << endl;
     nickserv = reader->GetString("nickserv");
     botnick = reader->GetString("botnick");
@@ -83,7 +85,7 @@ void Bot::parseinit()
         cout << "Exception caught: " << e.Description() << " (" << e.Errornr() << ")" << endl;
         exit(1);
     }
-    P = new Parse(botnick, parse_sock, ns, *reader, ID);
+    P = new Parse(botnick, parse_sock, ns, *reader);
     assert(!parse_thread);
     parse_thread = boost::shared_ptr<boost::thread>(new boost::thread(boost::bind(&Bot::parserun, this)));
 }

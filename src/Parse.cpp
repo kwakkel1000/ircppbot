@@ -9,13 +9,13 @@
 #include <boost/algorithm/string.hpp>
 
 
-Parse::Parse(std::string nick, IrcSocket *s, bool ns, ConfigReader& cf, IrcData *id)
+Parse::Parse(std::string nick, IrcSocket *s, bool ns, ConfigReader& cf)
 : reader( cf )
 {
     NS=ns;
     S=s;
-    ID=id;
-    ID->init(S);
+    /*ID=id;
+    ID->init(S);*/
     Global& G = Global::Instance();
     Reply R = Reply();
     R.Init(reader);
@@ -25,11 +25,14 @@ Parse::Parse(std::string nick, IrcSocket *s, bool ns, ConfigReader& cf, IrcData 
     D->Init(true, false, false, true);
     G.set_Reply(R);
     G.set_BotNick(nick);
-    G.set_Users(*U);
-    G.set_Channels(*C);
-    //G.set_Reply(R);
-    ID->AddConsumer(D);
-    ID->run();
+    G.set_Users(new Users());
+    G.set_Channels(new Channels());
+    G.set_IrcData(new IrcData());
+    G.get_IrcData().init(S);
+    G.get_IrcData().AddConsumer(D);
+    G.get_IrcData().run();
+    /*ID->
+    ID->run();*/
     std::string chandebugstr;
     std::string loadmodsstr;
 
@@ -112,6 +115,7 @@ void Parse::LoadAuthserv()
     cout << "authserv Loaded" << endl;
     // create an instance of the class
     umi = create_authserv();
+    IrcData* ID = &Global::Instance().get_IrcData();
     umi->Init(botnick, S, U, C, reader, ID);
 }
 
@@ -148,6 +152,7 @@ void Parse::LoadNickserv()
     cout << "nickserv Loaded" << endl;
     // create an instance of the class
     umi = create_nickserv();
+    IrcData* ID = &Global::Instance().get_IrcData();
     umi->Init(botnick, S, U, C, reader, ID);
 }
 
@@ -657,7 +662,7 @@ string Parse::HostmaskToNick(vector<string> data)
 
 bool Parse::Send(string data)
 {
-    ID->AddSendQueue(data);
+    Global::Instance().get_IrcData().AddSendQueue(data);
     return true;
 }
 

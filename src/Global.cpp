@@ -10,31 +10,31 @@ std::string Global::get_BotNick()
     return m_BotNick;
 }
 
-void Global::set_Users(Users& _Users)
+void Global::set_Users(Users* _Users)
 {
     m_Users = _Users;
 }
 Users& Global::get_Users()
 {
-    return m_Users;
+    return *m_Users;
 }
 
-void Global::set_Channels(Channels& _Channels)
+void Global::set_Channels(Channels* _Channels)
 {
     m_Channels = _Channels;
 }
 Channels& Global::get_Channels()
 {
-    return m_Channels;
+    return *m_Channels;
 }
 
-void Global::set_IrcData(IrcData& _IrcData)
+void Global::set_IrcData(IrcData* _IrcData)
 {
-    //m_IrcData = _IrcData;
+    m_IrcData = _IrcData;
 }
 IrcData& Global::get_IrcData()
 {
-    return m_IrcData;
+    return *m_IrcData;
 }
 
 void Global::set_Reply(Reply& _Reply)
