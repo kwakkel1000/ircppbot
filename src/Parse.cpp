@@ -4,6 +4,7 @@
 #include "../include/Users.h"
 #include "../include/Channels.h"
 #include "../include/Database.h"
+#include "../include/Global.h"
 
 #include <boost/algorithm/string.hpp>
 
@@ -15,12 +16,18 @@ Parse::Parse(std::string nick, IrcSocket *s, bool ns, ConfigReader& cf, IrcData 
     S=s;
     ID=id;
     ID->init(S);
-    R = new Reply();
-    R->Init(reader);
+    Global& G = Global::Instance();
+    Reply R = Reply();
+    R.Init(reader);
     U = new Users();
     C = new Channels();
     D = new Data();
     D->Init(true, false, false, true);
+    G.set_Reply(R);
+    G.set_BotNick(nick);
+    G.set_Users(*U);
+    G.set_Channels(*C);
+    //G.set_Reply(R);
     ID->AddConsumer(D);
     ID->run();
     std::string chandebugstr;
@@ -197,7 +204,7 @@ bool Parse::LoadModule(string modulename)
         cout << "Module " << modulename << " Loaded" << endl;
         // create an instance of the class
         mi = create_module();
-        mi->BaseInit(botnick, U, C, reader, ID, R);
+        //mi->BaseInit(botnick, U, C, reader, ID, R);
         mi->Init();
         modulelist.push_back(modulename);
         modulevector.push_back(module);

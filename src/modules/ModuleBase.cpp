@@ -1,45 +1,27 @@
 #include "../../include/ModuleBase.h"
 
+#include "../../include/Global.h"
 #include "../../include/Database.h"
+#include "../../include/IrcData.h"
+#include "../../include/Reply.h"
 #include <boost/algorithm/string.hpp>
 #include <sstream>
 #include <cstring>
+
+
 //public
 ModuleBase::ModuleBase()
 {
 }
 
-//init
-void ModuleBase::BaseInit(std::string nick, Users *u, Channels *c, ConfigReader& reader, IrcData *id, Reply *r)
-{
-    std::string chandebugstr;
-    hostname_str = reader.GetString("hostname");
-    databasename_str = reader.GetString("databasename");
-    username_str = reader.GetString("username");
-    pass_str = reader.GetString("password");
-    trigger = reader.GetString("trigger");
-    chandebugstr = reader.GetString("chandebug");
-    debugchannel = reader.GetString("debugchannel");
-    chandebug = (chandebugstr == "true");
-    cout << hostname_str << endl;
-    cout << databasename_str << endl;
-    cout << username_str << endl;
-    cout << pass_str << endl;
-
-    botnick = nick;
-    U=u;
-    C=c;
-    ID=id;
-    R=r;
-    D = new Data();
-}
-
 
 //protected
 //irc
-void ModuleBase::PRIVMSG(std::vector<std::string> data)
+void ModuleBase::PRIVMSG(std::vector< std::string > data)
 {
-    std::vector<std::string> args;
+    Global& G = Global::Instance();
+    std::string trigger = Global::Instance().get_BotNick();
+    std::vector< std::string > args;
     std::string data3;
     size_t chanpos1;
     size_t chanpos2;
@@ -180,13 +162,19 @@ void ModuleBase::PRIVMSG(std::vector<std::string> data)
 }
 bool ModuleBase::Send(std::string data)
 {
-    ID->AddSendQueue(data);
+    IrcData& ID = Global::GetSingleton().get_IrcData();
+    ID.AddSendQueue(data);
     return true;
 }
 
 //mysql
 std::vector< std::vector<std::string> > ModuleBase::RawSqlSelect(std::string data)
 {
+    ConfigReader& CR = Global::Instance().get_ConfigReader();
+    std::string hostname_str = CR.GetString("hostname");
+    std::string databasename_str = CR.GetString("databasename");
+    std::string username_str = CR.GetString("username");
+    std::string pass_str = CR.GetString("pass");
     cout << data << endl;
     database *db;
     std::vector< std::vector<std::string> > sql_result;
@@ -211,6 +199,11 @@ std::vector< std::vector<std::string> > ModuleBase::RawSqlSelect(std::string dat
 
 bool ModuleBase::RawSql(std::string data)
 {
+    ConfigReader& CR = Global::Instance().get_ConfigReader();
+    std::string hostname_str = CR.GetString("hostname");
+    std::string databasename_str = CR.GetString("databasename");
+    std::string username_str = CR.GetString("username");
+    std::string pass_str = CR.GetString("pass");
     cout << data << endl;
     database *db;
     db = new database();    // lol whut... connecting for each query? :'D
@@ -234,24 +227,27 @@ bool ModuleBase::RawSql(std::string data)
 
 //reply
 std::string ModuleBase::irc_reply(std::string reply_name, std::string reply_language)
-{
-    return R->irc_reply(reply_name, reply_language);
+{/*
+    Reply& R = Global::GetSingleton().GetReply();
+    return R.irc_reply(reply_name, reply_language);*/
 }
 
 std::string ModuleBase::irc_reply_replace(std::string source_string, std::string search_string, std::string replace_string)
-{
-    return R->irc_reply_replace(source_string, search_string, replace_string);
+{/*
+    Reply& R = Global::GetSingleton().GetReply();
+    return R.irc_reply_replace(source_string, search_string, replace_string);*/
 }
 
 void ModuleBase::replyReload()
-{
-    R->Reload();
+{/*
+    Reply& R = Global::GetSingleton().GetReply();
+    R.Reload();*/
 }
 
 //other
 std::string ModuleBase::HostmaskToNick(std::vector<std::string> data)
 {
-    std::vector<std::string> who;
+    std::vector< std::string > who;
     boost::split( who, data[0], boost::is_any_of("!"), boost::token_compress_on );
     std::string nick = who[0];
     boost::erase_all(nick, ":");
@@ -260,7 +256,7 @@ std::string ModuleBase::HostmaskToNick(std::vector<std::string> data)
 
 std::vector<std::string> ModuleBase::lineout(std::vector<std::string> data, unsigned int rowamount, unsigned int length)
 {
-    std::vector<std::string> return_vector;
+    std::vector< std::string > return_vector;
     std::string tmpvector;
     unsigned int k = 0;
     for (unsigned int j = 0; j < data.size(); j++)

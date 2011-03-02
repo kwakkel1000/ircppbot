@@ -1,8 +1,9 @@
-#ifndef Tran_ChannelBot_h
-#define Tran_ChannelBot_h
+#ifndef ChannelBot_h
+#define ChannelBot_h
 
 #include "ModuleInterface.h"
 #include "ModuleBase.h"
+#include "Data.h"
 #include <iostream>
 #include <algorithm>
 #include <string>
@@ -10,6 +11,7 @@
 
 using namespace std;
 
+class Data;
 class ChannelBot : public ModuleBase
 {
 public:
@@ -22,6 +24,8 @@ public:
 
 
 private:
+
+    Data * D;
     void BindInit();
 
     void ParsePrivmsg(std::vector<std::string> data, std::string command, std::string chan, std::vector< std::string > args, int chantrigger);
@@ -61,17 +65,8 @@ private:
 
     void OnUserJoin(string chan, string nick);
 
-    vector<string> lineout(vector<string> data, unsigned int rowamount, unsigned int length);
-    string convertInt(int);
-    int convertString(string);
     void DBChannelInfo(string data);
-    bool Send(string data);
-    vector< vector<string> > RawSqlSelect(string data);
-    bool RawSql(string data);
-    string HostmaskToNick(vector<string> data);
     void DBreplyinit();
-    string irc_reply(string reply_name, string reply_language);
-    string irc_reply_replace(string source_string, string search_string, string replace_string);
 
     void timerlong();
     vector<int> timer_sec;
@@ -99,4 +94,4 @@ private:
     //vector<string> Data;
 };
 
-#endif // Tran_ChannelBot_h
+#endif // ChannelBot_h

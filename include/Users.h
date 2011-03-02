@@ -8,79 +8,76 @@
 #include "User.h"
 #include <boost/thread/mutex.hpp>
 
-using namespace std;
-
 class Users
 {
 public:
     Users();
     virtual ~Users();
 
-    virtual bool AddUser(string);
-    virtual bool DelUser(string);
+    virtual bool AddUser(std::string);
+    virtual bool DelUser(std::string);
 
-    virtual bool ChangeNick(string, string);
+    virtual bool ChangeNick(std::string, std::string);
 
-    virtual bool AddWhois(string);
-    virtual bool DelWhois(string);
-    virtual string GetWhois();
+    virtual bool AddWhois(std::string);
+    virtual bool DelWhois(std::string);
+    virtual std::string GetWhois();
 
     virtual void Debug();
 
-    virtual bool SetAuth(string, string);
-    virtual string GetAuth(string);
-    virtual vector<string> GetNicks(string);
-    virtual bool AddAuth(string);
-    virtual vector<string> GetAuths();
+    virtual bool SetAuth(std::string, std::string);
+    virtual std::string GetAuth(std::string);
+    virtual std::vector< std::string> GetNicks(std::string);
+    virtual bool AddAuth(std::string);
+    virtual std::vector< std::string> GetAuths();
 
-    virtual bool SetOaccess(string, int);
-    virtual int GetOaccess(string);
+    virtual bool SetOaccess(std::string, int);
+    virtual int GetOaccess(std::string);
 
-    virtual bool God(string);
-    virtual bool SetGod(string, int);
-    virtual int GetGod(string);
+    virtual bool God(std::string);
+    virtual bool SetGod(std::string, int);
+    virtual int GetGod(std::string);
 
-    virtual bool AddChannel(string, string);
-    virtual bool DelChannel(string, string);
-    virtual vector<string> GetChannels(string);
+    virtual bool AddChannel(std::string, std::string);
+    virtual bool DelChannel(std::string, std::string);
+    virtual std::vector< std::string > GetChannels(std::string);
 
-    virtual int GetUid(string);
-    virtual bool SetUid(string, int);
+    virtual int GetUid(std::string);
+    virtual bool SetUid(std::string, int);
 
-    virtual bool SetGone(string, bool);
-    virtual bool GetGone(string);
+    virtual bool SetGone(std::string, bool);
+    virtual bool GetGone(std::string);
 
-    virtual bool SetX(string, bool);
-    virtual bool GetX(string);
+    virtual bool SetX(std::string, bool);
+    virtual bool GetX(std::string);
 
-    virtual bool SetD(string, bool);
-    virtual bool GetD(string);
+    virtual bool SetD(std::string, bool);
+    virtual bool GetD(std::string);
 
-    virtual bool SetIrcop(string, bool);
-    virtual bool GetIrcop(string);
+    virtual bool SetIrcop(std::string, bool);
+    virtual bool GetIrcop(std::string);
 
-    virtual string GetLanguage(string);
+    virtual std::string GetLanguage(std::string);
 
-    virtual int GetWidthLength(string);
+    virtual int GetWidthLength(std::string);
 
-    virtual int GetWidth(string);
+    virtual int GetWidth(std::string);
 
 private:
-    vector<string> nick;
-    vector<User*> u;
-    vector<string> whoislist;
-    vector<string> NULLvector;
-    vector<string> authlist;
+    std::vector< std::string > nick;
+    std::vector< User* > u;
+    std::vector< std::string > whoislist;
+    std::vector< std::string > NULLvector;
+    std::vector< std::string > authlist;
 
-    boost::mutex User_mutex;
+    /*boost::mutex User_mutex;
     boost::mutex UsersGetNicks_mutex;
     boost::mutex UsersGetAuths_mutex;
     boost::mutex UsersGetChannels_mutex;
-    boost::mutex UsersWhois_mutex;
+    boost::mutex UsersWhois_mutex;*/
 
-    int GetNickIndex(string data);
-    int GetWhoisIndex(string data);
-    bool caseInsensitiveStringCompare( const std::string& str1, const std::string& str2 );
+    int GetNickIndex(std::string data);
+    int GetWhoisIndex(std::string data);
 };
 
 #endif // Users_h

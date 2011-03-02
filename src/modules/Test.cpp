@@ -17,6 +17,7 @@ Test::Test()
 
 void Test::Init()
 {
+    D = new Data();
     D->Init(true, false, false, true);
     ID->AddConsumer(D);
     runthreadloop = true;

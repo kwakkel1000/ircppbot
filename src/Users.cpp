@@ -1,4 +1,5 @@
 #include "../include/Users.h"
+#include <boost/algorithm/string.hpp>
 
 Users::Users()
 {
@@ -18,7 +19,7 @@ Users::~Users()
 
 bool Users::AddUser(string data)
 {
-    boost::mutex::scoped_lock  lock(User_mutex);
+    //boost::mutex::scoped_lock  lock(User_mutex);
     int i = GetNickIndex(data);
     if (i == -1)
     {
@@ -34,7 +35,7 @@ bool Users::AddUser(string data)
 
 bool Users::DelUser(string data)
 {
-    boost::mutex::scoped_lock  lock(User_mutex);
+    //boost::mutex::scoped_lock  lock(User_mutex);
     int i = GetNickIndex(data);
     if (i >= 0)
     {
@@ -48,7 +49,7 @@ bool Users::DelUser(string data)
 
 bool Users::ChangeNick(string data, string newnick)
 {
-    boost::mutex::scoped_lock  lock(User_mutex);
+    //boost::mutex::scoped_lock  lock(User_mutex);
     int i = GetNickIndex(data);
     if (i >= 0)
     {
@@ -63,7 +64,7 @@ bool Users::ChangeNick(string data, string newnick)
 
 void Users::Debug()
 {
-    boost::mutex::scoped_lock  lock(User_mutex);
+    //boost::mutex::scoped_lock  lock(User_mutex);
     for ( unsigned int i = 0 ; i < nick.size(); i++ )
     {
         cout << "NICK: " << nick[i] << " auth: " << u[i]->GetAuth() << endl;
@@ -79,7 +80,7 @@ void Users::Debug()
 
 bool Users::AddWhois(string data)
 {
-    boost::mutex::scoped_lock  lock(UsersWhois_mutex);
+    //boost::mutex::scoped_lock  lock(UsersWhois_mutex);
     int i = GetWhoisIndex(data);
     if (i == -1)
     {
@@ -91,7 +92,7 @@ bool Users::AddWhois(string data)
 
 bool Users::DelWhois(string data)
 {
-    boost::mutex::scoped_lock  lock(UsersWhois_mutex);
+    //boost::mutex::scoped_lock  lock(UsersWhois_mutex);
     int i = GetWhoisIndex(data);
     if (i >= 0)
     {
@@ -103,7 +104,7 @@ bool Users::DelWhois(string data)
 
 string Users::GetWhois()
 {
-    boost::mutex::scoped_lock  lock(UsersWhois_mutex);
+    //boost::mutex::scoped_lock  lock(UsersWhois_mutex);
     //cout << "Users::GetWhois()\r\n";
     if (whoislist.size() > 0)
     {
@@ -114,7 +115,7 @@ string Users::GetWhois()
 
 bool Users::SetAuth(string tmpnick, string auth)
 {
-    boost::mutex::scoped_lock  lock(User_mutex);
+    //boost::mutex::scoped_lock  lock(User_mutex);
     int i = GetNickIndex(tmpnick);
     if (i >= 0)
     {
@@ -126,7 +127,7 @@ bool Users::SetAuth(string tmpnick, string auth)
 
 string Users::GetAuth(string tmpnick)
 {
-    boost::mutex::scoped_lock  lock(User_mutex);
+    //boost::mutex::scoped_lock  lock(User_mutex);
     size_t authstar;
     authstar = tmpnick.find("*");
     if (authstar != string::npos)
@@ -147,12 +148,12 @@ string Users::GetAuth(string tmpnick)
 
 vector<string> Users::GetNicks(string tmpauth)
 {
-    boost::mutex::scoped_lock  lock(UsersGetNicks_mutex);
+    //boost::mutex::scoped_lock  lock(UsersGetNicks_mutex);
     vector<string> nicks;
 
     for ( unsigned int i = 0 ; i < nick.size(); i++ )
     {
-        if (caseInsensitiveStringCompare(u[i]->GetAuth(),tmpauth))
+        if (boost::iequals(u[i]->GetAuth(),tmpauth))
         {
             nicks.push_back(nick[i]);
         }
@@ -169,7 +170,7 @@ vector<string> Users::GetNicks(string tmpauth)
 
 bool Users::SetOaccess(string tmpnick, int oaccess)
 {
-    boost::mutex::scoped_lock  lock(User_mutex);
+    //boost::mutex::scoped_lock  lock(User_mutex);
     int i = GetNickIndex(tmpnick);
     if (i >= 0)
     {
@@ -181,7 +182,7 @@ bool Users::SetOaccess(string tmpnick, int oaccess)
 
 int Users::GetOaccess(string tmpnick)
 {
-    boost::mutex::scoped_lock  lock(User_mutex);
+    //boost::mutex::scoped_lock  lock(User_mutex);
     int i = GetNickIndex(tmpnick);
     if (i >= 0)
     {
@@ -192,7 +193,7 @@ int Users::GetOaccess(string tmpnick)
 
 bool Users::God(string tmpnick)
 {
-    boost::mutex::scoped_lock  lock(User_mutex);
+    //boost::mutex::scoped_lock  lock(User_mutex);
     int i = GetNickIndex(tmpnick);
     if (i >= 0)
     {
@@ -204,7 +205,7 @@ bool Users::God(string tmpnick)
 
 bool Users::SetGod(string tmpnick, int data)
 {
-    boost::mutex::scoped_lock  lock(User_mutex);
+    //boost::mutex::scoped_lock  lock(User_mutex);
     int i = GetNickIndex(tmpnick);
     if (i >= 0)
     {
@@ -216,7 +217,7 @@ bool Users::SetGod(string tmpnick, int data)
 
 int Users::GetGod(string tmpnick)
 {
-    boost::mutex::scoped_lock  lock(User_mutex);
+    //boost::mutex::scoped_lock  lock(User_mutex);
     int i = GetNickIndex(tmpnick);
     if (i >= 0)
     {
@@ -225,9 +226,9 @@ int Users::GetGod(string tmpnick)
     return -1;
 }
 
-    bool Users::AddChannel(string data, string chan)
+bool Users::AddChannel(string data, string chan)
 {
-    boost::mutex::scoped_lock  lock(User_mutex);
+    //boost::mutex::scoped_lock  lock(User_mutex);
     int i = GetNickIndex(data);
     if (i >= 0)
     {
@@ -237,9 +238,9 @@ int Users::GetGod(string tmpnick)
     return false;
 }
 
-    bool Users::DelChannel(string data, string chan)
+bool Users::DelChannel(string data, string chan)
 {
-    boost::mutex::scoped_lock  lock(User_mutex);
+    //boost::mutex::scoped_lock  lock(User_mutex);
     int i = GetNickIndex(data);
     if (i >= 0)
     {
@@ -251,7 +252,7 @@ int Users::GetGod(string tmpnick)
 
 bool Users::SetUid(string data, int uid)
 {
-    boost::mutex::scoped_lock  lock(User_mutex);
+    //boost::mutex::scoped_lock  lock(User_mutex);
     int i = GetNickIndex(data);
     if (i >= 0)
     {
@@ -263,7 +264,7 @@ bool Users::SetUid(string data, int uid)
 
 int Users::GetUid(string data)
 {
-    boost::mutex::scoped_lock  lock(User_mutex);
+    //boost::mutex::scoped_lock  lock(User_mutex);
     int i = GetNickIndex(data);
     if (i >= 0)
     {
@@ -274,7 +275,7 @@ int Users::GetUid(string data)
 
 bool Users::SetGone(string data, bool set)
 {
-    boost::mutex::scoped_lock  lock(User_mutex);
+    //boost::mutex::scoped_lock  lock(User_mutex);
     int i = GetNickIndex(data);
     if (i >= 0)
     {
@@ -285,7 +286,7 @@ bool Users::SetGone(string data, bool set)
 
 bool Users::GetGone(string data)
 {
-    boost::mutex::scoped_lock  lock(User_mutex);
+    //boost::mutex::scoped_lock  lock(User_mutex);
     int i = GetNickIndex(data);
     if (i >= 0)
     {
@@ -296,7 +297,7 @@ bool Users::GetGone(string data)
 
 bool Users::SetX(string data, bool set)
 {
-    boost::mutex::scoped_lock  lock(User_mutex);
+    //boost::mutex::scoped_lock  lock(User_mutex);
     int i = GetNickIndex(data);
     if (i >= 0)
     {
@@ -307,7 +308,7 @@ bool Users::SetX(string data, bool set)
 
 bool Users::GetX(string data)
 {
-    boost::mutex::scoped_lock  lock(User_mutex);
+    //boost::mutex::scoped_lock  lock(User_mutex);
     int i = GetNickIndex(data);
     if (i >= 0)
     {
@@ -318,7 +319,7 @@ bool Users::GetX(string data)
 
 bool Users::SetD(string data, bool set)
 {
-    boost::mutex::scoped_lock  lock(User_mutex);
+    //boost::mutex::scoped_lock  lock(User_mutex);
     int i = GetNickIndex(data);
     if (i >= 0)
     {
@@ -329,7 +330,7 @@ bool Users::SetD(string data, bool set)
 
 bool Users::GetD(string data)
 {
-    boost::mutex::scoped_lock  lock(User_mutex);
+    //boost::mutex::scoped_lock  lock(User_mutex);
     int i = GetNickIndex(data);
     if (i >= 0)
     {
@@ -340,7 +341,7 @@ bool Users::GetD(string data)
 
 bool Users::SetIrcop(string data, bool set)
 {
-    boost::mutex::scoped_lock  lock(User_mutex);
+    //boost::mutex::scoped_lock  lock(User_mutex);
     int i = GetNickIndex(data);
     if (i >= 0)
     {
@@ -351,7 +352,7 @@ bool Users::SetIrcop(string data, bool set)
 
 bool Users::GetIrcop(string data)
 {
-    boost::mutex::scoped_lock  lock(User_mutex);
+    //boost::mutex::scoped_lock  lock(User_mutex);
     int i = GetNickIndex(data);
     if (i >= 0)
     {
@@ -362,16 +363,16 @@ bool Users::GetIrcop(string data)
 
 vector<string> Users::GetAuths()
 {
-    boost::mutex::scoped_lock  lock(UsersGetAuths_mutex);
+    //boost::mutex::scoped_lock  lock(UsersGetAuths_mutex);
     return authlist;
 }
 
 bool Users::AddAuth(string data)
 {
-    boost::mutex::scoped_lock  lock(User_mutex);
+    //boost::mutex::scoped_lock  lock(User_mutex);
     for ( unsigned int i = 0 ; i < authlist.size(); i++ )
     {
-        if (caseInsensitiveStringCompare(authlist[i],data))
+        if (boost::iequals(authlist[i],data))
         {
             return false;
         }
@@ -402,7 +403,7 @@ int Users::GetWidthLength(string nick)
 
 vector<string> Users::GetChannels(string data)
 {
-    boost::mutex::scoped_lock  lock(UsersGetChannels_mutex);
+    //boost::mutex::scoped_lock  lock(UsersGetChannels_mutex);
     cout << "vector<string> Users::GetChannels(string data)    data: " << data << endl;
     int i = GetNickIndex(data);
     if (i >= 0)
@@ -416,7 +417,7 @@ int Users::GetNickIndex(string data)
 {
     for ( unsigned int i = 0 ; i < nick.size(); i++ )
     {
-        if (caseInsensitiveStringCompare(nick[i],data))
+        if (boost::iequals(nick[i],data))
         {
             return i;
         }
@@ -428,18 +429,10 @@ int Users::GetWhoisIndex(string data)
 {
     for ( unsigned int i = 0 ; i < whoislist.size(); i++ )
     {
-        if (caseInsensitiveStringCompare(whoislist[i],data))
+        if (boost::iequals(whoislist[i],data))
         {
             return i;
         }
     }
     return -1;
-}
-
-bool Users::caseInsensitiveStringCompare( const std::string& str1, const std::string& str2 ) {
-    std::string str1Cpy( str1 );
-    std::string str2Cpy( str2 );
-    std::transform( str1Cpy.begin(), str1Cpy.end(), str1Cpy.begin(), ::tolower );
-    std::transform( str2Cpy.begin(), str2Cpy.end(), str2Cpy.begin(), ::tolower );
-    return ( str1Cpy == str2Cpy );
 }

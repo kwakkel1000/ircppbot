@@ -19,6 +19,7 @@
 #include <boost/shared_ptr.hpp>
 
 // Predefinitions
+class Global;
 class ClientSocket;
 class Users;
 class Channels;
@@ -36,25 +37,25 @@ public:
     virtual void UnLoadAuthserv();
     virtual void LoadNickserv();
     virtual void UnLoadNickserv();
-	virtual bool LoadModule(string);
-	virtual bool UnLoadModule(string);
-	virtual bool UnLoadModuleId(unsigned int);
+    virtual bool LoadModule(string);
+    virtual bool UnLoadModule(string);
+    virtual bool UnLoadModuleId(unsigned int);
     void ReloadAll();
     void ModuleParse(int, std::vector< std::string >);
 
 private:
-	//vars
+    //vars
     string configfile;
     bool NS;
 
-	//classes
+    //classes
     ConfigReader& reader;
-	IrcData *ID;
-	Data *D;
+    IrcData *ID;
+    Data *D;
     IrcSocket *S;
     Users *U;
     Channels *C;
-    Reply *R;
+    //Reply *R;
 
     //service modules
     UserManagementInterface* umi;
@@ -63,14 +64,14 @@ private:
     create_tUMI* create_authserv;
     destroy_tUMI* destroy_authserv;
     create_tUMI* create_nickserv;
-	destroy_tUMI* destroy_nickserv;
+    destroy_tUMI* destroy_nickserv;
 
-	//modules
-	std::vector< std::string > modulelist;
-	std::vector< void* > modulevector;
-	std::vector< ModuleInterface* > moduleinterfacevector;
-	std::vector< create_tmi* > createvector;
-	std::vector< destroy_tmi* > destroyvector;
+    //modules
+    std::vector< std::string > modulelist;
+    std::vector< void* > modulevector;
+    std::vector< ModuleInterface* > moduleinterfacevector;
+    std::vector< create_tmi* > createvector;
+    std::vector< destroy_tmi* > destroyvector;
 
     //functions
     bool WhoisSend;

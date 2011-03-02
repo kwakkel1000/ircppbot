@@ -3,9 +3,11 @@
 
 #include "ModuleInterface.h"
 #include "ModuleBase.h"
+#include "Data.h"
 #include <string>
 #include <vector>
 
+class Data;
 class Test : public ModuleBase
 {
 public:

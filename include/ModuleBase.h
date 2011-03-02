@@ -1,25 +1,10 @@
-#ifndef Tran_ModuleBase_H
-#define Tran_ModuleBase_H
+#ifndef ModuleBase_H
+#define ModuleBase_H
 
 #include <vector>
 #include <string>
 #include "ModuleInterface.h"
-#include "Database.h"
-#include "Users.h"
-#include "Channels.h"
-#include "ConfigReader.h"
-#include "IrcData.h"
-#include "Data.h"
-#include "Reply.h"
 
-using namespace std;
-
-class Users;
-class Channels;
-class IrcData;
-class Data;
-class Reply;
-class ConfigReader;
 class ModuleBase : public ModuleInterface
 {
 
@@ -27,31 +12,9 @@ class ModuleBase : public ModuleInterface
 
                 ModuleBase();
                 ~ModuleBase();
-                //init
-                void BaseInit(std::string nick, Users *u, Channels *c, ConfigReader& reader, IrcData *id, Reply *r);
 
     //private:
     protected:
-
-                //class objecten
-                IrcData *ID;
-                Data *D;
-                Users *U;
-                Channels *C;
-                Reply *R;
-
-                //vars
-                std::string botnick;
-                bool chandebug;
-                std::string debugchannel;
-                std::string hostname_str;
-                std::string databasename_str;
-                std::string username_str;
-                std::string pass_str;
-                std::string trigger;
-
-
-
                 //global functions
 
                 //irc
@@ -76,7 +39,7 @@ class ModuleBase : public ModuleInterface
 
 };
 
-#endif // Tran_ModuleBase_H
+#endif // ModuleBase_H
 
 
 
