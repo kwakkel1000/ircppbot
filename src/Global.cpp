@@ -1,6 +1,25 @@
 #include "../include/Global.h"
 
 
+void Global::delete_all()
+{
+    m_IrcData->stop();
+    delete m_Users;
+    delete m_Channels;
+    //delete m_IrcData;
+    delete m_Reply;
+    delete m_ConfigReader;
+}
+
+void Global::set_Run(bool _Run)
+{
+    m_Run = _Run;
+}
+bool Global::get_Run()
+{
+    return m_Run;
+}
+
 void Global::set_BotNick(std::string _BotNick)
 {
     m_BotNick = _BotNick;
@@ -37,20 +56,20 @@ IrcData& Global::get_IrcData()
     return *m_IrcData;
 }
 
-void Global::set_Reply(Reply& _Reply)
+void Global::set_Reply(Reply* _Reply)
 {
     m_Reply = _Reply;
 }
 Reply& Global::get_Reply()
 {
-    return m_Reply;
+    return *m_Reply;
 }
 
-void Global::set_ConfigReader(ConfigReader& _ConfigReader)
+void Global::set_ConfigReader(ConfigReader* _ConfigReader)
 {
     m_ConfigReader = _ConfigReader;
 }
 ConfigReader& Global::get_ConfigReader()
 {
-    return m_ConfigReader;
+    return *m_ConfigReader;
 }

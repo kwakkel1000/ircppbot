@@ -19,8 +19,8 @@ ModuleBase::ModuleBase()
 //irc
 void ModuleBase::PRIVMSG(std::vector< std::string > data)
 {
-    Global& G = Global::Instance();
-    std::string trigger = Global::Instance().get_BotNick();
+	cout << "PRIVMSG" << endl;
+    std::string trigger = "!";
     std::vector< std::string > args;
     std::string data3;
     size_t chanpos1;
@@ -175,7 +175,7 @@ std::vector< std::vector<std::string> > ModuleBase::RawSqlSelect(std::string dat
     std::string hostname_str = CR.GetString("hostname");
     std::string databasename_str = CR.GetString("databasename");
     std::string username_str = CR.GetString("username");
-    std::string pass_str = CR.GetString("pass");
+    std::string pass_str = CR.GetString("password");
     cout << data << endl;
     database *db;
     std::vector< std::vector<std::string> > sql_result;
@@ -204,7 +204,7 @@ bool ModuleBase::RawSql(std::string data)
     std::string hostname_str = CR.GetString("hostname");
     std::string databasename_str = CR.GetString("databasename");
     std::string username_str = CR.GetString("username");
-    std::string pass_str = CR.GetString("pass");
+    std::string pass_str = CR.GetString("password");
     cout << data << endl;
     database *db;
     db = new database();    // lol whut... connecting for each query? :'D
@@ -228,21 +228,21 @@ bool ModuleBase::RawSql(std::string data)
 
 //reply
 std::string ModuleBase::irc_reply(std::string reply_name, std::string reply_language)
-{/*
-    Reply& R = Global::GetSingleton().GetReply();
-    return R.irc_reply(reply_name, reply_language);*/
+{
+    Reply& R = Global::Instance().get_Reply();
+    return R.irc_reply(reply_name, reply_language);
 }
 
 std::string ModuleBase::irc_reply_replace(std::string source_string, std::string search_string, std::string replace_string)
-{/*
-    Reply& R = Global::GetSingleton().GetReply();
-    return R.irc_reply_replace(source_string, search_string, replace_string);*/
+{
+    Reply& R = Global::Instance().get_Reply();
+    return R.irc_reply_replace(source_string, search_string, replace_string);
 }
 
 void ModuleBase::replyReload()
-{/*
-    Reply& R = Global::GetSingleton().GetReply();
-    R.Reload();*/
+{
+    Reply& R = Global::Instance().get_Reply();
+    R.Reload();
 }
 
 //other

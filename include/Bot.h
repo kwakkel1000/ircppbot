@@ -43,15 +43,6 @@ private:
 
     IrcSocket *parse_sock;
     Parse *P;
-    string server;
-    string ident;
-    string realname;
-    string ircpass;
-    string botnick;
-    string nickserv;
-    string ircserver;
-    string ircport;
-    ConfigReader* reader;
 
     bool read;
 

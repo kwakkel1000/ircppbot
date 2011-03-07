@@ -14,6 +14,18 @@ IrcData::~IrcData()
 {
 }
 
+void IrcData::stop()
+{
+    send = false;
+    recv = false;
+    parse = false;
+    SendAvailable.notify_all();
+    RecvAvailable.notify_all();
+    send_thread->join();
+    recv_thread->join();
+    parse_thread->join();
+}
+
 void IrcData::init(IrcSocket *s)
 {
     S=s;
@@ -22,7 +34,7 @@ void IrcData::init(IrcSocket *s)
 void IrcData::AddConsumer(Data *d)
 {
     Consumers.push_back(d);
-    //if (d->get_raw == true)
+    if (d->get_raw == true)
     {
         RawConsumers.push_back(d);
     }
@@ -34,7 +46,7 @@ void IrcData::AddConsumer(Data *d)
     {
         WhoisConsumers.push_back(d);
     }
-    //if (d->get_privmsg == true)
+    if (d->get_privmsg == true)
     {
         PrivmsgConsumers.push_back(d);
     }
@@ -116,48 +128,68 @@ void IrcData::recvloop()
 
 void IrcData::Send()
 {
-    std::string data;
-    data = GetSendQueue();
-    std::cout << "IrcData::Send >> " << data;
-    try
+    if (send == true)
     {
-        S->Send(data);
-    }
-    catch (IrcSocket::Exception& e)
-    {
-        //cout << "Exception caught: " << e.Description() << endl;
+        std::string data;
+        data = GetSendQueue();
+        std::cout << "IrcData::Send >> " << data;
+        try
+        {
+            if(S)
+            {
+                S->Send(data);
+            }
+        }
+        catch (IrcSocket::Exception& e)
+        {
+            //cout << "Exception caught: " << e.Description() << endl;
+        }
     }
 }
 
 void IrcData::Recv()
 {
-    std::string buf;
-    S->Recv(buf);
-    std::cout << "Recv: " << buf << std::endl;
-    AddRecvQueue(buf);
+    if (recv == true)
+    {
+        std::string buf;
+        if (S)
+        {
+            S->Recv(buf);
+            std::cout << "Recv: " << buf << std::endl;
+            AddRecvQueue(buf);
+        }
+    }
 }
 
 std::string IrcData::GetSendQueue()
 {
     boost::mutex::scoped_lock lock(SendMutex);
-    while(SendQueue.empty())
+    std::string temp = "";
+    while(SendQueue.empty() && send == true)
     {
         SendAvailable.wait(lock);
     }
-    std::string temp = SendQueue.front();
-    SendQueue.pop();
+    if (send == true)
+    {
+        temp = SendQueue.front();
+        SendQueue.pop();
+    }
     return temp;
 }
 
 std::string IrcData::GetRecvQueue()
 {
     boost::mutex::scoped_lock lock(RecvMutex);
-    while(RecvQueue.empty())
+    std::string temp = "";
+    while(RecvQueue.empty() && recv == true)
     {
         RecvAvailable.wait(lock);
     }
-    std::string temp = RecvQueue.front();
-    RecvQueue.pop();
+    if (recv == true)
+    {
+        temp = RecvQueue.front();
+        RecvQueue.pop();
+    }
     return temp;
 }
 

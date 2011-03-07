@@ -29,7 +29,7 @@ class Data;
 class Parse
 {
 public:
-    Parse(string, IrcSocket*, bool, ConfigReader&);
+    Parse(string, IrcSocket*, bool);
     virtual ~Parse();
 
     virtual void read( );
@@ -47,14 +47,12 @@ private:
     //vars
     string configfile;
     bool NS;
+    bool run;
 
     //classes
-    ConfigReader& reader;
     //IrcData *ID;
     Data *D;
     IrcSocket *S;
-    Users *U;
-    Channels *C;
     //Reply *R;
 
     //service modules

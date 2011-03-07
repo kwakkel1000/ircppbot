@@ -25,6 +25,7 @@ public:
     ~IrcData();
     void init(IrcSocket *s);
     void run();
+    void stop();
 
     //consumer
     void AddConsumer(Data *d);

@@ -25,6 +25,11 @@ class Global
             return obj;
         }
 
+        void delete_all();
+
+        void set_Run(bool _Run);
+        bool get_Run();
+
         void set_BotNick(std::string _BotNick);
         std::string get_BotNick();
 
@@ -37,22 +42,24 @@ class Global
         void set_IrcData(IrcData* _IrcData);
         IrcData& get_IrcData();
 
-        void set_Reply(Reply& _Reply);
+        void set_Reply(Reply* _Reply);
         Reply& get_Reply();
 
-        void set_ConfigReader(ConfigReader& _ConfigReader);
+        void set_ConfigReader(ConfigReader* _ConfigReader);
         ConfigReader& get_ConfigReader();
 
     private:
         Global() {}
         ~Global() {}
 
+        bool m_Run;
+
         std::string m_BotNick;
         Users* m_Users;
         Channels* m_Channels;
         IrcData* m_IrcData;
-        Reply m_Reply;
-        ConfigReader m_ConfigReader;
+        Reply* m_Reply;
+        ConfigReader* m_ConfigReader;
 
 };
 

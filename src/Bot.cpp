@@ -14,7 +14,6 @@ Bot::Bot()
 // Initialize all member vars! std::string's will just use their default constructor
 : parse_sock( NULL )
 , P( NULL )
-, reader( NULL )
 {
     read = false;
 }
@@ -23,15 +22,15 @@ Bot::~Bot()
 {
     // For every new you should call a delete (manualy calling destructors is not-done)
     // delete accepts null pointers, no checking needed \o/
+    parse_sock->Disconnect();
 	delete P;
 	delete parse_sock;
-    delete reader;
 }
 
 void Bot::Init(string configfile)
 {
-    reader = new ConfigReader();
-    if (reader->ReadFile(configfile))
+    Global::Instance().set_ConfigReader(new ConfigReader());
+    if (Global::Instance().get_ConfigReader().ReadFile(configfile))
     {
         cout << "W00p config is gelezen \\o/" << endl;
         read = true;
@@ -67,10 +66,10 @@ void Bot::parseinit()
     Global& G = Global::Instance();
     G.set_IrcData(new IrcData());
     cout << "parseinit" << endl;
-    nickserv = reader->GetString("nickserv");
-    botnick = reader->GetString("botnick");
-    ircserver = reader->GetString("ircserver");
-    ircport = reader->GetString("ircport");
+    std::string nickserv = G.get_ConfigReader().GetString("nickserv");
+    std::string botnick = G.get_ConfigReader().GetString("botnick");
+    std::string ircserver = G.get_ConfigReader().GetString("ircserver");
+    std::string ircport = G.get_ConfigReader().GetString("ircport");
     //floodprotect = reader->GetString("floodprotect");
     //floodbuffer = reader->GetString("floodbuffer");
     //floodtime = reader->GetString("floodtime");
@@ -85,7 +84,7 @@ void Bot::parseinit()
         cout << "Exception caught: " << e.Description() << " (" << e.Errornr() << ")" << endl;
         exit(1);
     }
-    P = new Parse(botnick, parse_sock, ns, *reader);
+    P = new Parse(botnick, parse_sock, ns);
     assert(!parse_thread);
     parse_thread = boost::shared_ptr<boost::thread>(new boost::thread(boost::bind(&Bot::parserun, this)));
 }
@@ -93,14 +92,14 @@ void Bot::parseinit()
 void Bot::parserun()
 {
     cout << "parserun" << endl;
-    ident = reader->GetString("ident");
-    realname = reader->GetString("realname");
-    ircpass = reader->GetString("ircpass");
-    botnick = reader->GetString("botnick");
-    ircserver = reader->GetString("ircserver");
-    string USER = "USER " + ident + " * * :" + realname + "\r\n";
-    string PASS = "PASS " + ircpass + "\r\n";
-    string NICK = "NICK " + botnick + "\r\n";
+    Global& G = Global::Instance();
+    std::string ident = G.get_ConfigReader().GetString("ident");
+    std::string realname = G.get_ConfigReader().GetString("realname");
+    std::string ircpass = G.get_ConfigReader().GetString("ircpass");
+    std::string botnick = G.get_ConfigReader().GetString("botnick");
+    std::string USER = "USER " + ident + " * * :" + realname + "\r\n";
+    std::string PASS = "PASS " + ircpass + "\r\n";
+    std::string NICK = "NICK " + botnick + "\r\n";
     // In theory it is possible to call Run before Init. S and P would not be initialized then ;)
     if (P)
     {
@@ -119,11 +118,9 @@ void Bot::parserun()
 }
 
 void Bot::Run()
-
 {
     //admin_thread->join();
     parse_thread->join();
-
 }
 
 void Bot::LoadAdmin()

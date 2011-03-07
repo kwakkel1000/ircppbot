@@ -1,4 +1,5 @@
 #include "../include/Bot.h"
+#include "../include/Global.h"
 #include <string>
 #include <iostream>
 #include <vector>
@@ -43,11 +44,27 @@ int main (int argc, char *argv[])
         }
         else
         {
-            Bot *b = new Bot();
-            b->Init(inifile);
-            b->Run();
-            delete b;
+            cout << "start first time" << endl;
+            usleep(2000000);
+            Global::Instance().set_Run(true);
+            while (Global::Instance().get_Run() == true)
+            {
+                cout << "make new bot" << endl;
+                Bot *b = new Bot();
+                b->Init(inifile);
+                b->Run();
+                cout << "sleep" << endl;
+                usleep(5000000);
+                cout << "delete bot" << endl;
+                delete b;
+                cout << "delete global vars bot" << endl;
+                Global::Instance().delete_all();
+                cout << "sleep" << endl;
+                usleep(5000000);
+            }
         }
+        cout << "closing down" << endl;
+        cin.get();
         return 0;
     }
     return 0;

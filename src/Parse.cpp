@@ -9,25 +9,26 @@
 #include <boost/algorithm/string.hpp>
 
 
-Parse::Parse(std::string nick, IrcSocket *s, bool ns, ConfigReader& cf)
-: reader( cf )
+Parse::Parse(std::string nick, IrcSocket *s, bool ns)
 {
     NS=ns;
     S=s;
     /*ID=id;
     ID->init(S);*/
     Global& G = Global::Instance();
-    Reply R = Reply();
-    R.Init(reader);
-    U = new Users();
-    C = new Channels();
+	ConfigReader& reader = G.get_ConfigReader();
+
     D = new Data();
     D->Init(true, false, false, true);
-    G.set_Reply(R);
+
     G.set_BotNick(nick);
+    G.set_Reply(new Reply());
     G.set_Users(new Users());
     G.set_Channels(new Channels());
     G.set_IrcData(new IrcData());
+
+    G.get_Reply().Init(reader);
+
     G.get_IrcData().init(S);
     G.get_IrcData().AddConsumer(D);
     G.get_IrcData().run();
@@ -35,7 +36,6 @@ Parse::Parse(std::string nick, IrcSocket *s, bool ns, ConfigReader& cf)
     ID->run();*/
     std::string chandebugstr;
     std::string loadmodsstr;
-
     hostname_str = reader.GetString("hostname");
     databasename_str = reader.GetString("databasename");
     username_str = reader.GetString("username");
@@ -76,21 +76,24 @@ Parse::~Parse()
     timer_thread->join();
     // For every new you should call a delete (manualy calling destructors is not-done)
     // delete accepts null pointers, no checking needed \o/
-    delete U;
-    delete C;
-    delete S;
-    for (unsigned int i = modulelist.size(); i >= 0; i--)
-    {
-        UnLoadModule(modulelist[i]);
-    }
-    if (NS)
-    {
-        UnLoadNickserv();
-    }
-    else
-    {
-        UnLoadAuthserv();
-    }
+    /*delete U;
+    delete C;*/
+	vector<string> tmpmodulelist = modulelist;
+	for (unsigned int i = 0; i < tmpmodulelist.size(); i++)
+	{
+		string modname = tmpmodulelist[i];
+		UnLoadModule(modname);
+	}
+	if (NS == true)
+	{
+		UnLoadNickserv();
+	}
+	else
+	{
+		UnLoadAuthserv();
+	}
+	/*Global::Instance().get_IrcData().DelConsumer(D);
+    delete D;*/
 }
 
 void Parse::LoadAuthserv()
@@ -116,6 +119,9 @@ void Parse::LoadAuthserv()
     // create an instance of the class
     umi = create_authserv();
     IrcData* ID = &Global::Instance().get_IrcData();
+    Users* U = &Global::Instance().get_Users();
+    Channels* C = &Global::Instance().get_Channels();
+	ConfigReader& reader = Global::Instance().get_ConfigReader();
     umi->Init(botnick, S, U, C, reader, ID);
 }
 
@@ -153,6 +159,9 @@ void Parse::LoadNickserv()
     // create an instance of the class
     umi = create_nickserv();
     IrcData* ID = &Global::Instance().get_IrcData();
+    Users* U = &Global::Instance().get_Users();
+    Channels* C = &Global::Instance().get_Channels();
+	ConfigReader& reader = Global::Instance().get_ConfigReader();
     umi->Init(botnick, S, U, C, reader, ID);
 }
 
@@ -251,13 +260,13 @@ bool Parse::UnLoadModule(string modulename)
     if (modi >= 0)
     {
         moduleinterfacevector[modi]->stopthreadloop();
-        module_thread_vector[modi]->join();
+        //module_thread_vector[modi]->join();
         module_thread_vector.erase(module_thread_vector.begin()+modi);
         destroyvector[modi](moduleinterfacevector[modi]);
+        moduleinterfacevector.erase(moduleinterfacevector.begin()+modi);
         dlclose(modulevector[modi]);
         modulelist.erase(modulelist.begin()+modi);
         modulevector.erase(modulevector.begin()+modi);
-        moduleinterfacevector.erase(moduleinterfacevector.begin()+modi);
         createvector.erase(createvector.begin()+modi);
         destroyvector.erase(destroyvector.begin()+modi);
         cout << modulename << " UnLoaded" << endl;
@@ -293,14 +302,15 @@ void Parse::read()
 {
     std::vector< std::string > raw_result;
     std::vector< std::string > privmsg_result;
-    while (1)
+    run = true;
+    while (run)
     {
         try
         {
             raw_result = D->GetRawQueue();
             privmsg_result = D->GetPrivmsgQueue();
-            ParseData(privmsg_result);
             umi->ParseData(privmsg_result);
+            ParseData(privmsg_result);
             //PRIVMSG(privmsg_result);
         }
         catch (string e)
@@ -329,6 +339,7 @@ void Parse::ParseData(std::vector< std::string > data)
         if (data[1] == "001")   //welcome
         {
             botnick = data[2];
+            Global::Instance().set_BotNick(botnick);
         }
         if (data[1] == "PRIVMSG")   //PRIVMSG
         {
@@ -485,9 +496,24 @@ void Parse::PRIVMSG(std::vector< std::string > data)
     if (triggered == 1)
     {
         string nick = HostmaskToNick(data);
-        string auth = U->GetAuth(nick);
+        string auth = Global::Instance().get_Users().GetAuth(nick);
         if (args.size() == 0)
         {
+            if (boost::iequals(command,"stop"))
+            {
+                std::string returnstring = "PRIVMSG " + chan + " :stopping now\r\n";
+                Send(returnstring);
+                Global::Instance().set_Run(false);
+            	run = false;
+            }
+            if (boost::iequals(command,"restart"))
+            {
+                std::string returnstring = "PRIVMSG " + chan + " :restarting now\r\n";
+                Send(returnstring);
+                //returnstring = "QUIT \r\n";
+                //Send(returnstring);
+            	run = false;
+            }
             if (boost::iequals(command,"listmodules"))
             {
                 for (unsigned int i = 0; i < modulelist.size(); i++)
@@ -601,6 +627,7 @@ void Parse::DBinit()
     vector< vector<string> > sql_result;
     string sql_string = "select auth from auth";
     sql_result = RawSqlSelect(sql_string);
+    Users* U = &Global::Instance().get_Users();
     unsigned int i;
     for (i = 0 ; i < sql_result.size() ; i++)
     {

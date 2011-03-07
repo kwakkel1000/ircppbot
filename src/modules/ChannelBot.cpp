@@ -19,13 +19,15 @@ ChannelBot::ChannelBot()
 ChannelBot::~ChannelBot()
 {
     stopthreadloop();
+	Global::Instance().get_IrcData().DelConsumer(D);
+    delete D;
 }
 
 void ChannelBot::Init()
 {
     D = new Data();
     D->Init(true, false, false, true);
-    BindInit();
+    Global::Instance().get_IrcData().AddConsumer(D);
 
     Channels& C = Global::Instance().get_Channels();
     vector<string> chans = C.GetChannels();
@@ -44,6 +46,7 @@ void ChannelBot::Init()
     timer_long_sec.push_back(Tijd + 20);
     timer_long_command.push_back("time 20 from now");
     timerlong();
+    BindInit();
     runthreadloop = true;
 }
 
@@ -62,6 +65,11 @@ void ChannelBot::threadloop()
     {
         raw_result = D->GetRawQueue();
         privmsg_result = D->GetPrivmsgQueue();
+        cout << raw_result.size() << endl;
+        if (raw_result.size() > 1)
+        {
+        	cout << raw_result[1] << endl;
+        }
         if (raw_result.size() == 3)
         {
             if (raw_result[1] == "JOIN")      //JOIN
@@ -90,8 +98,9 @@ void ChannelBot::threadloop()
             {
                 INVITE(raw_result);
             }
-            if (raw_result[1] == "PRIVMSG")   //PRIVMSG
+            if (boost::iequals(raw_result[1], "PRIVMSG"))   //PRIVMSG
             {
+            	cout << "blub" << endl;
                 PRIVMSG(raw_result);
             }
         }
@@ -114,49 +123,51 @@ void ChannelBot::ParsePrivmsg(std::vector<std::string> data, std::string command
     //cout << "command " << command << endl;
     string nick = HostmaskToNick(data);
     string auth = U.GetAuth(nick);
+    cout << "args.size() " << args.size() << endl;
+    cout << "binds.size() " << binds.size() << endl;
     if (args.size() == 0)
     {
         for (unsigned int i = 0; i < binds.size(); i++)
         {
-            if (caseInsensitiveStringCompare(command, binds[i]))
+            if (boost::iequals(command, binds[i]))
             {
-                if (caseInsensitiveStringCompare(commands[i], "auth"))
+                if (boost::iequals(commands[i], "auth"))
                 {
                     authme(nick, cas[i]);
                     overwatch(commands[i], command, chan, nick, auth, args);
                 }
-                if (caseInsensitiveStringCompare(commands[i], "reloadchan"))
+                if (boost::iequals(commands[i], "reloadchan"))
                 {
                     DBChannelInfo(chan);
                     overwatch(commands[i], command, chan, nick, auth, args);
                 }
-                if (caseInsensitiveStringCompare(commands[i], "ping"))
+                if (boost::iequals(commands[i], "ping"))
                 {
                     ping(chan, nick, cas[i]);
                     overwatch(commands[i], command, chan, nick, auth, args);
                 }
-                if (caseInsensitiveStringCompare(commands[i], "version"))
+                if (boost::iequals(commands[i], "version"))
                 {
                     version(chan, nick, cas[i]);
                     overwatch(commands[i], command, chan, nick, auth, args);
                 }
-                if (caseInsensitiveStringCompare(commands[i], "up"))
+                if (boost::iequals(commands[i], "up"))
                 {
                     up(chan, nick, auth, cas[i]);
                     overwatch(commands[i], command, chan, nick, auth, args);
                 }
-                if (caseInsensitiveStringCompare(commands[i], "down"))
+                if (boost::iequals(commands[i], "down"))
                 {
                     down(chan, nick, auth, cas[i]);
                     overwatch(commands[i], command, chan, nick, auth, args);
                 }
-                if (caseInsensitiveStringCompare(commands[i], "resync"))
+                if (boost::iequals(commands[i], "resync"))
                 {
                     //if (nick isin chan || C->GetAccess(chan, auth) > 0 || U->GetGod() > 0)
                     resync(chan, nick, auth, cas[i]);
                     overwatch(commands[i], command, chan, nick, auth, args);
                 }
-                if (caseInsensitiveStringCompare(commands[i], "access"))
+                if (boost::iequals(commands[i], "access"))
                 {
                     if (chantrigger == 0)
                     {
@@ -170,7 +181,7 @@ void ChannelBot::ParsePrivmsg(std::vector<std::string> data, std::string command
                     }
                     overwatch(commands[i], command, chan, nick, auth, args);
                 }
-                if (caseInsensitiveStringCompare(commands[i], "myaccess"))
+                if (boost::iequals(commands[i], "myaccess"))
                 {
                     if (chantrigger == 0)
                     {
@@ -178,13 +189,13 @@ void ChannelBot::ParsePrivmsg(std::vector<std::string> data, std::string command
                     }
                     overwatch(commands[i], command, chan, nick, auth, args);
                 }
-                if (caseInsensitiveStringCompare(commands[i], "users"))
+                if (boost::iequals(commands[i], "users"))
                 {
                     //if (nick isin chan || C->GetAccess(chan, auth) > 0 || U->GetGod() > 0)
                     users(chan, nick, cas[i]);
                     overwatch(commands[i], command, chan, nick, auth, args);
                 }
-                if (caseInsensitiveStringCompare(commands[i], "ccommands"))
+                if (boost::iequals(commands[i], "ccommands"))
                 {
                     ccommands(nick, auth, cas[i]);
                     overwatch(commands[i], command, chan, nick, auth, args);
@@ -196,9 +207,9 @@ void ChannelBot::ParsePrivmsg(std::vector<std::string> data, std::string command
     {
         for (unsigned int i = 0; i < binds.size(); i++)
         {
-            if (caseInsensitiveStringCompare(command, binds[i]))
+            if (boost::iequals(command, binds[i]))
             {
-                if (caseInsensitiveStringCompare(commands[i], "access"))
+                if (boost::iequals(commands[i], "access"))
                 {
                     if (chantrigger == 0)
                     {
@@ -212,7 +223,7 @@ void ChannelBot::ParsePrivmsg(std::vector<std::string> data, std::string command
                     }
                     overwatch(commands[i], command, chan, nick, auth, args);
                 }
-                if (caseInsensitiveStringCompare(commands[i], "myaccess"))
+                if (boost::iequals(commands[i], "myaccess"))
                 {
                     if (chantrigger == 0)
                     {
@@ -223,7 +234,7 @@ void ChannelBot::ParsePrivmsg(std::vector<std::string> data, std::string command
                     }
                     overwatch(commands[i], command, chan, nick, auth, args);
                 }
-                if (caseInsensitiveStringCompare(commands[i], "deluser"))
+                if (boost::iequals(commands[i], "deluser"))
                 {
                     deluser(chan, nick, auth, args[0], U.GetAuth(args[0]), cas[i]);
                     overwatch(commands[i], command, chan, nick, auth, args);
@@ -235,29 +246,29 @@ void ChannelBot::ParsePrivmsg(std::vector<std::string> data, std::string command
     {
         for (unsigned int i = 0; i < binds.size(); i++)
         {
-            if (caseInsensitiveStringCompare(command, binds[i]))
+            if (boost::iequals(command, binds[i]))
             {
-                if (caseInsensitiveStringCompare(commands[i], "op"))
+                if (boost::iequals(commands[i], "op"))
                 {
                     op(chan, nick, auth, args[0], U.GetAuth(args[0]), cas[i]);
                     overwatch(commands[i], command, chan, nick, auth, args);
                 }
-                if (caseInsensitiveStringCompare(commands[i], "deop"))
+                if (boost::iequals(commands[i], "deop"))
                 {
                     deop(chan, nick, auth, args[0], U.GetAuth(args[0]), cas[i]);
                     overwatch(commands[i], command, chan, nick, auth, args);
                 }
-                if (caseInsensitiveStringCompare(commands[i], "voice"))
+                if (boost::iequals(commands[i], "voice"))
                 {
                     voice(chan, nick, auth, args[0], U.GetAuth(args[0]), cas[i]);
                     overwatch(commands[i], command, chan, nick, auth, args);
                 }
-                if (caseInsensitiveStringCompare(commands[i], "devoice"))
+                if (boost::iequals(commands[i], "devoice"))
                 {
                     devoice(chan, nick, auth, args[0], U.GetAuth(args[0]), cas[i]);
                     overwatch(commands[i], command, chan, nick, auth, args);
                 }
-                if (caseInsensitiveStringCompare(commands[i], "kickuser"))
+                if (boost::iequals(commands[i], "kickuser"))
                 {
                     string reason = "";
                     for (unsigned int j = 1; j < args.size()-1; j++)
@@ -278,14 +289,14 @@ void ChannelBot::ParsePrivmsg(std::vector<std::string> data, std::string command
     {
         for (unsigned int i = 0; i < binds.size(); i++)
         {
-            if (caseInsensitiveStringCompare(command, binds[i]))
+            if (boost::iequals(command, binds[i]))
             {
-                if (caseInsensitiveStringCompare(commands[i], "adduser"))
+                if (boost::iequals(commands[i], "adduser"))
                 {
                     adduser(chan, nick, auth, args[0], U.GetAuth(args[0]), convertString(args[1]), cas[i]);
                     overwatch(commands[i], command, chan, nick, auth, args);
                 }
-                if (caseInsensitiveStringCompare(commands[i], "changelevel"))
+                if (boost::iequals(commands[i], "changelevel"))
                 {
                     changelevel(chan, nick, auth, args[0], U.GetAuth(args[0]), convertString(args[1]), cas[i]);
                     overwatch(commands[i], command, chan, nick, auth, args);
@@ -337,7 +348,7 @@ void ChannelBot::adduser(string chan, string nick, string auth, string reqnick, 
 {
     Channels& C = Global::Instance().get_Channels();
     Users& U = Global::Instance().get_Users();
-    if (caseInsensitiveStringCompare(reqauth,"NULL") != true)
+    if (boost::iequals(reqauth,"NULL") != true)
     {
         int access = C.GetAccess(chan, auth);
         if (access > reqaccess || U.GetGod(nick) == 1)
@@ -363,7 +374,7 @@ void ChannelBot::deluser(string chan, string nick, string auth, string reqnick, 
 {
     Channels& C = Global::Instance().get_Channels();
     Users& U = Global::Instance().get_Users();
-    if (caseInsensitiveStringCompare(reqauth,"NULL") != true)
+    if (boost::iequals(reqauth,"NULL") != true)
     {
         int access = C.GetAccess(chan, auth);
         int tmpaccess = C.GetAccess(chan, reqauth);
@@ -391,7 +402,7 @@ void ChannelBot::changelevel(string chan, string nick, string auth, string reqni
 {
     Channels& C = Global::Instance().get_Channels();
     Users& U = Global::Instance().get_Users();
-    if (caseInsensitiveStringCompare(reqauth,"NULL") != true)
+    if (boost::iequals(reqauth,"NULL") != true)
     {
         int oldaccess = C.GetAccess(chan, reqauth);
         int access = C.GetAccess(chan, auth);
@@ -418,7 +429,7 @@ void ChannelBot::op(string chan, string nick, string auth, string reqnick, strin
     int access = C.GetAccess(chan, auth);
     if (access >= C.GetGiveops(chan))
     {
-        if (caseInsensitiveStringCompare(reqauth,"NULL") != true)
+        if (boost::iequals(reqauth,"NULL") != true)
         {
             int tmpaccess = C.GetAccess(chan, reqauth);
             string sqlstring;
@@ -446,7 +457,7 @@ void ChannelBot::deop(string chan, string nick, string auth, string reqnick, str
     int access = C.GetAccess(chan, auth);
     if (access >= C.GetGiveops(chan))
     {
-        if (caseInsensitiveStringCompare(reqauth,"NULL") != true)
+        if (boost::iequals(reqauth,"NULL") != true)
         {
             int tmpaccess = C.GetAccess(chan, reqauth);
             string sqlstring;
@@ -474,7 +485,7 @@ void ChannelBot::voice(string chan, string nick, string auth, string reqnick, st
     int access = C.GetAccess(chan, auth);
     if (access >= C.GetGiveops(chan))
     {
-        if (caseInsensitiveStringCompare(reqauth,"NULL") != true)
+        if (boost::iequals(reqauth,"NULL") != true)
         {
             int tmpaccess = C.GetAccess(chan, reqauth);
             string sqlstring;
@@ -502,7 +513,7 @@ void ChannelBot::devoice(string chan, string nick, string auth, string reqnick, 
     int access = C.GetAccess(chan, auth);
     if (access >= C.GetGiveops(chan))
     {
-        if (caseInsensitiveStringCompare(reqauth,"NULL") != true)
+        if (boost::iequals(reqauth,"NULL") != true)
         {
             int tmpaccess = C.GetAccess(chan, reqauth);
             string sqlstring;
@@ -566,7 +577,7 @@ void ChannelBot::kickuser(string chan, string nick, string auth, string reqnick,
 {
     Channels& C = Global::Instance().get_Channels();
     Users& U = Global::Instance().get_Users();
-    if (caseInsensitiveStringCompare(reqauth,"NULL") != true)
+    if (boost::iequals(reqauth,"NULL") != true)
     {
         int access = C.GetAccess(chan, auth);
         int tmpaccess = C.GetAccess(chan, reqauth);
@@ -795,7 +806,8 @@ void ChannelBot::JOIN(vector<string> data)
 {
     std::string botnick = Global::Instance().get_BotNick();
     Users& U = Global::Instance().get_Users();
-    vector<string> chan = Split(data[2], ":",true,true);
+    vector<string> chan;
+    boost::split( chan, data[2], boost::is_any_of(":"), boost::token_compress_on );
     string nick = HostmaskToNick(data);
     if (nick == botnick)
     {
