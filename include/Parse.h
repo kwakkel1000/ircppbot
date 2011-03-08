@@ -101,7 +101,6 @@ private:
     boost::shared_ptr<boost::thread> raw_parse_thread;
     boost::shared_ptr<boost::thread> privmsg_parse_thread;
     boost::shared_ptr<boost::thread> timer_thread;
-    boost::shared_ptr<boost::thread> user_thread;
     vector< boost::shared_ptr<boost::thread> > module_thread_vector;
 };
 

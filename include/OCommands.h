@@ -1,8 +1,9 @@
-#ifndef Tran_OCommands_h
-#define Tran_OCommands_h
+#ifndef OCommands_h
+#define OCommands_h
 
 #include "ModuleInterface.h"
 #include "ModuleBase.h"
+#include "Data.h"
 #include <iostream>
 #include <algorithm>
 #include <string>
@@ -10,19 +11,25 @@
 
 using namespace std;
 
+class Data;
 class OCommands : public ModuleBase
 {
 public:
     OCommands();
     ~OCommands();
-    void threadloop();
-    void stopthreadloop();
+    void read();
+    void stop();
     void Init();
     void timerrun();
 
 private:
+
+    Data * D;
     void BindInit();
 
+    //void parse_raw();
+    void parse_privmsg();
+    void ParseData(std::vector< std::string > data);
     void ParsePrivmsg(std::vector<std::string> data, std::string command, std::string chan, std::vector< std::string > args, int chantrigger);
 
 
@@ -55,12 +62,12 @@ private:
     vector<int> cas;
 
 
-    boost::condition_variable_any parse_wait_condition;
     boost::mutex parse_mutex;
-    bool data_ready;
-    bool runthreadloop;
+    bool run;
     //vector<string> Data;
+    //boost::shared_ptr<boost::thread> raw_parse_thread;
+    boost::shared_ptr<boost::thread> privmsg_parse_thread;
 };
 
-#endif // Tran_OCommands_h
+#endif // OCommands_h
 

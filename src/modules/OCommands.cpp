@@ -1,4 +1,5 @@
 #include "../../include/OCommands.h"
+#include "../../include/Global.h"
 #include <boost/algorithm/string.hpp>
 
 extern "C" ModuleInterface* create()
@@ -17,15 +18,17 @@ OCommands::OCommands()
 
 OCommands::~OCommands()
 {
-    stopthreadloop();
+    stop();
+	Global::Instance().get_IrcData().DelConsumer(D);
+    delete D;
 }
 
 void OCommands::Init()
 {
-    D->Init(true, false, false, true);
-    ID->AddConsumer(D);
+    D = new Data();
+    D->Init(false, false, false, true);
+    Global::Instance().get_IrcData().AddConsumer(D);
     BindInit();
-    runthreadloop = true;
 }
 
 void OCommands::BindInit()
@@ -59,50 +62,44 @@ void OCommands::BindInit()
     }
 }
 
-void OCommands::stopthreadloop()
+void OCommands::stop()
 {
-    runthreadloop = false;
-    cout << "notify" << endl;
-    parse_wait_condition.notify_one();
+    run = false;
+    privmsg_parse_thread->join();
 }
 
-void OCommands::threadloop()
+void OCommands::read()
 {
-    std::vector< std::string > raw_result;
-    std::vector< std::string > privmsg_result;
-    while (runthreadloop)
+    run = true;
+    assert(!privmsg_parse_thread);
+    privmsg_parse_thread = boost::shared_ptr<boost::thread>(new boost::thread(boost::bind(&OCommands::parse_privmsg, this)));
+}
+
+void OCommands::parse_privmsg()
+{
+    std::vector< std::string > data;
+    while(run)
     {
-        raw_result = D->GetRawQueue();
-        privmsg_result = D->GetPrivmsgQueue();
-        if (raw_result.size() >= 4)
-        {
-            if (raw_result[1] == "001")   //welcome
-            {
-                botnick = raw_result[2];
-            }
-            if (raw_result[1] == "PRIVMSG")   //PRIVMSG
-            {
-                PRIVMSG(raw_result);
-            }
-        }
-        //PRIVMSG(privmsg_result);
+        data = D->GetPrivmsgQueue();
+        PRIVMSG(data);
     }
 }
 
 void OCommands::ParsePrivmsg(std::vector<std::string> data, std::string command, std::string chan, std::vector< std::string > args, int chantrigger)
 {
     cout << "OCommands" << endl;
+    Users& U = Global::Instance().get_Users();
     string nick = HostmaskToNick(data);
-    string auth = U->GetAuth(nick);
+    string auth = U.GetAuth(nick);
     if (args.size() == 0)
     {
         if (boost::iequals(command,"debug"))
         {
-            U->Debug();
-            C->Debug();
+            U.Debug();
+            //C->Debug();
         }
 
-        if (U->GetGod(nick) == 1)
+        if (U.GetGod(nick) == 1)
         {
             for (unsigned int i = 0; i < binds.size(); i++)
             {
@@ -141,27 +138,27 @@ void OCommands::ParsePrivmsg(std::vector<std::string> data, std::string command,
             {
                 if (boost::iequals(commands[i], "delouser"))
                 {
-                    if (U->GetGod(nick) == 1)
+                    if (U.GetGod(nick) == 1)
                     {
-                        delouser(nick, auth, args[0], U->GetAuth(args[0]), oas[i]);
+                        delouser(nick, auth, args[0], U.GetAuth(args[0]), oas[i]);
                         overwatch(commands[i], command, chan, nick, auth, args);
                     }
                     else
                     {
-                        string returnstring = "NOTICE " + nick + " :" + irc_reply("need_god", U->GetLanguage(nick)) + "\r\n";
+                        string returnstring = "NOTICE " + nick + " :" + irc_reply("need_god", U.GetLanguage(nick)) + "\r\n";
                         Send(returnstring);
                     }
                 }
                 if (boost::iequals(commands[i], "delchannel"))
                 {
-                    if (U->GetGod(nick) == 1)
+                    if (U.GetGod(nick) == 1)
                     {
                         delchannel(chan, nick, auth, args[0], oas[i]);
                         overwatch(commands[i], command, chan, nick, auth, args);
                     }
                     else
                     {
-                        string returnstring = "NOTICE " + nick + " :" + irc_reply("need_god", U->GetLanguage(nick)) + "\r\n";
+                        string returnstring = "NOTICE " + nick + " :" + irc_reply("need_god", U.GetLanguage(nick)) + "\r\n";
                         Send(returnstring);
                     }
                 }
@@ -176,7 +173,7 @@ void OCommands::ParsePrivmsg(std::vector<std::string> data, std::string command,
             {
                 if (boost::iequals(commands[i], "say"))
                 {
-                    if (U->GetGod(nick) == 1)
+                    if (U.GetGod(nick) == 1)
                     {
                         string saystring;
                         for (unsigned int j = 0; j < args.size()-1; j++)
@@ -192,13 +189,13 @@ void OCommands::ParsePrivmsg(std::vector<std::string> data, std::string command,
                     }
                     else
                     {
-                        string returnstring = "NOTICE " + nick + " :" + irc_reply("need_god", U->GetLanguage(nick)) + "\r\n";
+                        string returnstring = "NOTICE " + nick + " :" + irc_reply("need_god", U.GetLanguage(nick)) + "\r\n";
                         Send(returnstring);
                     }
                 }
                 if (boost::iequals(commands[i], "raw"))
                 {
-                    if (U->GetGod(nick) == 1)
+                    if (U.GetGod(nick) == 1)
                     {
                         string dostring;
                         for (unsigned int j = 0; j < args.size()-1; j++)
@@ -214,7 +211,7 @@ void OCommands::ParsePrivmsg(std::vector<std::string> data, std::string command,
                     }
                     else
                     {
-                        string returnstring = "NOTICE " + nick + " :" + irc_reply("need_god", U->GetLanguage(nick)) + "\r\n";
+                        string returnstring = "NOTICE " + nick + " :" + irc_reply("need_god", U.GetLanguage(nick)) + "\r\n";
                         Send(returnstring);
                     }
                 }
@@ -229,66 +226,66 @@ void OCommands::ParsePrivmsg(std::vector<std::string> data, std::string command,
             {
                 if (boost::iequals(commands[i], "addouser"))
                 {
-                    if (U->GetGod(nick) == 1)
+                    if (U.GetGod(nick) == 1)
                     {
-                        addouser(nick, auth, args[0], U->GetAuth(args[0]), convertString(args[1]), oas[i]);
+                        addouser(nick, auth, args[0], U.GetAuth(args[0]), convertString(args[1]), oas[i]);
                         overwatch(commands[i], command, chan, nick, auth, args);
                     }
                     else
                     {
-                        string returnstring = "NOTICE " + nick + " :" + irc_reply("need_god", U->GetLanguage(nick)) + "\r\n";
+                        string returnstring = "NOTICE " + nick + " :" + irc_reply("need_god", U.GetLanguage(nick)) + "\r\n";
                         Send(returnstring);
                     }
                 }
                 if (boost::iequals(commands[i], "changeolevel"))
                 {
-                    if (U->GetGod(nick) == 1)
+                    if (U.GetGod(nick) == 1)
                     {
-                        changeolevel(nick, auth, args[0], U->GetAuth(args[0]), convertString(args[1]),oas[i]);
+                        changeolevel(nick, auth, args[0], U.GetAuth(args[0]), convertString(args[1]),oas[i]);
                         overwatch(commands[i], command, chan, nick, auth, args);
                     }
                     else
                     {
-                        string returnstring = "NOTICE " + nick + " :" + irc_reply("need_god", U->GetLanguage(nick)) + "\r\n";
+                        string returnstring = "NOTICE " + nick + " :" + irc_reply("need_god", U.GetLanguage(nick)) + "\r\n";
                         Send(returnstring);
                     }
                 }
                 if (boost::iequals(commands[i], "delobind"))
                 {
-                    if (U->GetGod(nick) == 1)
+                    if (U.GetGod(nick) == 1)
                     {
                         delobind(nick, auth, args[0], args[1], oas[i]);
                         overwatch(commands[i], command, chan, nick, auth, args);
                     }
                     else
                     {
-                        string returnstring = "NOTICE " + nick + " :" + irc_reply("need_god", U->GetLanguage(nick)) + "\r\n";
+                        string returnstring = "NOTICE " + nick + " :" + irc_reply("need_god", U.GetLanguage(nick)) + "\r\n";
                         Send(returnstring);
                     }
                 }
                 if (boost::iequals(commands[i], "delbind"))
                 {
-                    if (U->GetGod(nick) == 1)
+                    if (U.GetGod(nick) == 1)
                     {
                         delbind(nick, auth, args[0], args[1], oas[i]);
                         overwatch(commands[i], command, chan, nick, auth, args);
                     }
                     else
                     {
-                        string returnstring = "NOTICE " + nick + " :" + irc_reply("need_god", U->GetLanguage(nick)) + "\r\n";
+                        string returnstring = "NOTICE " + nick + " :" + irc_reply("need_god", U.GetLanguage(nick)) + "\r\n";
                         Send(returnstring);
                     }
                 }
                 if (boost::iequals(commands[i], "addchannel"))
                 {
-                    if (U->GetGod(nick) == 1)
+                    if (U.GetGod(nick) == 1)
                     {
-                        addchannel(chan, nick, auth, args[0], args[1], U->GetAuth(args[1]), oas[i]);
+                        addchannel(chan, nick, auth, args[0], args[1], U.GetAuth(args[1]), oas[i]);
                         overwatch(commands[i], command, chan, nick, auth, args);
                     }
                     else
                     {
-                        string returnstring = "NOTICE " + nick + " :" + irc_reply("need_god", U->GetLanguage(nick)) + "\r\n";
+                        string returnstring = "NOTICE " + nick + " :" + irc_reply("need_god", U.GetLanguage(nick)) + "\r\n";
                         Send(returnstring);
                     }
                 }
@@ -303,27 +300,27 @@ void OCommands::ParsePrivmsg(std::vector<std::string> data, std::string command,
             {
                 if (boost::iequals(commands[i], "addobind"))
                 {
-                    if (U->GetGod(nick) == 1)
+                    if (U.GetGod(nick) == 1)
                     {
                         addobind(nick, auth, args[0], args[1], convertString(args[2]), oas[i]);
                         overwatch(commands[i], command, chan, nick, auth, args);
                     }
                     else
                     {
-                        string returnstring = "NOTICE " + nick + " :" + irc_reply("need_god", U->GetLanguage(nick)) + "\r\n";
+                        string returnstring = "NOTICE " + nick + " :" + irc_reply("need_god", U.GetLanguage(nick)) + "\r\n";
                         Send(returnstring);
                     }
                 }
                 if (boost::iequals(commands[i], "addbind"))
                 {
-                    if (U->GetGod(nick) == 1)
+                    if (U.GetGod(nick) == 1)
                     {
                         addbind(nick, auth, args[0], args[1], convertString(args[2]), oas[i]);
                         overwatch(commands[i], command, chan, nick, auth, args);
                     }
                     else
                     {
-                        string returnstring = "NOTICE " + nick + " :" + irc_reply("need_god", U->GetLanguage(nick)) + "\r\n";
+                        string returnstring = "NOTICE " + nick + " :" + irc_reply("need_god", U.GetLanguage(nick)) + "\r\n";
                         Send(returnstring);
                     }
                 }
@@ -334,8 +331,12 @@ void OCommands::ParsePrivmsg(std::vector<std::string> data, std::string command,
 
 void OCommands::overwatch(string bind, string command, string chan, string nick, string auth, vector<string> args)
 {
-    string debugstring = "PRIVMSG " + debugchannel + " :[" + nick + ":" + auth + "] [" + chan + ":" + convertInt(C->GetAccess(chan, auth)) + "] ";
-    if (U->GetGod(nick) == 1)
+    Users& U = Global::Instance().get_Users();
+    Channels& C = Global::Instance().get_Channels();
+    ConfigReader& CR = Global::Instance().get_ConfigReader();
+    std::string debugchannel = CR.GetString("debugchannel");
+    string debugstring = "PRIVMSG " + debugchannel + " :[" + nick + ":" + auth + "] [" + chan + ":" + convertInt(C.GetAccess(chan, auth)) + "] ";
+    if (U.GetGod(nick) == 1)
     {
         debugstring = debugstring + "[G] ";
     }
@@ -351,42 +352,43 @@ void OCommands::overwatch(string bind, string command, string chan, string nick,
 
 void OCommands::god(string nick, string auth, int oa)
 {
+    Users& U = Global::Instance().get_Users();
     string returnstring;
-    if (U->GetGod(nick) > 0)
+    if (U.GetGod(nick) > 0)
     {
-        vector<string> nicks = U->GetNicks(auth);
+        vector<string> nicks = U.GetNicks(auth);
         for (unsigned int i = 0; i < nicks.size(); i++)
         {
             if (nicks[i] != "NULL")
             {
-                U->SetGod(nicks[i], 0);
+                U.SetGod(nicks[i], 0);
             }
         }
         string sqlstring = "UPDATE auth SET god = '0' WHERE auth = '" + auth + "';";!
         RawSql(sqlstring);
-        returnstring = "NOTICE " + nick + " :" + irc_reply("god_disabled", U->GetLanguage(nick)) + "\r\n";
+        returnstring = "NOTICE " + nick + " :" + irc_reply("god_disabled", U.GetLanguage(nick)) + "\r\n";
         Send(returnstring);
     }
     else
     {
-        if (U->GetOaccess(auth) >= oa)
+        if (U.GetOaccess(auth) >= oa)
         {
-            vector<string> nicks = U->GetNicks(auth);
+            vector<string> nicks = U.GetNicks(auth);
             for (unsigned int i = 0; i < nicks.size(); i++)
             {
                 if (nicks[i] != "NULL")
                 {
-                    U->SetGod(nicks[i], 1);
+                    U.SetGod(nicks[i], 1);
                 }
             }
             string sqlstring = "UPDATE auth SET god = '1' WHERE auth = '" + auth + "';";
             RawSql(sqlstring);
-            returnstring = "NOTICE " + nick + " :" + irc_reply("god_enabled", U->GetLanguage(nick)) + "\r\n";
+            returnstring = "NOTICE " + nick + " :" + irc_reply("god_enabled", U.GetLanguage(nick)) + "\r\n";
             Send(returnstring);
         }
         else
         {
-            returnstring = "NOTICE " + nick + " :" + irc_reply("need_oaccess", U->GetLanguage(nick)) + "\r\n";
+            returnstring = "NOTICE " + nick + " :" + irc_reply("need_oaccess", U.GetLanguage(nick)) + "\r\n";
             Send(returnstring);
         }
     }
@@ -394,56 +396,60 @@ void OCommands::god(string nick, string auth, int oa)
 
 void OCommands::say(string chan, string nick, string auth, string saystring, int oa)
 {
+    Users& U = Global::Instance().get_Users();
     string returnstring;
-    int oaccess = U->GetOaccess(nick);
+    int oaccess = U.GetOaccess(nick);
     cout << convertInt(oaccess) << endl;
     if (oaccess >= oa)
     {
         string returnstr = "PRIVMSG " + chan + " :" + saystring + "\r\n";
         Send(returnstr);
-        returnstring = "NOTICE " + nick + " :" + irc_reply("say", U->GetLanguage(nick)) + "\r\n";
+        returnstring = "NOTICE " + nick + " :" + irc_reply("say", U.GetLanguage(nick)) + "\r\n";
         Send(returnstring);
     }
     else
     {
-        returnstring = "NOTICE " + nick + " :" + irc_reply("need_oaccess", U->GetLanguage(nick)) + "\r\n";
+        returnstring = "NOTICE " + nick + " :" + irc_reply("need_oaccess", U.GetLanguage(nick)) + "\r\n";
         Send(returnstring);
     }
 }
 
 void OCommands::raw(string nick, string auth, string dostring, int oa)
 {
+    Users& U = Global::Instance().get_Users();
     string returnstring;
-    int oaccess = U->GetOaccess(nick);
+    int oaccess = U.GetOaccess(nick);
     cout << convertInt(oaccess) << endl;
     if (oaccess >= oa)
     {
         string returnstr = dostring + "\r\n";
         Send(returnstr);
-        returnstring = "NOTICE " + nick + " :" + irc_reply("raw", U->GetLanguage(nick)) + "\r\n";
+        returnstring = "NOTICE " + nick + " :" + irc_reply("raw", U.GetLanguage(nick)) + "\r\n";
         Send(returnstring);
     }
     else
     {
-        returnstring = "NOTICE " + nick + " :" + irc_reply("need_oaccess", U->GetLanguage(nick)) + "\r\n";
+        returnstring = "NOTICE " + nick + " :" + irc_reply("need_oaccess", U.GetLanguage(nick)) + "\r\n";
         Send(returnstring);
     }
 }
 
 void OCommands::addchannel(string chan, string nick, string auth, string reqchan, string reqnick, string reqauth, int oa)
 {
+    Users& U = Global::Instance().get_Users();
+    Channels& C = Global::Instance().get_Channels();
     string returnstring;
     if (boost::iequals(reqauth,"NULL") != true)
     {
-        int oaccess = U->GetOaccess(nick);
+        int oaccess = U.GetOaccess(nick);
         cout << convertInt(oaccess) << endl;
         if (oaccess >= oa)
         {
-            if (C->GetCid(reqchan) == -1)
+            if (C.GetCid(reqchan) == -1)
             {
                 string sqlstring = "INSERT into channels ( channel ) VALUES ( '" + reqchan + "' );";
                 RawSql(sqlstring);
-                int uid = U->GetUid(reqnick);
+                int uid = U.GetUid(reqnick);
                 int cid = -1;// = C->GetCid(reqchan);
                 vector< vector<string> > sql_result;
                 string sql_string = "select channels.id from channels where channels.channel = '" + reqchan + "';";
@@ -460,10 +466,10 @@ void OCommands::addchannel(string chan, string nick, string auth, string reqchan
                 }
                 string joinstr = "JOIN " + reqchan + "\r\n";
                 Send(joinstr);
-                C->AddChannel(reqchan);
+                C.AddChannel(reqchan);
                 string whostring = "WHO " + reqchan + "\r\n";
                 Send(whostring);
-                returnstring = "NOTICE " + nick + " :" + irc_reply("addchannel", U->GetLanguage(nick)) + "\r\n";
+                returnstring = "NOTICE " + nick + " :" + irc_reply("addchannel", U.GetLanguage(nick)) + "\r\n";
                 returnstring = irc_reply_replace(returnstring, "$nick$", nick);
                 returnstring = irc_reply_replace(returnstring, "$auth$", auth);
                 returnstring = irc_reply_replace(returnstring, "$regnick$", reqnick);
@@ -474,7 +480,7 @@ void OCommands::addchannel(string chan, string nick, string auth, string reqchan
         }
         else
         {
-            returnstring = "NOTICE " + nick + " :" + irc_reply("need_oaccess", U->GetLanguage(nick)) + "\r\n";
+            returnstring = "NOTICE " + nick + " :" + irc_reply("need_oaccess", U.GetLanguage(nick)) + "\r\n";
             Send(returnstring);
         }
     }
@@ -482,12 +488,14 @@ void OCommands::addchannel(string chan, string nick, string auth, string reqchan
 
 void OCommands::delchannel(string chan, string nick, string auth, string reqchan, int oa)
 {
+    Users& U = Global::Instance().get_Users();
+    Channels& C = Global::Instance().get_Channels();
     string returnstring;
-    int oaccess = U->GetOaccess(nick);
+    int oaccess = U.GetOaccess(nick);
     cout << convertInt(oaccess) << endl;
     if (oaccess >= oa)
     {
-        int cid = C->GetCid(reqchan);
+        int cid = C.GetCid(reqchan);
         string sqlstring;
         if (cid > -1)
         {
@@ -495,42 +503,43 @@ void OCommands::delchannel(string chan, string nick, string auth, string reqchan
             RawSql(sqlstring);
             sqlstring = "DELETE from channels where id = '" + convertInt(cid) + "';";
             RawSql(sqlstring);
-            vector<string> auths = C->GetAuths(reqchan);
+            vector<string> auths = C.GetAuths(reqchan);
             for (unsigned int i = 0; i < auths.size(); i++)
             {
-                C->DelAuth(reqchan, auths[0]);
+                C.DelAuth(reqchan, auths[0]);
             }
-            vector<string> nicks = C->GetNicks(reqchan);
+            vector<string> nicks = C.GetNicks(reqchan);
             for (unsigned int i = 0; i < auths.size(); i++)
             {
-                U->DelChannel(nicks[0], reqchan);
+                U.DelChannel(nicks[0], reqchan);
             }
-            C->DelChannel(reqchan);
+            C.DelChannel(reqchan);
             string partstr = "PART " + reqchan + "\r\n";
             Send(partstr);
-            returnstring = "NOTICE " + nick + " :" + irc_reply("delchannel", U->GetLanguage(nick)) + "\r\n";
+            returnstring = "NOTICE " + nick + " :" + irc_reply("delchannel", U.GetLanguage(nick)) + "\r\n";
             returnstring = irc_reply_replace(returnstring, "$channel$", reqchan);
             Send(returnstring);
         }
         else
         {
-            returnstring = "NOTICE " + nick + " :" + irc_reply("delchannel_nochannel", U->GetLanguage(nick)) + "\r\n";
+            returnstring = "NOTICE " + nick + " :" + irc_reply("delchannel_nochannel", U.GetLanguage(nick)) + "\r\n";
             returnstring = irc_reply_replace(returnstring, "$channel$", reqchan);
             Send(returnstring);
         }
     }
     else
     {
-        returnstring = "NOTICE " + nick + " :" + irc_reply("need_oaccess", U->GetLanguage(nick)) + "\r\n";
+        returnstring = "NOTICE " + nick + " :" + irc_reply("need_oaccess", U.GetLanguage(nick)) + "\r\n";
         Send(returnstring);
     }
 }
 
 void OCommands::addobind(string nick, string auth, string command, string newbind, int reqaccess, int oa)
 {
+    Users& U = Global::Instance().get_Users();
     string returnstring;
     bool exists = false;
-    int oaccess = U->GetOaccess(nick);
+    int oaccess = U.GetOaccess(nick);
     cout << convertInt(oaccess) << endl;
     if (oaccess >= oa)
     {
@@ -539,7 +548,7 @@ void OCommands::addobind(string nick, string auth, string command, string newbin
             if (boost::iequals(binds[i], newbind) == true)
             {
                 exists = true;
-                returnstring = "NOTICE " + nick + " :" + irc_reply("addobind_exists", U->GetLanguage(nick)) + "\r\n";
+                returnstring = "NOTICE " + nick + " :" + irc_reply("addobind_exists", U.GetLanguage(nick)) + "\r\n";
                 returnstring = irc_reply_replace(returnstring, "$bind$", newbind);
                 returnstring = irc_reply_replace(returnstring, "$command$", command);
                 Send(returnstring);
@@ -552,7 +561,7 @@ void OCommands::addobind(string nick, string auth, string command, string newbin
             oas.push_back(reqaccess);
             string sqlstring = "INSERT into ocommands ( command, bind, oaccess) VALUES ( '" + command + "', '" + newbind + "', '" + convertInt(reqaccess) + "' );";
             RawSql(sqlstring);
-            returnstring = "NOTICE " + nick + " :" + irc_reply("addobind", U->GetLanguage(nick)) + "\r\n";
+            returnstring = "NOTICE " + nick + " :" + irc_reply("addobind", U.GetLanguage(nick)) + "\r\n";
             returnstring = irc_reply_replace(returnstring, "$bind$", newbind);
             returnstring = irc_reply_replace(returnstring, "$command$", command);
             Send(returnstring);
@@ -560,15 +569,16 @@ void OCommands::addobind(string nick, string auth, string command, string newbin
     }
     else
     {
-        returnstring = "NOTICE " + nick + " :" + irc_reply("need_oaccess", U->GetLanguage(nick)) + "\r\n";
+        returnstring = "NOTICE " + nick + " :" + irc_reply("need_oaccess", U.GetLanguage(nick)) + "\r\n";
         Send(returnstring);
     }
 }
 
 void OCommands::delobind(string nick, string auth, string command, string bind, int oa)
 {
+    Users& U = Global::Instance().get_Users();
     string returnstring;
-    int oaccess = U->GetOaccess(nick);
+    int oaccess = U.GetOaccess(nick);
     cout << convertInt(oaccess) << endl;
     if (oaccess >= oa)
     {
@@ -583,7 +593,7 @@ void OCommands::delobind(string nick, string auth, string command, string bind, 
                 string sqlstring = "DELETE from ocommands where bind = '" + bind + "' AND command = '" + command + "';";
                 RawSql(sqlstring);
                 deleted = true;
-                returnstring = "NOTICE " + nick + " :" + irc_reply("delobind", U->GetLanguage(nick)) + "\r\n";
+                returnstring = "NOTICE " + nick + " :" + irc_reply("delobind", U.GetLanguage(nick)) + "\r\n";
                 returnstring = irc_reply_replace(returnstring, "$bind$", bind);
                 returnstring = irc_reply_replace(returnstring, "$command$", command);
                 Send(returnstring);
@@ -591,7 +601,7 @@ void OCommands::delobind(string nick, string auth, string command, string bind, 
         }
         if (!deleted)
         {
-            returnstring = "NOTICE " + nick + " :" + irc_reply("delobind_nobind", U->GetLanguage(nick)) + "\r\n";
+            returnstring = "NOTICE " + nick + " :" + irc_reply("delobind_nobind", U.GetLanguage(nick)) + "\r\n";
             returnstring = irc_reply_replace(returnstring, "$bind$", bind);
             returnstring = irc_reply_replace(returnstring, "$command$", command);
             Send(returnstring);
@@ -599,16 +609,17 @@ void OCommands::delobind(string nick, string auth, string command, string bind, 
     }
     else
     {
-        returnstring = "NOTICE " + nick + " :" + irc_reply("need_oaccess", U->GetLanguage(nick)) + "\r\n";
+        returnstring = "NOTICE " + nick + " :" + irc_reply("need_oaccess", U.GetLanguage(nick)) + "\r\n";
         Send(returnstring);
     }
 }
 
 void OCommands::addbind(string nick, string auth, string command, string newbind, int reqaccess, int oa)
 {
+    Users& U = Global::Instance().get_Users();
     string returnstring;
     bool exists = false;
-    int oaccess = U->GetOaccess(nick);
+    int oaccess = U.GetOaccess(nick);
     cout << convertInt(oaccess) << endl;
     if (oaccess >= oa)
     {
@@ -617,7 +628,7 @@ void OCommands::addbind(string nick, string auth, string command, string newbind
             if (boost::iequals(cbinds[i], newbind) == true)
             {
                 exists = true;
-                returnstring = "NOTICE " + nick + " :" + irc_reply("addbind_exists", U->GetLanguage(nick)) + "\r\n";
+                returnstring = "NOTICE " + nick + " :" + irc_reply("addbind_exists", U.GetLanguage(nick)) + "\r\n";
                 returnstring = irc_reply_replace(returnstring, "$bind$", newbind);
                 returnstring = irc_reply_replace(returnstring, "$command$", command);
                 Send(returnstring);
@@ -630,7 +641,7 @@ void OCommands::addbind(string nick, string auth, string command, string newbind
             cas.push_back(reqaccess);
             string sqlstring = "INSERT into commands ( command, bind, caccess) VALUES ( '" + command + "', '" + newbind + "', '" + convertInt(reqaccess) + "' );";
             RawSql(sqlstring);
-            returnstring = "NOTICE " + nick + " :" + irc_reply("addbind", U->GetLanguage(nick)) + "\r\n";
+            returnstring = "NOTICE " + nick + " :" + irc_reply("addbind", U.GetLanguage(nick)) + "\r\n";
             returnstring = irc_reply_replace(returnstring, "$bind$", newbind);
             returnstring = irc_reply_replace(returnstring, "$command$", command);
             Send(returnstring);
@@ -638,15 +649,16 @@ void OCommands::addbind(string nick, string auth, string command, string newbind
     }
     else
     {
-        returnstring = "NOTICE " + nick + " :" + irc_reply("need_oaccess", U->GetLanguage(nick)) + "\r\n";
+        returnstring = "NOTICE " + nick + " :" + irc_reply("need_oaccess", U.GetLanguage(nick)) + "\r\n";
         Send(returnstring);
     }
 }
 
 void OCommands::delbind(string nick, string auth, string command, string bind, int oa)
 {
+    Users& U = Global::Instance().get_Users();
     string returnstring;
-    int oaccess = U->GetOaccess(nick);
+    int oaccess = U.GetOaccess(nick);
     cout << convertInt(oaccess) << endl;
     if (oaccess >= oa)
     {
@@ -661,7 +673,7 @@ void OCommands::delbind(string nick, string auth, string command, string bind, i
                 string sqlstring = "DELETE from commands where bind = '" + bind + "' AND command = '" + command + "';";
                 RawSql(sqlstring);
                 deleted = true;
-                returnstring = "NOTICE " + nick + " :" + irc_reply("delbind", U->GetLanguage(nick)) + "\r\n";
+                returnstring = "NOTICE " + nick + " :" + irc_reply("delbind", U.GetLanguage(nick)) + "\r\n";
                 returnstring = irc_reply_replace(returnstring, "$bind$", bind);
                 returnstring = irc_reply_replace(returnstring, "$command$", command);
                 Send(returnstring);
@@ -669,7 +681,7 @@ void OCommands::delbind(string nick, string auth, string command, string bind, i
         }
         if (!deleted)
         {
-            returnstring = "NOTICE " + nick + " :" + irc_reply("delbind_nobind", U->GetLanguage(nick)) + "\r\n";
+            returnstring = "NOTICE " + nick + " :" + irc_reply("delbind_nobind", U.GetLanguage(nick)) + "\r\n";
             returnstring = irc_reply_replace(returnstring, "$bind$", bind);
             returnstring = irc_reply_replace(returnstring, "$command$", command);
             Send(returnstring);
@@ -677,7 +689,7 @@ void OCommands::delbind(string nick, string auth, string command, string bind, i
     }
     else
     {
-        returnstring = "NOTICE " + nick + " :" + irc_reply("need_oaccess", U->GetLanguage(nick)) + "\r\n";
+        returnstring = "NOTICE " + nick + " :" + irc_reply("need_oaccess", U.GetLanguage(nick)) + "\r\n";
         Send(returnstring);
     }
 }
@@ -686,16 +698,16 @@ void OCommands::addouser(string nick, string auth, string reqnick, string reqaut
 {/*
     if (boost::iequals(reqauth,"NULL") != true)
     {
-        if (U->GetOaccess(nick) >= addousera)
+        if (U.GetOaccess(nick) >= addousera)
         {
 
         }
         int access = C->GetAccess(chan, auth);
-        if (access > reqaccess || U->GetGod(nick) == 1)
+        if (access > reqaccess || U.GetGod(nick) == 1)
         {
             if (C->AddAuth(chan, reqauth))
             {
-                int uid = U->GetUid(reqnick);
+                int uid = U.GetUid(reqnick);
                 int cid = C->GetCid(chan);
                 if ((cid > -1) && (uid > -1) && (reqaccess > 0))
                 {
@@ -719,9 +731,9 @@ void OCommands::delouser(string nick, string auth, string reqnick, string reqaut
         string sqlstring;
         if (tmpaccess > 0)
         {
-            if (tmpaccess < access || U->GetGod(nick) == 1)
+            if (tmpaccess < access || U.GetGod(nick) == 1)
             {
-                int uid = U->GetUid(reqnick);
+                int uid = U.GetUid(reqnick);
                 int cid = C->GetCid(chan);
                 if ((cid > -1) && (uid > -1))
                 {
@@ -738,28 +750,29 @@ void OCommands::delouser(string nick, string auth, string reqnick, string reqaut
 
 void OCommands::changeolevel(string nick, string auth, string reqnick, string reqauth, int reqaccess, int oa)
 {
+    Users& U = Global::Instance().get_Users();
     string returnstring;
     if (boost::iequals(reqauth,"NULL") != true)
     {
-        if (U->GetOaccess(nick) >= oa)
+        if (U.GetOaccess(nick) >= oa)
         {
             string sqlstring = "UPDATE auth SET oaccess = '" + convertInt(reqaccess) + "' WHERE auth = '" + reqauth + "';";
             RawSql(sqlstring);
-            vector<string> nicks = U->GetNicks(reqauth);
+            vector<string> nicks = U.GetNicks(reqauth);
             for (unsigned int i = 0; i < nicks.size(); i++)
             {
                 if (nicks[i] != "NULL")
                 {
-                    U->SetOaccess(nicks[i], reqaccess);
+                    U.SetOaccess(nicks[i], reqaccess);
                     if (reqaccess < 1)
                     {
-                        U->SetGod(nicks[i], 0);
+                        U.SetGod(nicks[i], 0);
                         string sqlstring = "UPDATE auth SET god = '0' WHERE auth = '" + reqauth + "';";
                         RawSql(sqlstring);
                     }
                 }
             }
-            returnstring = "NOTICE " + nick + " :" + irc_reply("changeolevel", U->GetLanguage(nick)) + "\r\n";
+            returnstring = "NOTICE " + nick + " :" + irc_reply("changeolevel", U.GetLanguage(nick)) + "\r\n";
             returnstring = irc_reply_replace(returnstring, "$nick$", reqnick);
             returnstring = irc_reply_replace(returnstring, "$auth$", reqauth);
             returnstring = irc_reply_replace(returnstring, "$access$", convertInt(reqaccess));
@@ -767,7 +780,7 @@ void OCommands::changeolevel(string nick, string auth, string reqnick, string re
         }
         else
         {
-            returnstring = "NOTICE " + nick + " :" + irc_reply("need_oaccess", U->GetLanguage(nick)) + "\r\n";
+            returnstring = "NOTICE " + nick + " :" + irc_reply("need_oaccess", U.GetLanguage(nick)) + "\r\n";
             Send(returnstring);
         }
     }
@@ -792,14 +805,15 @@ void OCommands::ousers(string nick, int oa)
 
 void OCommands::ocommands(string nick, string auth, int oa)
 {
+    Users& U = Global::Instance().get_Users();
     string returnstring;
     if (boost::iequals(auth,"NULL") != true)
     {
-        if (U->GetOaccess(nick) >= oa)
+        if (U.GetOaccess(nick) >= oa)
         {
-            unsigned int length = U->GetWidth(nick);
-            unsigned int amount = U->GetWidthLength(nick);
-            string commandrpl = irc_reply("ocommands", U->GetLanguage(nick));
+            unsigned int length = U.GetWidth(nick);
+            unsigned int amount = U.GetWidthLength(nick);
+            string commandrpl = irc_reply("ocommands", U.GetLanguage(nick));
             returnstring = "NOTICE " + nick + " :";
             for (unsigned int l = 0; l < (((length * amount) / 2) - commandrpl.size()/2); l++)
             {

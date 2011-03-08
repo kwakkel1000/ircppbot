@@ -18,6 +18,7 @@ extern "C" void destroy(UserManagement* x)
 void Nickserv::stop()
 {
     run = false;
+    raw_parse_thread->join();
 }
 
 void Nickserv::read()
@@ -25,7 +26,6 @@ void Nickserv::read()
     run = true;
     assert(!raw_parse_thread);
     raw_parse_thread = boost::shared_ptr<boost::thread>(new boost::thread(boost::bind(&Nickserv::parse_raw, this)));
-    raw_parse_thread->join();
 }
 
 void Nickserv::parse_raw()

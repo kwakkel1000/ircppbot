@@ -52,6 +52,8 @@ void ChannelBot::Init()
 void ChannelBot::stop()
 {
     run = false;
+    raw_parse_thread->join();
+    privmsg_parse_thread->join();
 }
 
 void ChannelBot::read()
@@ -61,8 +63,6 @@ void ChannelBot::read()
     raw_parse_thread = boost::shared_ptr<boost::thread>(new boost::thread(boost::bind(&ChannelBot::parse_raw, this)));
     assert(!privmsg_parse_thread);
     privmsg_parse_thread = boost::shared_ptr<boost::thread>(new boost::thread(boost::bind(&ChannelBot::parse_privmsg, this)));
-    raw_parse_thread->join();
-    privmsg_parse_thread->join();
 }
 
 void ChannelBot::parse_raw()

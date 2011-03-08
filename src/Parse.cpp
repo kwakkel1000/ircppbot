@@ -113,8 +113,9 @@ void Parse::LoadAuthserv()
     // create an instance of the class
     umi = create_authserv();
     umi->Init();
-    assert(!user_thread);
-    user_thread = boost::shared_ptr<boost::thread>(new boost::thread(boost::bind(&Parse::LoadUserThreadLoop, this)));
+    umi->read();
+    /*assert(!user_thread);
+    user_thread = boost::shared_ptr<boost::thread>(new boost::thread(boost::bind(&Parse::LoadUserThreadLoop, this)));*/
 }
 
 void Parse::UnLoadAuthserv()
@@ -151,8 +152,9 @@ void Parse::LoadNickserv()
     // create an instance of the class
     umi = create_nickserv();
     umi->Init();
-    assert(!user_thread);
-    user_thread = boost::shared_ptr<boost::thread>(new boost::thread(boost::bind(&Parse::LoadUserThreadLoop, this)));
+    umi->read();
+    /*assert(!user_thread);
+    user_thread = boost::shared_ptr<boost::thread>(new boost::thread(boost::bind(&Parse::LoadUserThreadLoop, this)));*/
 }
 
 void Parse::UnLoadNickserv()

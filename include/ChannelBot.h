@@ -87,11 +87,7 @@ private:
     vector<string> binds;
     vector<int> cas;
 
-    bool caseInsensitiveStringCompare( const std::string& str1, const std::string& str2 );
-    vector<string> Split(const std::string&, const std::string&, bool, bool);
-
     boost::mutex parse_mutex;
-    bool data_ready;
     bool run;
     //vector<string> Data;
 
