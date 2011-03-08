@@ -93,5 +93,6 @@ std::vector< std::string > Data::GetPrivmsgQueue()
     }
     std::vector< std::string > temp = PrivmsgQueue.front();
     PrivmsgQueue.pop();
+    //std::cout << "GetPrivmsgQueue: " << temp[0] << std::endl;
     return temp;
 }

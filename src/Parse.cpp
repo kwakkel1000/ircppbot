@@ -9,19 +9,14 @@
 #include <boost/algorithm/string.hpp>
 
 
-Parse::Parse(std::string nick, IrcSocket *s, bool ns)
+Parse::Parse(IrcSocket *s, bool ns)
 {
     NS=ns;
-    S=s;
-    /*ID=id;
-    ID->init(S);*/
     Global& G = Global::Instance();
 	ConfigReader& reader = G.get_ConfigReader();
 
     D = new Data();
     D->Init(true, false, false, true);
-
-    G.set_BotNick(nick);
     G.set_Reply(new Reply());
     G.set_Users(new Users());
     G.set_Channels(new Channels());
@@ -29,7 +24,7 @@ Parse::Parse(std::string nick, IrcSocket *s, bool ns)
 
     G.get_Reply().Init(reader);
 
-    G.get_IrcData().init(S);
+    G.get_IrcData().init(s);
     G.get_IrcData().AddConsumer(D);
     G.get_IrcData().run();
     /*ID->
@@ -55,7 +50,6 @@ Parse::Parse(std::string nick, IrcSocket *s, bool ns)
     {
         LoadModule(loadmods[i]);
     }
-    botnick = nick;
     DBinit();
     if (NS)
     {
@@ -118,11 +112,9 @@ void Parse::LoadAuthserv()
     cout << "authserv Loaded" << endl;
     // create an instance of the class
     umi = create_authserv();
-    IrcData* ID = &Global::Instance().get_IrcData();
-    Users* U = &Global::Instance().get_Users();
-    Channels* C = &Global::Instance().get_Channels();
-	ConfigReader& reader = Global::Instance().get_ConfigReader();
-    umi->Init(botnick, S, U, C, reader, ID);
+    umi->Init();
+    assert(!user_thread);
+    user_thread = boost::shared_ptr<boost::thread>(new boost::thread(boost::bind(&Parse::LoadUserThreadLoop, this)));
 }
 
 void Parse::UnLoadAuthserv()
@@ -158,11 +150,9 @@ void Parse::LoadNickserv()
     cout << "nickserv Loaded" << endl;
     // create an instance of the class
     umi = create_nickserv();
-    IrcData* ID = &Global::Instance().get_IrcData();
-    Users* U = &Global::Instance().get_Users();
-    Channels* C = &Global::Instance().get_Channels();
-	ConfigReader& reader = Global::Instance().get_ConfigReader();
-    umi->Init(botnick, S, U, C, reader, ID);
+    umi->Init();
+    assert(!user_thread);
+    user_thread = boost::shared_ptr<boost::thread>(new boost::thread(boost::bind(&Parse::LoadUserThreadLoop, this)));
 }
 
 void Parse::UnLoadNickserv()
@@ -175,9 +165,14 @@ void Parse::UnLoadNickserv()
     cout << "nickserv UnLoaded" << endl;
 }
 
+void Parse::LoadUserThreadLoop()
+{
+    umi->read();
+}
+
 void Parse::LoadThreadLoop(int i)
 {
-    moduleinterfacevector[i]->threadloop();
+    moduleinterfacevector[i]->read();
 }
 
 bool Parse::LoadModule(string modulename)
@@ -218,7 +213,6 @@ bool Parse::LoadModule(string modulename)
         cout << "Module " << modulename << " Loaded" << endl;
         // create an instance of the class
         mi = create_module();
-        //mi->BaseInit(botnick, U, C, reader, ID, R);
         mi->Init();
         modulelist.push_back(modulename);
         modulevector.push_back(module);
@@ -259,7 +253,7 @@ bool Parse::UnLoadModule(string modulename)
     }
     if (modi >= 0)
     {
-        moduleinterfacevector[modi]->stopthreadloop();
+        moduleinterfacevector[modi]->stop();
         //module_thread_vector[modi]->join();
         module_thread_vector.erase(module_thread_vector.begin()+modi);
         destroyvector[modi](moduleinterfacevector[modi]);
@@ -300,30 +294,34 @@ bool Parse::UnLoadModuleId(unsigned int moduleid)
 
 void Parse::read()
 {
-    std::vector< std::string > raw_result;
-    std::vector< std::string > privmsg_result;
     run = true;
-    while (run)
+    assert(!raw_parse_thread);
+    raw_parse_thread = boost::shared_ptr<boost::thread>(new boost::thread(boost::bind(&Parse::parse_raw, this)));
+    assert(!privmsg_parse_thread);
+    privmsg_parse_thread = boost::shared_ptr<boost::thread>(new boost::thread(boost::bind(&Parse::parse_privmsg, this)));
+    raw_parse_thread->join();
+    privmsg_parse_thread->join();
+}
+
+void Parse::parse_raw()
+{
+    std::vector< std::string > data;
+    while(run)
     {
-        try
-        {
-            raw_result = D->GetRawQueue();
-            privmsg_result = D->GetPrivmsgQueue();
-            umi->ParseData(privmsg_result);
-            ParseData(privmsg_result);
-            //PRIVMSG(privmsg_result);
-        }
-        catch (string e)
-        {
-          std::cout << "Exception was caught:" << e << "\n";
-        }
+        data = D->GetRawQueue();
+        ParseData(data);
     }
 }
 
-/*void Parse::ModuleParse(int i, std::vector< std::string > result)
+void Parse::parse_privmsg()
 {
-    moduleinterfacevector[i]->ParseData(result);
-}*/
+    std::vector< std::string > data;
+    while(run)
+    {
+        data = D->GetPrivmsgQueue();
+        PRIVMSG(data);
+    }
+}
 
 void Parse::ParseData(std::vector< std::string > data)
 {
@@ -338,12 +336,7 @@ void Parse::ParseData(std::vector< std::string > data)
     {
         if (data[1] == "001")   //welcome
         {
-            botnick = data[2];
-            Global::Instance().set_BotNick(botnick);
-        }
-        if (data[1] == "PRIVMSG")   //PRIVMSG
-        {
-            PRIVMSG(data);
+            //Global::Instance().set_BotNick(data[2]);
         }
     }
 }
@@ -358,7 +351,6 @@ void Parse::PING(std::vector< std::string > data)
 void Parse::PRIVMSG(std::vector< std::string > data)
 {
     std::vector< std::string > args;
-    //vector<string> data3;
     std::string data3;
     size_t chanpos1;
     size_t chanpos2;
@@ -503,8 +495,8 @@ void Parse::PRIVMSG(std::vector< std::string > data)
             {
                 std::string returnstring = "PRIVMSG " + chan + " :stopping now\r\n";
                 Send(returnstring);
-                Global::Instance().set_Run(false);
-            	run = false;
+                //Global::Instance().set_Run(false);
+                //run = false;
             }
             if (boost::iequals(command,"restart"))
             {
@@ -512,7 +504,7 @@ void Parse::PRIVMSG(std::vector< std::string > data)
                 Send(returnstring);
                 //returnstring = "QUIT \r\n";
                 //Send(returnstring);
-            	run = false;
+                //run = false;
             }
             if (boost::iequals(command,"listmodules"))
             {
@@ -563,20 +555,23 @@ void Parse::PRIVMSG(std::vector< std::string > data)
             if (boost::iequals(command,"reload"))
             {
                 UnLoadModule(args[0]);
+                string returnstring = "NOTICE " + nick + " :" + args[0] + " unloading\r\n";
+                Send(returnstring);
                 LoadModule(args[0]);
+                returnstring = "NOTICE " + nick + " :" + args[0] + " loaded\r\n";
+                Send(returnstring);
             }
             if (boost::iequals(command,"load"))
             {
                 LoadModule(args[0]);
+                string returnstring = "NOTICE " + nick + " :" + args[0] + " loaded\r\n";
+                Send(returnstring);
             }
             if (boost::iequals(command,"unload"))
             {
-                /*for (int i = 0; i < thread_vector.size(); i++)
-                {
-                    thread_vector[i]->join();
-                }*/
                 UnLoadModule(args[0]);
-                //UnLoadModuleId(convertString(args[0]));
+                string returnstring = "NOTICE " + nick + " :" + args[0] + " unloading\r\n";
+                Send(returnstring);
             }
         }
     }

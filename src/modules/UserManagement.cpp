@@ -4,6 +4,9 @@
 #include "../../include/Users.h"
 #include "../../include/Channels.h"
 #include "../../include/Database.h"
+#include "../../include/Global.h"
+
+#include <boost/algorithm/string.hpp>
 #include <iostream>
 #include <algorithm>
 #include <sstream>
@@ -36,17 +39,11 @@ UserManagement::UserManagement()
 
 }
 
-void UserManagement::Init(string nick, IrcSocket *s, Users *u, Channels *c, ConfigReader& reader, IrcData *id)
+void UserManagement::Init()
 {
-    hostname_str = reader.GetString("hostname");
-    databasename_str = reader.GetString("databasename");
-    username_str = reader.GetString("username");
-    pass_str = reader.GetString("password");
-
-    botnick = nick;
-    S=s;
-    U=u;
-    C=c;
+    D = new Data();
+    D->Init(true, false, false, false);
+    Global::Instance().get_IrcData().AddConsumer(D);
 }
 
 void UserManagement::WHO(vector<string> data)
@@ -55,73 +52,75 @@ void UserManagement::WHO(vector<string> data)
     string nick = data[7];
     string modes = data[8];
 
-    C->AddNick(chan, nick);
-    bool added = U->AddUser(nick);
-    U->AddChannel(nick, chan);
+    Users& U = Global::Instance().get_Users();
+    Channels& C = Global::Instance().get_Channels();
+    C.AddNick(chan, nick);
+    bool added = U.AddUser(nick);
+    U.AddChannel(nick, chan);
 
 	size_t Gonepos = modes.find(gonechar);
     if (Gonepos != string::npos)
     {
-        U->SetGone(nick, true);
+        U.SetGone(nick, true);
     }
 
     size_t Herepos = modes.find(herechar);
 	if (Herepos != string::npos)
     {
-        U->SetGone(nick, false);
+        U.SetGone(nick, false);
     }
 
     size_t Ownerpos = modes.find(ownerwhochar);
 	if (Ownerpos != string::npos)
     {
-        C->SetOp(chan, nick, true);
+        C.SetOp(chan, nick, true);
     }
 
     size_t Adminpos = modes.find(adminwhochar);
 	if (Adminpos != string::npos)
     {
-        C->SetOp(chan, nick, true);
+        C.SetOp(chan, nick, true);
     }
 
     size_t Oppos = modes.find(opwhochar);
 	if (Oppos != string::npos)
     {
-        C->SetOp(chan, nick, true);
+        C.SetOp(chan, nick, true);
     }
 
     size_t Halfoppos = modes.find(halfopwhochar);
 	if (Halfoppos != string::npos)
     {
-        C->SetVoice(chan, nick, true);
+        C.SetVoice(chan, nick, true);
     }
 
     size_t Voicepos = modes.find(voicewhochar);
 	if (Voicepos != string::npos)
     {
-        C->SetVoice(chan, nick, true);
+        C.SetVoice(chan, nick, true);
     }
 
     size_t Xpos = modes.find("x");
 	if (Xpos != string::npos)
     {
-        U->SetX(nick, true);
+        U.SetX(nick, true);
     }
 
     size_t Dpos = modes.find(botchar);
 	if (Dpos != string::npos)
     {
-        U->SetD(nick, true);
+        U.SetD(nick, true);
     }
 
     size_t Ircoppos = modes.find(operchar);
 	if (Ircoppos != string::npos)
     {
-        U->SetIrcop(nick, true);
+        U.SetIrcop(nick, true);
     }
 
 	if (added)
     {
-        U->AddWhois(nick);
+        U.AddWhois(nick);
         //if (WhoisSend == false)
         //{
             string whoisstring = "WHOIS " + nick + " " + nick + "\r\n";
@@ -134,9 +133,10 @@ void UserManagement::WHO(vector<string> data)
 
 void UserManagement::WHOIS(vector<string> data)
 {
-    U->DelWhois(data[3]);
+    Users& U = Global::Instance().get_Users();
+    U.DelWhois(data[3]);
     //WhoisSend = false;
-    string whois = U->GetWhois();
+    string whois = U.GetWhois();
     if (whois != "NULL")
     {
         whois = "WHOIS " + whois + " " + whois + "\r\n";
@@ -146,21 +146,23 @@ void UserManagement::WHOIS(vector<string> data)
 
 void UserManagement::JOIN(vector<string> data)
 {
+    Users& U = Global::Instance().get_Users();
+    Channels& C = Global::Instance().get_Channels();
     vector<string> chan = Split(data[2], ":",true,true);
     string nick = HostmaskToNick(data);
-    if (nick == botnick)
+    if (nick == Global::Instance().get_BotNick())
     {
-        C->AddChannel(chan[0]);
+        C.AddChannel(chan[0]);
         string whostring = "WHO " + chan[0] + "\r\n";
         Send(whostring);
         DBChannelInfo(chan[0]);
     }
     else
     {
-        C->AddNick(chan[0], nick);
+        C.AddNick(chan[0], nick);
         bool added = false;
-        added = U->AddUser(nick);
-        U->AddChannel(nick, chan[0]);
+        added = U.AddUser(nick);
+        U.AddChannel(nick, chan[0]);
         if (added)
         {
             string whoisstring = "WHOIS " + nick + " " + nick + "\r\n";
@@ -172,31 +174,33 @@ void UserManagement::JOIN(vector<string> data)
 
 void UserManagement::PART(vector<string> data)
 {
+    Users& U = Global::Instance().get_Users();
+    Channels& C = Global::Instance().get_Channels();
     vector<string> chan = Split(data[2], ":",true,true);
     string nick = HostmaskToNick(data);
-    if (nick == botnick)
+    if (nick == Global::Instance().get_BotNick())
     {
-        vector<string> chanusers = C->GetNicks(chan[0]);
+        vector<string> chanusers = C.GetNicks(chan[0]);
         for ( unsigned int i = 0 ; i < chanusers.size(); i++ )
         {
-            U->DelChannel(chanusers[i], chan[0]);
-            C->DelNick(chan[0], chanusers[i]);
-            if (U->GetChannels(chanusers[i])[0] == "NULL")
+            U.DelChannel(chanusers[i], chan[0]);
+            C.DelNick(chan[0], chanusers[i]);
+            if (U.GetChannels(chanusers[i])[0] == "NULL")
             {
                 cout << "no channels left" << endl;
-                U->DelUser(chanusers[i]);
+                U.DelUser(chanusers[i]);
             }
         }
-        C->DelChannel(chan[0]);
+        C.DelChannel(chan[0]);
     }
     else
     {
-        C->DelNick(chan[0], nick);
-        U->DelChannel(nick, chan[0]);
-        if (U->GetChannels(nick)[0] == "NULL")
+        C.DelNick(chan[0], nick);
+        U.DelChannel(nick, chan[0]);
+        if (U.GetChannels(nick)[0] == "NULL")
         {
             cout << "no channels left" << endl;
-            U->DelUser(nick);
+            U.DelUser(nick);
         }
         cout << "PART" << endl;
     }
@@ -204,31 +208,33 @@ void UserManagement::PART(vector<string> data)
 
 void UserManagement::KICK(vector<string> data)
 {
+    Users& U = Global::Instance().get_Users();
+    Channels& C = Global::Instance().get_Channels();
     string chan = data[2];
     string nick = data[3];
-    if (nick == botnick)
+    if (nick == Global::Instance().get_BotNick())
     {
-        vector<string> chanusers = C->GetNicks(chan);
+        vector<string> chanusers = C.GetNicks(chan);
         for ( unsigned int i = 0 ; i < chanusers.size(); i++ )
         {
-            C->DelNick(chan, chanusers[i]);
-            U->DelChannel(chanusers[i], chan);
-            if (U->GetChannels(chanusers[i])[0] == "NULL")
+            C.DelNick(chan, chanusers[i]);
+            U.DelChannel(chanusers[i], chan);
+            if (U.GetChannels(chanusers[i])[0] == "NULL")
             {
                 cout << "no channels left" << endl;
-                U->DelUser(chanusers[i]);
+                U.DelUser(chanusers[i]);
             }
         }
-        C->DelChannel(chan);
+        C.DelChannel(chan);
     }
     else
     {
-        C->DelNick(chan, nick);
-        U->DelChannel(nick, chan);
-        if (U->GetChannels(nick)[0] == "NULL")
+        C.DelNick(chan, nick);
+        U.DelChannel(nick, chan);
+        if (U.GetChannels(nick)[0] == "NULL")
         {
             cout << "no channels left" << endl;
-            U->DelUser(nick);
+            U.DelUser(nick);
         }
         cout << "KICK" << endl;
     }
@@ -236,8 +242,9 @@ void UserManagement::KICK(vector<string> data)
 
 void UserManagement::MODE(vector<string> data)
 {
+    Channels& C = Global::Instance().get_Channels();
     string nick = HostmaskToNick(data);
-    if (nick == botnick)
+    if (nick == Global::Instance().get_BotNick())
     {
 
     }
@@ -264,31 +271,31 @@ void UserManagement::MODE(vector<string> data)
         if (modeparse[i] == ownerchar)
         {
             //cout << "chan: " << data[2] << " user: " << data[parsepos] << " " << ownerchar << endl;
-            C->SetOp(data[2], data[parsepos], add);
+            C.SetOp(data[2], data[parsepos], add);
             parsepos++;
         }
         if (modeparse[i] == adminchar)
         {
             //cout << "chan: " << data[2] << " user: " << data[parsepos] << " " << adminchar << endl;
-            C->SetOp(data[2], data[parsepos], add);
+            C.SetOp(data[2], data[parsepos], add);
             parsepos++;
         }
         if (modeparse[i] == opchar)
         {
             //cout << "chan: " << data[2] << " user: " << data[parsepos] << " " << opchar << endl;
-            C->SetOp(data[2], data[parsepos], add);
+            C.SetOp(data[2], data[parsepos], add);
             parsepos++;
         }
         if (modeparse[i] == halfopchar)
         {
             //cout << "chan: " << data[2] << " user: " << data[parsepos] << " " << halfopchar << endl;
-            C->SetVoice(data[2], data[parsepos], add);
+            C.SetVoice(data[2], data[parsepos], add);
             parsepos++;
         }
         if (modeparse[i] == voicechar)
         {
             //cout << "chan: " << data[2] << " user: " << data[parsepos] << " " << voicechar << endl;
-            C->SetVoice(data[2], data[parsepos], add);
+            C.SetVoice(data[2], data[parsepos], add);
             parsepos++;
         }
     }
@@ -296,47 +303,52 @@ void UserManagement::MODE(vector<string> data)
 
 void UserManagement::QUIT(vector<string> data)
 {
+    Users& U = Global::Instance().get_Users();
+    Channels& C = Global::Instance().get_Channels();
     string nick = HostmaskToNick(data);
-    if (nick == botnick)
+    if (nick == Global::Instance().get_BotNick())
     {
-        U->~Users();
-        C->~Channels();
+        U.~Users();
+        C.~Channels();
     }
     else
     {
-        vector<string> channels = U->GetChannels(nick);
+        vector<string> channels = U.GetChannels(nick);
         for ( unsigned int i = 0 ; i < channels.size(); i++ )
         {
-            C->DelNick(channels[i], nick);
+            C.DelNick(channels[i], nick);
         }
-        U->DelUser(nick);
+        U.DelUser(nick);
     }
 }
 
 void UserManagement::NICK(vector<string> data)
 {
+    Users& U = Global::Instance().get_Users();
+    Channels& C = Global::Instance().get_Channels();
     string oldnick = HostmaskToNick(data);
     vector<string> nick = Split(data[2], ":",true,true);
-    if (oldnick == botnick)
+    if (oldnick == Global::Instance().get_BotNick())
     {
-        botnick = nick[0];
-        U->ChangeNick(oldnick, nick[0]);
-        vector<string> channels = U->GetChannels(nick[0]);
+        Global::Instance().set_BotNick(nick[0]);
+        //botnick = nick[0];
+        U.ChangeNick(oldnick, nick[0]);
+        vector<string> channels = U.GetChannels(nick[0]);
         for ( unsigned int i = 0 ; i < channels.size(); i++ )
         {
-            C->DelNick(channels[i], oldnick);
-            C->AddNick(channels[i], nick[0]);
+            C.DelNick(channels[i], oldnick);
+            C.AddNick(channels[i], nick[0]);
         }
         cout << "NICK" << endl;
     }
     else
     {
-        U->ChangeNick(oldnick, nick[0]);
-        vector<string> channels = U->GetChannels(nick[0]);
+        U.ChangeNick(oldnick, nick[0]);
+        vector<string> channels = U.GetChannels(nick[0]);
         for ( unsigned int i = 0 ; i < channels.size(); i++ )
         {
-            C->DelNick(channels[i], oldnick);
-            C->AddNick(channels[i], nick[0]);
+            C.DelNick(channels[i], oldnick);
+            C.AddNick(channels[i], nick[0]);
         }
         cout << "NICK" << endl;
     }
@@ -354,35 +366,18 @@ string UserManagement::HostmaskToNick(vector<string> data)
 
 bool UserManagement::Send(string data)
 {
-    cout << "bool ChannelBot::Send(string data)" << endl;
-    cout << ">> " << data;
-    try
-    {
-        S->Send(data);
-    }
-    catch (IrcSocket::Exception& e)
-    {
-        cout << "Exception caught: " << e.Description() << endl;
-        return false;
-    }
-    /*if (chandebug == true)
-    {
-        string debugstring = "PRIVMSG " + debugchannel + " :>>" + data + "\r\n";
-        try
-        {
-          S->Send(debugstring);
-        }
-        catch (IrcSocket::Exception& e)
-        {
-            cout << "Exception caught: " << e.Description() << endl;
-        }
-    }*/
+    Global::Instance().get_IrcData().AddSendQueue(data);
     return true;
 }
 
 // Hmm... where have i seen this function before...
 vector< vector<string> > UserManagement::RawSqlSelect(string data)
 {
+    ConfigReader& CR = Global::Instance().get_ConfigReader();
+    std::string hostname_str = CR.GetString("hostname");
+    std::string databasename_str = CR.GetString("databasename");
+    std::string username_str = CR.GetString("username");
+    std::string pass_str = CR.GetString("password");
     cout << data << endl;
     vector< vector<string> > sql_result;
     database *db;
@@ -397,6 +392,11 @@ vector< vector<string> > UserManagement::RawSqlSelect(string data)
 // Looksie, another function i know ;)
 bool UserManagement::RawSql(string data)
 {
+    ConfigReader& CR = Global::Instance().get_ConfigReader();
+    std::string hostname_str = CR.GetString("hostname");
+    std::string databasename_str = CR.GetString("databasename");
+    std::string username_str = CR.GetString("username");
+    std::string pass_str = CR.GetString("password");
     cout << data << endl;
     database *db;
     db = new database();
@@ -424,8 +424,9 @@ int UserManagement::convertString(string data)
 
 void UserManagement::DBUserInfo(string data)
 {
-    string auth = U->GetAuth(data);
-    if (caseInsensitiveStringCompare(auth,"NULL") != true)
+    Users& U = Global::Instance().get_Users();
+    string auth = U.GetAuth(data);
+    if (boost::iequals(auth,"NULL") != true)
     {
         vector< vector<string> > sql_result;
 		// Note: you should escape the "auth" var before inserting into query
@@ -435,15 +436,16 @@ void UserManagement::DBUserInfo(string data)
         for (i = 0 ; i < sql_result.size() ; i++)
         {
             cout << sql_result[i][1] << endl;
-            U->SetUid(data, convertString(sql_result[i][0]));
-            U->SetOaccess(data, convertString(sql_result[i][1]));
-            U->SetGod(data, convertString(sql_result[i][2]));
+            U.SetUid(data, convertString(sql_result[i][0]));
+            U.SetOaccess(data, convertString(sql_result[i][1]));
+            U.SetGod(data, convertString(sql_result[i][2]));
         }
     }
 }
 
 void UserManagement::DBChannelInfo(string data)
 {   ////// vet onhandige sql query's binnenkort maar ff 2 van maken.
+    Channels& C = Global::Instance().get_Channels();
     vector< vector<string> > sql_result;
     string sql_string = "select channels.id, users.access, auth.auth, channels.giveops, channels.givevoice from users JOIN auth ON users.uid = auth.id JOIN channels ON users.cid = channels.id where channels.channel = '" + data + "';";
     sql_result = RawSqlSelect(sql_string);
@@ -451,37 +453,29 @@ void UserManagement::DBChannelInfo(string data)
     for (i = 0 ; i < sql_result.size() ; i++)
     {
         cout << sql_result[i][0] << " " << sql_result[i][1] << " " << sql_result[i][2] << " " << sql_result[i][3] << " " << sql_result[i][4] << endl;
-        C->SetCid(data, convertString(sql_result[i][0]));
-        C->AddAuth(data, sql_result[i][2]);
-        C->SetAccess(data, sql_result[i][2], convertString(sql_result[i][1]));
-        C->SetGiveops(data, convertString(sql_result[i][3]));
-        C->SetGivevoice(data, convertString(sql_result[i][4]));
-        C->SetGiveops(data, convertString(sql_result[i][3]));
-        C->SetGivevoice(data, convertString(sql_result[i][4]));
+        C.SetCid(data, convertString(sql_result[i][0]));
+        C.AddAuth(data, sql_result[i][2]);
+        C.SetAccess(data, sql_result[i][2], convertString(sql_result[i][1]));
+        C.SetGiveops(data, convertString(sql_result[i][3]));
+        C.SetGivevoice(data, convertString(sql_result[i][4]));
+        C.SetGiveops(data, convertString(sql_result[i][3]));
+        C.SetGivevoice(data, convertString(sql_result[i][4]));
     }
 }
 
 void UserManagement::DBinit()
 {
+    Users& U = Global::Instance().get_Users();
 	vector< vector<string> > sql_result;
 	string sql_string = "select auth from auth";
 	sql_result = RawSqlSelect(sql_string);
 	unsigned int i;
 	for (i = 0; i < sql_result.size(); i++)
 	{
-		U->AddAuth(sql_result[i][0]);
+		U.AddAuth(sql_result[i][0]);
 		cout << sql_result[i][0] << endl;
 	}
 }
-
-bool UserManagement::caseInsensitiveStringCompare( const std::string& str1, const std::string& str2 ) {
-    std::string str1Cpy( str1 );
-    std::string str2Cpy( str2 );
-    std::transform( str1Cpy.begin(), str1Cpy.end(), str1Cpy.begin(), ::tolower );
-    std::transform( str2Cpy.begin(), str2Cpy.end(), str2Cpy.begin(), ::tolower );
-    return ( str1Cpy == str2Cpy );
-}
-
 
 /// <summary>
 /// Splits the string s on the given delimiter(s) and

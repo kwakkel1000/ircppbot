@@ -66,8 +66,8 @@ void Bot::parseinit()
     Global& G = Global::Instance();
     G.set_IrcData(new IrcData());
     cout << "parseinit" << endl;
+    G.set_BotNick(G.get_ConfigReader().GetString("botnick"));
     std::string nickserv = G.get_ConfigReader().GetString("nickserv");
-    std::string botnick = G.get_ConfigReader().GetString("botnick");
     std::string ircserver = G.get_ConfigReader().GetString("ircserver");
     std::string ircport = G.get_ConfigReader().GetString("ircport");
     //floodprotect = reader->GetString("floodprotect");
@@ -84,7 +84,7 @@ void Bot::parseinit()
         cout << "Exception caught: " << e.Description() << " (" << e.Errornr() << ")" << endl;
         exit(1);
     }
-    P = new Parse(botnick, parse_sock, ns);
+    P = new Parse(parse_sock, ns);
     assert(!parse_thread);
     parse_thread = boost::shared_ptr<boost::thread>(new boost::thread(boost::bind(&Bot::parserun, this)));
 }

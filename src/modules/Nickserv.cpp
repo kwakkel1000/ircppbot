@@ -1,13 +1,9 @@
 #include "../../include/Nickserv.h"
-#include "../../include/IrcSocket.h"
 #include "../../include/Users.h"
-#include "../../include/Channels.h"
-#include "../../include/Database.h"
-#include <iostream>
-#include <algorithm>
-#include <sstream>
-#include <cstring>
+#include "../../include/Global.h"
 
+#include <boost/algorithm/string.hpp>
+#include <iostream>
 
 extern "C" UserManagement* create()
 {
@@ -19,7 +15,30 @@ extern "C" void destroy(UserManagement* x)
     delete x;
 }
 
-void Nickserv::ParseData(vector<string> data)
+void Nickserv::stop()
+{
+    run = false;
+}
+
+void Nickserv::read()
+{
+    run = true;
+    assert(!raw_parse_thread);
+    raw_parse_thread = boost::shared_ptr<boost::thread>(new boost::thread(boost::bind(&Nickserv::parse_raw, this)));
+    raw_parse_thread->join();
+}
+
+void Nickserv::parse_raw()
+{
+    std::vector< std::string > data;
+    while(run)
+    {
+        data = D->GetRawQueue();
+        ParseData(data);
+    }
+}
+
+void Nickserv::ParseData(std::vector< std::string > data)
 {
     //cout << "nickserv parsedata" << endl;
     if (data.size() == 3)
@@ -48,7 +67,7 @@ void Nickserv::ParseData(vector<string> data)
     {
         if (data[1] == "001")   //welcome
         {
-            botnick = data[2];
+            Global::Instance().set_BotNick(data[2]);
         }
         if (data[1] == "318")       //WHOIS end
         {
@@ -83,28 +102,29 @@ void Nickserv::ParseData(vector<string> data)
     }
 }
 
-void Nickserv::auth(vector<string> data)
+void Nickserv::auth(std::vector< std::string > data)
 {
-    U->SetAuth(data[3], data[3]);
-    U->SetOaccess(data[3], -1);
-    string sqlstring;
-    if (U->AddAuth(data[3]) == true)
+    Users& U = Global::Instance().get_Users();
+    U.SetAuth(data[3], data[3]);
+    U.SetOaccess(data[3], -1);
+    std::string sqlstring;
+    if (U.AddAuth(data[3]) == true)
     {
         sqlstring = "INSERT into auth (auth) VALUES ( '" + data[3] + "' );";
         RawSql(sqlstring);
     }
-    vector<string> userchannels = U->GetChannels(data[3]);
-    if (caseInsensitiveStringCompare(userchannels[0], "NULL") == false)
+    std::vector< std::string > userchannels = U.GetChannels(data[3]);
+    if (boost::iequals(userchannels[0], "NULL") == false)
     {
         for ( unsigned int i = 0 ; i < userchannels.size(); i++ )
         {
-            cout << "userchannels[" << convertInt(i) << "] " << userchannels[i] << endl;
+            std::cout << "userchannels[" << convertInt(i) << "] " << userchannels[i] << std::endl;
         }
         DBUserInfo(data[3]);
     }
     else
     {
-        U->DelUser(data[3]);
+        U.DelUser(data[3]);
     }
 }
 

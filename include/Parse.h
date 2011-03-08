@@ -29,7 +29,7 @@ class Data;
 class Parse
 {
 public:
-    Parse(string, IrcSocket*, bool);
+    Parse(IrcSocket*, bool);
     virtual ~Parse();
 
     virtual void read( );
@@ -50,10 +50,7 @@ private:
     bool run;
 
     //classes
-    //IrcData *ID;
     Data *D;
-    IrcSocket *S;
-    //Reply *R;
 
     //service modules
     UserManagementInterface* umi;
@@ -72,6 +69,8 @@ private:
     std::vector< destroy_tmi* > destroyvector;
 
     //functions
+    void parse_raw();
+    void parse_privmsg();
     bool WhoisSend;
     void ParseData(std::vector< std::string > data);
     void PING(std::vector< std::string > data);
@@ -87,7 +86,6 @@ private:
     std::string HostmaskToNick(std::vector<std::string> data);
 
     //config vars
-    std::string botnick;
     bool chandebug;
     std::string debugchannel;
     std::string hostname_str;
@@ -97,9 +95,13 @@ private:
     std::string trigger;
     std::string moduledir;
 
+    void LoadUserThreadLoop();
     void LoadThreadLoop(int i);
     bool timeron;
+    boost::shared_ptr<boost::thread> raw_parse_thread;
+    boost::shared_ptr<boost::thread> privmsg_parse_thread;
     boost::shared_ptr<boost::thread> timer_thread;
+    boost::shared_ptr<boost::thread> user_thread;
     vector< boost::shared_ptr<boost::thread> > module_thread_vector;
 };
 

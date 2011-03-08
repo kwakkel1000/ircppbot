@@ -3,21 +3,21 @@
 
 
 #include "UserManagementInterface.h"
-#include "ConfigReader.h"
+#include "Data.h"
 #include <string>
 #include <vector>
 
 using namespace std;
 
-class database;
-class ConfigReader;
+class Data;
 class UserManagement : public UserManagementInterface
 {
 public:
     UserManagement();
 
     virtual void ParseData(vector<string> data)=0;
-    void Init(string nick, IrcSocket *s, Users *u, Channels *c, ConfigReader& reader, IrcData *id);
+    void Init();
+    Data * D;
 
     void WHO(vector<string> data);
     void WHOIS(vector<string> data);

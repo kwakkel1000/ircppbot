@@ -18,20 +18,9 @@ public:
     UserManagementInterface() { }
 
     virtual void ParseData(vector<string> data)=0;
-    virtual void Init(string nick, IrcSocket *s, Users *u, Channels *c, ConfigReader& reader, IrcData *id)=0;
-
-protected:
-    IrcData *ID;
-    IrcSocket *S;
-    Users *U;
-    Channels *C;
-
-    string botnick;
-    string hostname_str;
-    string databasename_str;
-    string username_str;
-    string pass_str;
-    string trigger;
+    virtual void Init()=0;
+    virtual void read()=0;
+    virtual void stop()=0;
 
 };
 

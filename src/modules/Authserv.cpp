@@ -1,12 +1,9 @@
 #include "../../include/Authserv.h"
-#include "../../include/IrcSocket.h"
 #include "../../include/Users.h"
-#include "../../include/Channels.h"
-#include "../../include/Database.h"
+#include "../../include/Global.h"
+
+#include <boost/algorithm/string.hpp>
 #include <iostream>
-#include <algorithm>
-#include <sstream>
-#include <cstring>
 
 
 
@@ -18,7 +15,7 @@ extern "C" void destroy(UserManagement* x) {
     delete x;
 }
 
-void Authserv::ParseData(vector<string> data)
+void Authserv::ParseData(std::vector< std::string > data)
 {
     if (data.size() == 3)
     {
@@ -46,7 +43,7 @@ void Authserv::ParseData(vector<string> data)
     {
         if (data[1] == "001")   //welcome
         {
-            botnick = data[2];
+            Global::Instance().set_BotNick(data[2]);
         }
         if (data[1] == "318")       //WHOIS end
         {
@@ -81,27 +78,28 @@ void Authserv::ParseData(vector<string> data)
     }
 }
 
-void Authserv::auth(vector<string> data)
+void Authserv::auth(std::vector< std::string > data)
 {
-    U->SetAuth(data[3], data[4]);
-    U->SetOaccess(data[3], -1);
-    string sqlstring;
-    if (U->AddAuth(data[4]) == true)
+    Users& U = Global::Instance().get_Users();
+    U.SetAuth(data[3], data[4]);
+    U.SetOaccess(data[3], -1);
+    std::string sqlstring;
+    if (U.AddAuth(data[4]) == true)
     {
         sqlstring = "INSERT into auth (auth) VALUES ( '" + data[4] + "' );";
         RawSql(sqlstring);
     }
-    vector<string> userchannels = U->GetChannels(data[3]);
-    if (caseInsensitiveStringCompare(userchannels[0], "NULL") == false)
+    std::vector< std::string > userchannels = U.GetChannels(data[3]);
+    if (boost::iequals(userchannels[0], "NULL") == false)
     {
         for ( unsigned int i = 0 ; i < userchannels.size(); i++ )
         {
-            cout << "userchannels[" << convertInt(i) << "] " << userchannels[i] << endl;
+            std::cout << "userchannels[" << convertInt(i) << "] " << userchannels[i] << std::endl;
         }
         DBUserInfo(data[3]);
     }
     else
     {
-        U->DelUser(data[3]);
+        U.DelUser(data[3]);
     }
 }

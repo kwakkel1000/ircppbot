@@ -17,8 +17,8 @@ class ChannelBot : public ModuleBase
 public:
     ChannelBot();
     ~ChannelBot();
-    void threadloop();
-    void stopthreadloop();
+    void read();
+    void stop();
     void Init();
     void timerrun();
 
@@ -28,6 +28,9 @@ private:
     Data * D;
     void BindInit();
 
+    void parse_raw();
+    void parse_privmsg();
+    void ParseData(std::vector< std::string > data);
     void ParsePrivmsg(std::vector<std::string> data, std::string command, std::string chan, std::vector< std::string > args, int chantrigger);
     void PING(vector<string> data);
     //void PRIVMSG(vector<string> data);
@@ -87,11 +90,13 @@ private:
     bool caseInsensitiveStringCompare( const std::string& str1, const std::string& str2 );
     vector<string> Split(const std::string&, const std::string&, bool, bool);
 
-    boost::condition_variable_any parse_wait_condition;
     boost::mutex parse_mutex;
     bool data_ready;
-    bool runthreadloop;
+    bool run;
     //vector<string> Data;
+
+    boost::shared_ptr<boost::thread> raw_parse_thread;
+    boost::shared_ptr<boost::thread> privmsg_parse_thread;
 };
 
 #endif // ChannelBot_h

@@ -18,7 +18,7 @@ ChannelBot::ChannelBot()
 
 ChannelBot::~ChannelBot()
 {
-    stopthreadloop();
+    stop();
 	Global::Instance().get_IrcData().DelConsumer(D);
     delete D;
 }
@@ -47,71 +47,80 @@ void ChannelBot::Init()
     timer_long_command.push_back("time 20 from now");
     timerlong();
     BindInit();
-    runthreadloop = true;
 }
 
-void ChannelBot::stopthreadloop()
+void ChannelBot::stop()
 {
-    runthreadloop = false;
-    cout << "notify" << endl;
-    parse_wait_condition.notify_one();
+    run = false;
 }
 
-void ChannelBot::threadloop()
+void ChannelBot::read()
 {
-    std::vector< std::string > raw_result;
-    std::vector< std::string > privmsg_result;
-    while (runthreadloop)
+    run = true;
+    assert(!raw_parse_thread);
+    raw_parse_thread = boost::shared_ptr<boost::thread>(new boost::thread(boost::bind(&ChannelBot::parse_raw, this)));
+    assert(!privmsg_parse_thread);
+    privmsg_parse_thread = boost::shared_ptr<boost::thread>(new boost::thread(boost::bind(&ChannelBot::parse_privmsg, this)));
+    raw_parse_thread->join();
+    privmsg_parse_thread->join();
+}
+
+void ChannelBot::parse_raw()
+{
+    std::vector< std::string > data;
+    while(run)
     {
-        raw_result = D->GetRawQueue();
-        privmsg_result = D->GetPrivmsgQueue();
-        cout << raw_result.size() << endl;
-        if (raw_result.size() > 1)
+        data = D->GetRawQueue();
+        ParseData(data);
+    }
+}
+
+void ChannelBot::parse_privmsg()
+{
+    std::vector< std::string > data;
+    while(run)
+    {
+        data = D->GetPrivmsgQueue();
+        PRIVMSG(data);
+    }
+}
+void ChannelBot::ParseData(std::vector< std::string > data)
+{
+    if (data.size() == 3)
+    {
+        if (data[1] == "JOIN")      //JOIN
         {
-        	cout << raw_result[1] << endl;
+            JOIN(data);
         }
-        if (raw_result.size() == 3)
+        if (data[1] == "NICK")      //NICK nickchange
         {
-            if (raw_result[1] == "JOIN")      //JOIN
-            {
-                JOIN(raw_result);
-            }
-            if (raw_result[1] == "NICK")      //NICK nickchange
-            {
-                NICK(raw_result);
-            }
+            NICK(data);
         }
-        if (raw_result.size() >= 3)
+    }
+    if (data.size() >= 3)
+    {
+        if (data[1] == "QUIT")      //QUIT
         {
-            if (raw_result[1] == "QUIT")      //QUIT
-            {
-                QUIT(raw_result);
-            }
-            if (raw_result[1] == "PART")      //PART
-            {
-                PART(raw_result);
-            }
+            QUIT(data);
         }
-        if (raw_result.size() >= 4)
+        if (data[1] == "PART")      //PART
         {
-            if (raw_result[1] == "INVITE")   //INVITE
-            {
-                INVITE(raw_result);
-            }
-            if (boost::iequals(raw_result[1], "PRIVMSG"))   //PRIVMSG
-            {
-            	cout << "blub" << endl;
-                PRIVMSG(raw_result);
-            }
+            PART(data);
         }
-        if (raw_result.size() >= 5)
+    }
+    if (data.size() >= 4)
+    {
+        if (data[1] == "INVITE")   //INVITE
         {
-            if (raw_result[1] == "KICK")      //KICK
-            {
-                KICK(raw_result);
-            }
+            INVITE(data);
         }
-        //PRIVMSG(privmsg_result);
+    }
+    if (data.size() >= 5)
+    {
+        if (data[1] == "KICK")      //KICK
+        {
+            KICK(data);
+        }
     }
 }
 

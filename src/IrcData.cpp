@@ -210,10 +210,13 @@ void IrcData::Parse()
         boost::split( result, data, boost::is_any_of(" "), boost::token_compress_on );
         unsigned int consumer_iterator;
         //std::cout << RawConsumers.size() << std::endl;
+        std::cout << "void IrcData::Parse()  Raw";
         for (consumer_iterator = 0; consumer_iterator < RawConsumers.size(); consumer_iterator++)
         {
+            std::cout << " | ";
             RawConsumers[consumer_iterator]->AddRawQueue(result);
         }
+        std::cout << std::endl;
         for (consumer_iterator = 0; consumer_iterator < ModeConsumers.size(); consumer_iterator++)
         {
             //ModeConsumers[consumer_iterator]->AddModeQueue(result);
@@ -222,16 +225,18 @@ void IrcData::Parse()
         {
             //WhoisConsumers[consumer_iterator]->AddWhoisQueue(result);
         }
-        for (consumer_iterator = 0; consumer_iterator < PrivmsgConsumers.size(); consumer_iterator++)
+        if (result.size() >= 4)
         {
-            /*if (result.size() >= 4)
+            if (result[1] == "PRIVMSG")   //PRIVMSG
             {
-                if (result[1] == "PRIVMSG")   //PRIVMSG
+                std::cout << "void IrcData::Parse()  PRIVMSG";
+                for (consumer_iterator = 0; consumer_iterator < PrivmsgConsumers.size(); consumer_iterator++)
                 {
+                    std::cout << " | ";
                     PrivmsgConsumers[consumer_iterator]->AddPrivmsgQueue(result);
                 }
-            }*/
-            PrivmsgConsumers[consumer_iterator]->AddPrivmsgQueue(result);
+                std::cout << std::endl;
+            }
         }
     }
 }
