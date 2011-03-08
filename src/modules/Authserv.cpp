@@ -15,6 +15,29 @@ extern "C" void destroy(UserManagement* x) {
     delete x;
 }
 
+void Authserv::stop()
+{
+    run = false;
+    raw_parse_thread->join();
+}
+
+void Authserv::read()
+{
+    run = true;
+    assert(!raw_parse_thread);
+    raw_parse_thread = boost::shared_ptr<boost::thread>(new boost::thread(boost::bind(&Authserv::parse_raw, this)));
+}
+
+void Authserv::parse_raw()
+{
+    std::vector< std::string > data;
+    while(run)
+    {
+        data = D->GetRawQueue();
+        ParseData(data);
+    }
+}
+
 void Authserv::ParseData(std::vector< std::string > data)
 {
     if (data.size() == 3)
