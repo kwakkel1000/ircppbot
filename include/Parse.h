@@ -4,18 +4,8 @@
 
 #include "UserManagementInterface.h"
 #include "ModuleInterface.h"
-#include "ConfigReader.h"
-#include "Reply.h"
-#include <iostream>
-#include <algorithm>
-#include <sstream>
 #include <string>
 #include <vector>
-#include <cstring>
-#include <dlfcn.h>
-#include <boost/bind.hpp>
-#include <boost/thread/thread.hpp>
-#include <boost/thread/mutex.hpp>
 #include <boost/shared_ptr.hpp>
 
 // Predefinitions
@@ -45,7 +35,7 @@ public:
 
 private:
     //vars
-    string configfile;
+    std::string configfile;
     bool NS;
     bool run;
 
@@ -79,11 +69,13 @@ private:
     int convertString(std::string);
     void DBinit();
     bool Send(std::string data);
+    bool SendHighPriority(std::string data);
+    bool SendLowPriority(std::string data);
 
     void timerrun();
     std::vector< std::vector< std::string > > RawSqlSelect(std::string data);
     bool RawSql(std::string data);
-    std::string HostmaskToNick(std::vector<std::string> data);
+    std::string HostmaskToNick(std::vector< std::string > data);
 
     //config vars
     bool chandebug;
@@ -98,10 +90,10 @@ private:
     void LoadUserThreadLoop();
     void LoadThreadLoop(int i);
     bool timeron;
-    boost::shared_ptr<boost::thread> raw_parse_thread;
-    boost::shared_ptr<boost::thread> privmsg_parse_thread;
-    boost::shared_ptr<boost::thread> timer_thread;
-    vector< boost::shared_ptr<boost::thread> > module_thread_vector;
+    boost::shared_ptr< boost::thread > raw_parse_thread;
+    boost::shared_ptr< boost::thread > privmsg_parse_thread;
+    boost::shared_ptr< boost::thread > timer_thread;
+    std::vector< boost::shared_ptr< boost::thread > > module_thread_vector;
 };
 
 

@@ -21,6 +21,8 @@ class ModuleBase : public ModuleInterface
                 void PRIVMSG(std::vector<std::string> data, std::string trigger);
                 virtual void ParsePrivmsg(std::vector<std::string> data, std::string command, std::string chan, std::vector< std::string > args, int chantrigger){};
                 bool Send(std::string data);
+                bool SendHighPriority(std::string data);
+                bool SendLowPriority(std::string data);
 
                 //database
                 std::vector< std::vector<std::string> > RawSqlSelect(std::string data);

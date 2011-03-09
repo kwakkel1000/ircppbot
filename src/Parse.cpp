@@ -7,6 +7,7 @@
 #include "../include/Global.h"
 
 #include <boost/algorithm/string.hpp>
+#include <dlfcn.h>
 
 
 Parse::Parse(IrcSocket *s, bool ns)
@@ -44,7 +45,7 @@ Parse::Parse(IrcSocket *s, bool ns)
     chandebug = (chandebugstr == "true");
 
 
-    vector<string> loadmods;
+    std::vector< std::string > loadmods;
     boost::split( loadmods, loadmodsstr, boost::is_any_of(" "), boost::token_compress_on );
     for (unsigned int i = 0; i < loadmods.size(); i++)
     {
@@ -72,10 +73,10 @@ Parse::~Parse()
     // delete accepts null pointers, no checking needed \o/
     /*delete U;
     delete C;*/
-	vector<string> tmpmodulelist = modulelist;
+	std::vector< std::string > tmpmodulelist = modulelist;
 	for (unsigned int i = 0; i < tmpmodulelist.size(); i++)
 	{
-		string modname = tmpmodulelist[i];
+		std::string modname = tmpmodulelist[i];
 		UnLoadModule(modname);
 	}
 	if (NS == true)
@@ -93,7 +94,7 @@ Parse::~Parse()
 void Parse::LoadAuthserv()
 {
     // load the authserv library
-    string modulepath = "./" + moduledir + "Authserv.so";
+    std::string modulepath = "./" + moduledir + "Authserv.so";
     authserv = dlopen(modulepath.c_str(), RTLD_LAZY);
     if (!authserv) {
         cerr << "Cannot load library: " << dlerror() << '\n';
@@ -109,7 +110,7 @@ void Parse::LoadAuthserv()
         exit(1);
         //return 1;
     }
-    cout << "authserv Loaded" << endl;
+    std::cout << "authserv Loaded" << std::endl;
     // create an instance of the class
     umi = create_authserv();
     umi->Init();
@@ -132,7 +133,7 @@ void Parse::UnLoadAuthserv()
 void Parse::LoadNickserv()
 {
     // load the nickserv library
-    string modulepath = "./" + moduledir + "Nickserv.so";
+    std::string modulepath = "./" + moduledir + "Nickserv.so";
     nickserv = dlopen(modulepath.c_str(), RTLD_LAZY);
     if (!nickserv) {
         cerr << "Cannot load library: " << dlerror() << '\n';
@@ -148,7 +149,7 @@ void Parse::LoadNickserv()
         exit(1);
         //return 1;
     }
-    cout << "nickserv Loaded" << endl;
+    std::cout << "nickserv Loaded" << std::endl;
     // create an instance of the class
     umi = create_nickserv();
     umi->Init();
@@ -177,7 +178,7 @@ void Parse::LoadThreadLoop(int i)
     moduleinterfacevector[i]->read();
 }
 
-bool Parse::LoadModule(string modulename)
+bool Parse::LoadModule(std::string modulename)
 {
     bool loaded = false;
     for (unsigned int i = 0; i < modulelist.size(); i++)
@@ -193,7 +194,7 @@ bool Parse::LoadModule(string modulename)
         void* module;
         create_tmi* create_module;
         destroy_tmi* destroy_module;
-        string modulepath = "./" + moduledir + modulename + ".so";
+        std::string modulepath = "./" + moduledir + modulename + ".so";
         // load the library
         module = dlopen(modulepath.c_str(), RTLD_LAZY);
         if (!module) {
@@ -212,7 +213,7 @@ bool Parse::LoadModule(string modulename)
 			exit(1);
             //return 1;
         }
-        cout << "Module " << modulename << " Loaded" << endl;
+        std::cout << "Module " << modulename << " Loaded" << std::endl;
         // create an instance of the class
         mi = create_module();
         mi->Init();
@@ -238,12 +239,12 @@ bool Parse::LoadModule(string modulename)
         }
         return true;
     }
-    cout << "module " << modulename  << " already loaded" << endl;
+    std::cout << "module " << modulename  << " already loaded" << std::endl;
     return false;
 }
 
 
-bool Parse::UnLoadModule(string modulename)
+bool Parse::UnLoadModule(std::string modulename)
 {
     int modi = -1;
     for (unsigned int i = 0; i < modulelist.size(); i++)
@@ -265,7 +266,7 @@ bool Parse::UnLoadModule(string modulename)
         modulevector.erase(modulevector.begin()+modi);
         createvector.erase(createvector.begin()+modi);
         destroyvector.erase(destroyvector.begin()+modi);
-        cout << modulename << " UnLoaded" << endl;
+        std::cout << modulename << " UnLoaded" << std::endl;
         return true;
     }
     return false;
@@ -288,7 +289,7 @@ bool Parse::UnLoadModuleId(unsigned int moduleid)
         moduleinterfacevector.erase(moduleinterfacevector.begin()+modi);
         createvector.erase(createvector.begin()+modi);
         destroyvector.erase(destroyvector.begin()+modi);
-        cout << modulelist[modi] << " UnLoaded" << endl;
+        std::cout << modulelist[modi] << " UnLoaded" << std::endl;
         return true;
     }
     return false;
@@ -346,7 +347,7 @@ void Parse::ParseData(std::vector< std::string > data)
 void Parse::PING(std::vector< std::string > data)
 {
     std::string returnstr = "PONG " + data[1] + "\r\n";
-    Send(returnstr);
+    SendHighPriority(returnstr);
 }
 
 
@@ -360,8 +361,8 @@ void Parse::PRIVMSG(std::vector< std::string > data)
     chanpos1 = data[2].find("#");
     chanpos2 = data[3].find("#");
     triggerpos = data[3].find(trigger);
-    string chan = "NULL";
-    string command = "NULL";
+    std::string chan = "NULL";
+    std::string command = "NULL";
     int triggered = 0;
     int triggertype = -1;
     int chantrigger = -1;
@@ -371,12 +372,12 @@ void Parse::PRIVMSG(std::vector< std::string > data)
         boost::erase_all(data3, ":");
         //data3 = Split(data[3], ":",true,true);
     }
-    if (triggerpos != string::npos)
+    if (triggerpos != std::string::npos)
     {
         triggertype = 1; //PRIVMSG ... :!;
         if (data3 != "")
         {
-            if (chanpos1 != string::npos && chanpos2 != string::npos)
+            if (chanpos1 != std::string::npos && chanpos2 != std::string::npos)
             {
                 chantrigger = 1;    //PRIVMSG nick #channel :!#chan command
                 if (data.size() >= 5)
@@ -394,7 +395,7 @@ void Parse::PRIVMSG(std::vector< std::string > data)
                     }
                 }
             }
-            else if (chanpos1 != string::npos && chanpos2 == string::npos)
+            else if (chanpos1 != std::string::npos && chanpos2 == std::string::npos)
             {
                 chantrigger = 0;    //PRIVMSG nick #chan :!command
                 cout << "channel: triggercommand" << endl;
@@ -413,7 +414,7 @@ void Parse::PRIVMSG(std::vector< std::string > data)
                     }
                 }
             }
-            else if (chanpos1 == string::npos && chanpos2 == string::npos)
+            else if (chanpos1 == std::string::npos && chanpos2 == std::string::npos)
             {
                 chantrigger = -1;   //PRIVMSG nick user :!command
                 if (data.size() >= 4)
@@ -431,7 +432,7 @@ void Parse::PRIVMSG(std::vector< std::string > data)
                     }
                 }
             }
-            else if (chanpos1 == string::npos && chanpos2 != string::npos)
+            else if (chanpos1 == std::string::npos && chanpos2 != std::string::npos)
             {
                 chantrigger = 1;   //PRIVMSG nick user :!#chan command
                 if (data.size() >= 5)
@@ -455,7 +456,7 @@ void Parse::PRIVMSG(std::vector< std::string > data)
     {
         if (data3 != "")
         {
-            if (chanpos1 == string::npos && chanpos2 != string::npos)
+            if (chanpos1 == std::string::npos && chanpos2 != std::string::npos)
             {
                 chantrigger = 1;   //PRIVMSG nick user :#chan command
                 if (data.size() >= 5)
@@ -470,7 +471,7 @@ void Parse::PRIVMSG(std::vector< std::string > data)
                     }
                 }
             }
-            if (chanpos1 == string::npos && chanpos2 == string::npos)
+            if (chanpos1 == std::string::npos && chanpos2 == std::string::npos)
             {
                 chantrigger = 1;   //PRIVMSG nick user :command
                 if (data.size() >= 5)
@@ -489,8 +490,8 @@ void Parse::PRIVMSG(std::vector< std::string > data)
     }
     if (triggered == 1)
     {
-        string nick = HostmaskToNick(data);
-        string auth = Global::Instance().get_Users().GetAuth(nick);
+        std::string nick = HostmaskToNick(data);
+        std::string auth = Global::Instance().get_Users().GetAuth(nick);
         if (args.size() == 0)
         {
             if (boost::iequals(command,"stop"))
@@ -512,30 +513,30 @@ void Parse::PRIVMSG(std::vector< std::string > data)
             {
                 for (unsigned int i = 0; i < modulelist.size(); i++)
                 {
-                    string modname = modulelist[i];
-                    string returnstring = "PRIVMSG " + chan + " :[" + convertInt(i) + "] " + modname + "\r\n";
+                    std::string modname = modulelist[i];
+                    std::string returnstring = "PRIVMSG " + chan + " :[" + convertInt(i) + "] " + modname + "\r\n";
                     Send(returnstring);
                 }
             }
             if (boost::iequals(command,"reloadall"))
             {
-                vector<string> tmpmodulelist = modulelist;
-                string reply_string;
+                std::vector< std::string > tmpmodulelist = modulelist;
+                std::string reply_string;
                 reply_string = "NOTICE " + nick + " :unloading " + convertInt(tmpmodulelist.size()) + " modules\r\n";
                 Send(reply_string);
                 for (unsigned int i = 0; i < tmpmodulelist.size(); i++)
                 {
-                    string modname = tmpmodulelist[i];
+                    std::string modname = tmpmodulelist[i];
                     UnLoadModule(modname);
-                    string returnstring = "NOTICE " + nick + " :[" + convertInt(i) + "] " + modname + " unloading\r\n";
+                    std::string returnstring = "NOTICE " + nick + " :[" + convertInt(i) + "] " + modname + " unloading\r\n";
                     Send(returnstring);
                 }
                 //ReloadAll();
                 for (unsigned int i = 0; i < tmpmodulelist.size(); i++)
                 {
-                    string modname = tmpmodulelist[i];
+                    std::string modname = tmpmodulelist[i];
                     LoadModule(modname);
-                    string returnstring = "NOTICE " + nick + " :[" + convertInt(i) + "] " + modname + " loaded\r\n";
+                    std::string returnstring = "NOTICE " + nick + " :[" + convertInt(i) + "] " + modname + " loaded\r\n";
                     Send(returnstring);
                 }
                 if (NS == true)
@@ -557,7 +558,7 @@ void Parse::PRIVMSG(std::vector< std::string > data)
             if (boost::iequals(command,"reload"))
             {
                 UnLoadModule(args[0]);
-                string returnstring = "NOTICE " + nick + " :" + args[0] + " unloading\r\n";
+                std::string returnstring = "NOTICE " + nick + " :" + args[0] + " unloading\r\n";
                 Send(returnstring);
                 LoadModule(args[0]);
                 returnstring = "NOTICE " + nick + " :" + args[0] + " loaded\r\n";
@@ -566,13 +567,13 @@ void Parse::PRIVMSG(std::vector< std::string > data)
             if (boost::iequals(command,"load"))
             {
                 LoadModule(args[0]);
-                string returnstring = "NOTICE " + nick + " :" + args[0] + " loaded\r\n";
+                std::string returnstring = "NOTICE " + nick + " :" + args[0] + " loaded\r\n";
                 Send(returnstring);
             }
             if (boost::iequals(command,"unload"))
             {
                 UnLoadModule(args[0]);
-                string returnstring = "NOTICE " + nick + " :" + args[0] + " unloading\r\n";
+                std::string returnstring = "NOTICE " + nick + " :" + args[0] + " unloading\r\n";
                 Send(returnstring);
             }
         }
@@ -581,15 +582,15 @@ void Parse::PRIVMSG(std::vector< std::string > data)
 
 void Parse::ReloadAll()
 {
-    vector<string> tmpmodulelist = modulelist;
+    std::vector< std::string > tmpmodulelist = modulelist;
     for (unsigned int i = tmpmodulelist.size(); i >= 0; i--)
     {
-        string modname = tmpmodulelist[i];
+        std::string modname = tmpmodulelist[i];
         UnLoadModule(modname);
     }
     for (unsigned int i = 0; i < tmpmodulelist.size(); i++)
     {
-        string modname = tmpmodulelist[i];
+        std::string modname = tmpmodulelist[i];
         LoadModule(modname);
     }
     if (NS == true)
@@ -604,14 +605,14 @@ void Parse::ReloadAll()
     }
 }
 
-string Parse::convertInt(int number)
+std::string Parse::convertInt(int number)
 {
     stringstream ss;//create a stringstream
     ss << number;//add number to the stream
     return ss.str();//return a string with the contents of the stream
 }
 
-int Parse::convertString(string data)
+int Parse::convertString(std::string data)
 {
     int i;
     stringstream ss(data);//create a stringstream
@@ -621,23 +622,23 @@ int Parse::convertString(string data)
 
 void Parse::DBinit()
 {
-    vector< vector<string> > sql_result;
-    string sql_string = "select auth from auth";
+    std::vector< std::vector< std::string > > sql_result;
+    std::string sql_string = "select auth from auth";
     sql_result = RawSqlSelect(sql_string);
-    Users* U = &Global::Instance().get_Users();
+    Users& U = Global::Instance().get_Users();
     unsigned int i;
     for (i = 0 ; i < sql_result.size() ; i++)
     {
-        U->AddAuth(sql_result[i][0]);
-        cout << sql_result[i][0] << endl;
+        U.AddAuth(sql_result[i][0]);
+        std::cout << sql_result[i][0] << std::endl;
     }
 }
 
-vector< vector<string> > Parse::RawSqlSelect(string data)
+std::vector< std::vector< std::string > > Parse::RawSqlSelect(std::string data)
 {
-    cout << data << endl;
+    std::cout << data << std::endl;
     database *db;
-    vector< vector<string> > sql_result;
+    std::vector< std::vector< std::string > > sql_result;
     db = new database();    // lol whut... connecting for each query? :'D
     int tmp = db->openConnection(hostname_str.c_str(), databasename_str.c_str(), username_str.c_str(), pass_str.c_str());
     if (tmp == 200)
@@ -646,7 +647,7 @@ vector< vector<string> > Parse::RawSqlSelect(string data)
     }
     else
     {
-        cout << "database error" << endl;
+        std::cout << "database error" << std::endl;
         exit(0);
     }
     sql_result = db->sql_query( data.c_str() );
@@ -655,9 +656,9 @@ vector< vector<string> > Parse::RawSqlSelect(string data)
     return sql_result;
 }
 
-bool Parse::RawSql(string data)
+bool Parse::RawSql(std::string data)
 {
-    cout << data << endl;
+    std::cout << data << std::endl;
     database *db;
     db = new database();    // lol whut... connecting for each query? :'D
     int tmp = db->openConnection(hostname_str.c_str(), databasename_str.c_str(), username_str.c_str(), pass_str.c_str());
@@ -675,18 +676,30 @@ bool Parse::RawSql(string data)
     return true;
 }
 
-string Parse::HostmaskToNick(vector<string> data)
+std::string Parse::HostmaskToNick(std::vector< std::string > data)
 {
-    vector<string> who;
+    std::vector< std::string > who;
     boost::split( who, data[0], boost::is_any_of("!"), boost::token_compress_on );
-    string nick = who[0];
+    std::string nick = who[0];
     boost::erase_all(nick, ":");
     return nick;
 }
 
-bool Parse::Send(string data)
+bool Parse::Send(std::string data)
 {
     Global::Instance().get_IrcData().AddSendQueue(data);
+    return true;
+}
+
+bool Parse::SendHighPriority(std::string data)
+{
+    Global::Instance().get_IrcData().AddHighPrioritySendQueue(data);
+    return true;
+}
+
+bool Parse::SendLowPriority(std::string data)
+{
+    Global::Instance().get_IrcData().AddLowPrioritySendQueue(data);
     return true;
 }
 

@@ -161,9 +161,19 @@ void ModuleBase::PRIVMSG(std::vector< std::string > data, std::string trigger)
 }
 bool ModuleBase::Send(std::string data)
 {
-    cout << "test" << endl;
-    IrcData& ID = Global::Instance().get_IrcData();
-    ID.AddSendQueue(data);
+    Global::Instance().get_IrcData().AddSendQueue(data);
+    return true;
+}
+
+bool ModuleBase::SendHighPriority(std::string data)
+{
+    Global::Instance().get_IrcData().AddHighPrioritySendQueue(data);
+    return true;
+}
+
+bool ModuleBase::SendLowPriority(std::string data)
+{
+    Global::Instance().get_IrcData().AddLowPrioritySendQueue(data);
     return true;
 }
 

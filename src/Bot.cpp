@@ -1,6 +1,5 @@
 #include "../include/Bot.h"
 
-#include "../include/ServerSocket.h"
 #include "../include/IrcSocket.h"
 #include "../include/SocketException.h"
 #include "../include/Parse.h"
@@ -9,6 +8,8 @@
 #include "../include/Global.h"
 #include <iostream>
 #include <vector>
+#include <dlfcn.h>
+#include <boost/bind.hpp>
 
 Bot::Bot()
 // Initialize all member vars! std::string's will just use their default constructor
@@ -44,7 +45,7 @@ void Bot::Init(string configfile)
 //    LoadAdmin();
 //    admininit();
 }
-
+/*
 void Bot::admininit()
 {
     cout << "admininit" << endl;
@@ -60,7 +61,7 @@ void Bot::adminrun()
     cout << "adminrun" << endl;
     ai->Run();
 }
-
+*/
 void Bot::parseinit()
 {
     Global& G = Global::Instance();
@@ -122,7 +123,7 @@ void Bot::Run()
     //admin_thread->join();
     parse_thread->join();
 }
-
+/*
 void Bot::LoadAdmin()
 {
     // load the admin library
@@ -154,4 +155,4 @@ void Bot::UnLoadAdmin()
     dlclose(admin);
     cout << "admin UnLoaded" << endl;
 
-}
+}*/

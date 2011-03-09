@@ -33,6 +33,8 @@ public:
 
     //data
     void AddSendQueue(std::string data);
+    void AddHighPrioritySendQueue(std::string data);
+    void AddLowPrioritySendQueue(std::string data);
 
 private:
     //vars
@@ -41,7 +43,7 @@ private:
     //floodvars
     bool floodprotect;
     int floodbuffer;
-    int floodtime;
+    double floodtime;
     int buffer;
 
     //consumer lists
@@ -71,6 +73,8 @@ private:
     boost::mutex floodmutex;
 
     //irc queues
+    std::queue< std::string > HighPrioritySendQueue;
+    std::queue< std::string > LowPrioritySendQueue;
     std::queue< std::string > SendQueue;
     std::queue< std::string > RecvQueue;
 

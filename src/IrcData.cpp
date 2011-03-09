@@ -36,11 +36,12 @@ void IrcData::init(IrcSocket *s)
     floodprotect = false;
     if (boost::iequals(protect_string, "true"))
     {
-        floodprotect = true;
         stringstream bufferss(buffer_string);
-        bufferss >> floodbuffer;
         stringstream timess(time_string);
+        floodprotect = true;
+        bufferss >> floodbuffer;
         timess >> floodtime;
+        buffer = floodbuffer;
         assert(!flood_thread);
         flood_thread = boost::shared_ptr<boost::thread>(new boost::thread(boost::bind(&IrcData::flood_timer, this)));
     }
@@ -117,10 +118,24 @@ void IrcData::run()
     parse_thread = boost::shared_ptr<boost::thread>(new boost::thread(boost::bind(&IrcData::Parse, this)));
 }
 
+void IrcData::AddHighPrioritySendQueue(std::string data)
+{
+    boost::mutex::scoped_lock lock(SendMutex);
+    HighPrioritySendQueue.push(data);
+    SendAvailable.notify_one();
+}
+
 void IrcData::AddSendQueue(std::string data)
 {
     boost::mutex::scoped_lock lock(SendMutex);
     SendQueue.push(data);
+    SendAvailable.notify_one();
+}
+
+void IrcData::AddLowPrioritySendQueue(std::string data)
+{
+    boost::mutex::scoped_lock lock(SendMutex);
+    LowPrioritySendQueue.push(data);
     SendAvailable.notify_one();
 }
 
@@ -206,14 +221,30 @@ std::string IrcData::GetSendQueue()
 {
     boost::mutex::scoped_lock lock(SendMutex);
     std::string temp = "";
-    while(SendQueue.empty() && send == true)
+    while(HighPrioritySendQueue.empty() && SendQueue.empty() && LowPrioritySendQueue.empty() && send == true)
     {
         SendAvailable.wait(lock);
     }
     if (send == true)
     {
-        temp = SendQueue.front();
-        SendQueue.pop();
+        if (!HighPrioritySendQueue.empty())
+        {
+            temp = HighPrioritySendQueue.front();
+            HighPrioritySendQueue.pop();
+            return temp;
+        }
+        if (!SendQueue.empty())
+        {
+            temp = SendQueue.front();
+            SendQueue.pop();
+            return temp;
+        }
+        if (!LowPrioritySendQueue.empty())
+        {
+            temp = LowPrioritySendQueue.front();
+            LowPrioritySendQueue.pop();
+            return temp;
+        }
     }
     return temp;
 }
@@ -292,6 +323,6 @@ void IrcData::flood_timer()
             std::cout << "void IrcData::flood_timer()  buffer " << buffer << std::endl;
             floodcondition.notify_one();
         }
-        usleep(floodtime*1000000);
+        usleep(floodtime*1000);
     }
 }

@@ -333,7 +333,7 @@ void ChannelBot::overwatch(string bind, string command, string chan, string nick
         debugstring = debugstring + " " + args[i];
     }
     debugstring = debugstring + "\r\n";
-    Send(debugstring);
+    SendLowPriority(debugstring);
 }
 
 void ChannelBot::version(string chan, string nick, int ca)
