@@ -38,6 +38,12 @@ private:
     //vars
     IrcSocket *S;
 
+    //floodvars
+    bool floodprotect;
+    int floodbuffer;
+    int floodtime;
+    int buffer;
+
     //consumer lists
     std::vector< Data * > Consumers;
     std::vector< Data * > RawConsumers;
@@ -54,12 +60,15 @@ private:
     boost::shared_ptr<boost::thread> send_thread;
     boost::shared_ptr<boost::thread> recv_thread;
     boost::shared_ptr<boost::thread> parse_thread;
+    boost::shared_ptr<boost::thread> flood_thread;
 
     boost::condition SendAvailable;
     boost::condition RecvAvailable;
+    boost::condition floodcondition;
 
     boost::mutex SendMutex;
     boost::mutex RecvMutex;
+    boost::mutex floodmutex;
 
     //irc queues
     std::queue< std::string > SendQueue;
@@ -70,6 +79,7 @@ private:
     void sendloop();
     void recvloop();
     void Parse();
+    void flood_timer();
 
     //irc functions
     void Send();
@@ -79,6 +89,7 @@ private:
     std::string GetSendQueue();
     std::string GetRecvQueue();
     void AddRecvQueue(std::string data);
+
 };
 
 #endif

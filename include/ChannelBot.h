@@ -89,6 +89,7 @@ private:
 
     boost::mutex parse_mutex;
     bool run;
+    std::string channelbottrigger;
     //vector<string> Data;
 
     boost::shared_ptr<boost::thread> raw_parse_thread;

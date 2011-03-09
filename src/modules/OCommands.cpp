@@ -25,6 +25,7 @@ OCommands::~OCommands()
 
 void OCommands::Init()
 {
+    ocommandstrigger = Global::Instance().get_ConfigReader().GetString("ocommandstrigger");
     D = new Data();
     D->Init(false, false, false, true);
     Global::Instance().get_IrcData().AddConsumer(D);
@@ -81,7 +82,7 @@ void OCommands::parse_privmsg()
     while(run)
     {
         data = D->GetPrivmsgQueue();
-        PRIVMSG(data);
+        PRIVMSG(data, ocommandstrigger);
     }
 }
 

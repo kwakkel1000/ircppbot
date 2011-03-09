@@ -25,6 +25,7 @@ ChannelBot::~ChannelBot()
 
 void ChannelBot::Init()
 {
+    channelbottrigger = Global::Instance().get_ConfigReader().GetString("channelbottrigger");
     D = new Data();
     D->Init(true, false, false, true);
     Global::Instance().get_IrcData().AddConsumer(D);
@@ -81,7 +82,7 @@ void ChannelBot::parse_privmsg()
     while(run)
     {
         data = D->GetPrivmsgQueue();
-        PRIVMSG(data);
+        PRIVMSG(data, channelbottrigger);
     }
 }
 void ChannelBot::ParseData(std::vector< std::string > data)

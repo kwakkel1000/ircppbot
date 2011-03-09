@@ -64,6 +64,7 @@ private:
 
     boost::mutex parse_mutex;
     bool run;
+    std::string ocommandstrigger;
     //vector<string> Data;
     //boost::shared_ptr<boost::thread> raw_parse_thread;
     boost::shared_ptr<boost::thread> privmsg_parse_thread;

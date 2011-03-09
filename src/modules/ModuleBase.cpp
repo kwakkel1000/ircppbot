@@ -17,10 +17,9 @@ ModuleBase::ModuleBase()
 
 //protected
 //irc
-void ModuleBase::PRIVMSG(std::vector< std::string > data)
+void ModuleBase::PRIVMSG(std::vector< std::string > data, std::string trigger)
 {
 	cout << "PRIVMSG" << endl;
-    std::string trigger = "!";
     std::vector< std::string > args;
     std::string data3;
     size_t chanpos1;
