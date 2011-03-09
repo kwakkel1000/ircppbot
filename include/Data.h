@@ -19,6 +19,7 @@ public:
     Data();
     ~Data();
     void Init(bool getraw, bool getmode, bool getwhois, bool getprivmsg);
+    void stop();
     void AddRawQueue(std::vector< std::string > data);
     void AddModeQueue(std::vector< std::string > data);
     void AddWhoisQueue(std::vector< std::string > data);
@@ -37,6 +38,8 @@ public:
 
 private:
     //vars
+    bool run;
+
     //dummy vars
     std::vector< std::string > NULLvector;
 

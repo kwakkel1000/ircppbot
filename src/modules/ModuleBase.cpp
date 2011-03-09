@@ -19,7 +19,7 @@ ModuleBase::ModuleBase()
 //irc
 void ModuleBase::PRIVMSG(std::vector< std::string > data, std::string trigger)
 {
-	cout << "PRIVMSG" << endl;
+	//cout << "PRIVMSG" << endl;
     std::vector< std::string > args;
     std::string data3;
     size_t chanpos1;

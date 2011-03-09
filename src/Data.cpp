@@ -10,10 +10,20 @@ Data::~Data()
 
 void Data::Init(bool getraw, bool getmode, bool getwhois, bool getprivmsg)
 {
+    run = true;
     get_raw = getraw;
     get_mode = getmode;
     get_whois = getwhois;
     get_privmsg = getprivmsg;
+}
+
+void Data::stop()
+{
+    run = false;
+    RawAvailable.notify_all();
+    ModeAvailable.notify_all();
+    WhoisAvailable.notify_all();
+    PrivmsgAvailable.notify_all();
 }
 
 //producers
@@ -50,49 +60,68 @@ std::vector< std::string > Data::GetRawQueue()
 {
     boost::mutex::scoped_lock lock(RawMutex);
     //std::cout << "GetRawQueue before lock " << std::endl;
-    while(RawQueue.empty())
+    while(RawQueue.empty() && run)
     {
         RawAvailable.wait(lock);
     }
-    std::vector< std::string > temp = RawQueue.front();
-    RawQueue.pop();
-    //std::cout << "GetRawQueue: " << temp[0] << std::endl;
-    return temp;
+    if (!RawQueue.empty())
+    {
+        std::vector< std::string > temp = RawQueue.front();
+        RawQueue.pop();
+        return temp;
+    }
+    return NULLvector;
 }
 
 std::vector< std::string > Data::GetModeQueue()
 {
     boost::mutex::scoped_lock lock(ModeMutex);
-    while(ModeQueue.empty())
+    while(ModeQueue.empty() && run)
     {
         ModeAvailable.wait(lock);
     }
-    std::vector< std::string > temp = ModeQueue.front();
-    ModeQueue.pop();
-    return temp;
+    if (!ModeQueue.empty())
+    {
+        std::vector< std::string > temp = ModeQueue.front();
+        ModeQueue.pop();
+        return temp;
+    }
+    return NULLvector;
 }
 
 std::vector< std::string > Data::GetWhoisQueue()
 {
     boost::mutex::scoped_lock lock(WhoisMutex);
-    while(WhoisQueue.empty())
+    while(WhoisQueue.empty() && run)
     {
         WhoisAvailable.wait(lock);
     }
-    std::vector< std::string > temp = WhoisQueue.front();
-    WhoisQueue.pop();
-    return temp;
+    if (!WhoisQueue.empty())
+    {
+        std::vector< std::string > temp = WhoisQueue.front();
+        WhoisQueue.pop();
+        return temp;
+    }
+    return NULLvector;
 }
 
 std::vector< std::string > Data::GetPrivmsgQueue()
 {
     boost::mutex::scoped_lock lock(PrivmsgMutex);
-    while(PrivmsgQueue.empty())
+    while(PrivmsgQueue.empty() && run)
     {
         PrivmsgAvailable.wait(lock);
     }
-    std::vector< std::string > temp = PrivmsgQueue.front();
-    PrivmsgQueue.pop();
-    //std::cout << "GetPrivmsgQueue: " << temp[0] << std::endl;
+    if (!PrivmsgQueue.empty())
+    {
+        std::vector< std::string > temp = PrivmsgQueue.front();
+        PrivmsgQueue.pop();
+        return temp;
+    }
+    std::vector< std::string > temp;
+    temp.push_back("");
+    temp.push_back("");
+    temp.push_back("");
+    temp.push_back("");
     return temp;
 }

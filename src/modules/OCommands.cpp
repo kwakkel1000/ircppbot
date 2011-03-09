@@ -66,7 +66,10 @@ void OCommands::BindInit()
 void OCommands::stop()
 {
     run = false;
+    D->stop();
+    std::cout << "OCommands::stop" << std::endl;
     privmsg_parse_thread->join();
+    std::cout << "privmsg_parse_thread stopped" << std::endl;
 }
 
 void OCommands::read()

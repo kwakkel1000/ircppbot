@@ -1,14 +1,22 @@
 #include "../include/Global.h"
+#include <iostream>
 
 
 void Global::delete_all()
 {
-    m_IrcData->stop();
+    std::cout << "void Global::delete_all()" << std::endl;
+    //m_IrcData->stop();
+    //std::cout << "m_IrcData->stop();" << std::endl;
     delete m_Users;
+    std::cout << "m_Users deleted" << std::endl;
     delete m_Channels;
+    std::cout << "m_Channels deleted" << std::endl;
     //delete m_IrcData;
+    //std::cout << "m_IrcData deleted" << std::endl;
     delete m_Reply;
+    std::cout << "m_Reply deleted" << std::endl;
     delete m_ConfigReader;
+    std::cout << "m_ConfigReader deleted" << std::endl;
 }
 
 void Global::set_Run(bool _Run)

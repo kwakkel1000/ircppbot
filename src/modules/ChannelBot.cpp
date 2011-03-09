@@ -53,8 +53,12 @@ void ChannelBot::Init()
 void ChannelBot::stop()
 {
     run = false;
+    D->stop();
+    std::cout << "ChannelBot::stop" << std::endl;
     raw_parse_thread->join();
+    std::cout << "raw_parse_thread stopped" << std::endl;
     privmsg_parse_thread->join();
+    std::cout << "privmsg_parse_thread stopped" << std::endl;
 }
 
 void ChannelBot::read()
@@ -133,8 +137,6 @@ void ChannelBot::ParsePrivmsg(std::vector<std::string> data, std::string command
     //cout << "command " << command << endl;
     string nick = HostmaskToNick(data);
     string auth = U.GetAuth(nick);
-    cout << "args.size() " << args.size() << endl;
-    cout << "binds.size() " << binds.size() << endl;
     if (args.size() == 0)
     {
         for (unsigned int i = 0; i < binds.size(); i++)
@@ -816,8 +818,8 @@ void ChannelBot::JOIN(vector<string> data)
 {
     std::string botnick = Global::Instance().get_BotNick();
     Users& U = Global::Instance().get_Users();
-    vector<string> chan;
-    boost::split( chan, data[2], boost::is_any_of(":"), boost::token_compress_on );
+    std::string chan = data[2];
+    boost::erase_all(chan, ":");
     string nick = HostmaskToNick(data);
     if (nick == botnick)
     {
@@ -826,7 +828,7 @@ void ChannelBot::JOIN(vector<string> data)
     {
         if (U.GetUid(nick) >= 0)
         {
-            OnUserJoin(chan[0], nick);
+            OnUserJoin(chan, nick);
         }
     }
 }

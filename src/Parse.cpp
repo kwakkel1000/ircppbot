@@ -67,8 +67,10 @@ Parse::Parse(IrcSocket *s, bool ns)
 
 Parse::~Parse()
 {
+    std::cout << "Parse::~Parse()" << std::endl;
     timeron = false;
     timer_thread->join();
+    std::cout << "timer_thread stopped" << std::endl;
     // For every new you should call a delete (manualy calling destructors is not-done)
     // delete accepts null pointers, no checking needed \o/
     /*delete U;
@@ -77,6 +79,7 @@ Parse::~Parse()
 	for (unsigned int i = 0; i < tmpmodulelist.size(); i++)
 	{
 		std::string modname = tmpmodulelist[i];
+		std::cout << "unloading " << modname << std::endl;
 		UnLoadModule(modname);
 	}
 	if (NS == true)
@@ -498,8 +501,8 @@ void Parse::PRIVMSG(std::vector< std::string > data)
             {
                 std::string returnstring = "PRIVMSG " + chan + " :stopping now\r\n";
                 Send(returnstring);
-                //Global::Instance().set_Run(false);
-                //run = false;
+                Global::Instance().set_Run(false);
+                run = false;
             }
             if (boost::iequals(command,"restart"))
             {
@@ -507,7 +510,7 @@ void Parse::PRIVMSG(std::vector< std::string > data)
                 Send(returnstring);
                 //returnstring = "QUIT \r\n";
                 //Send(returnstring);
-                //run = false;
+                run = false;
             }
             if (boost::iequals(command,"listmodules"))
             {

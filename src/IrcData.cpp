@@ -6,13 +6,11 @@
 
 IrcData::IrcData()
 {
-    send = true;
-    recv = true;
-    parse = true;
 }
 
 IrcData::~IrcData()
 {
+    stop();
 }
 
 void IrcData::stop()
@@ -20,16 +18,62 @@ void IrcData::stop()
     send = false;
     recv = false;
     parse = false;
+    while (!HighPrioritySendQueue.empty())
+    {
+        HighPrioritySendQueue.pop();
+    }
+    while (!LowPrioritySendQueue.empty())
+    {
+        LowPrioritySendQueue.pop();
+    }
+    while (!SendQueue.empty())
+    {
+        SendQueue.pop();
+    }
+    while (!RecvQueue.empty())
+    {
+        RecvQueue.pop();
+    }
     SendAvailable.notify_all();
     RecvAvailable.notify_all();
+    floodcondition.notify_all();
+    std::cout << "void IrcData::stop() joining threads" << endl;
+    if (floodprotect)
+    {
+        flood_thread->join();
+        std::cout << "flood_thread stopped" << endl;
+    }
     send_thread->join();
+    std::cout << "send_thread stopped" << endl;
     recv_thread->join();
+    std::cout << "recv_thread stopped" << endl;
     parse_thread->join();
+    std::cout << "parse_thread stopped" << endl;
 }
 
 void IrcData::init(IrcSocket *s)
 {
+    //delete S;
     S=s;
+    while (!HighPrioritySendQueue.empty())
+    {
+        HighPrioritySendQueue.pop();
+    }
+    while (!LowPrioritySendQueue.empty())
+    {
+        LowPrioritySendQueue.pop();
+    }
+    while (!SendQueue.empty())
+    {
+        SendQueue.pop();
+    }
+    while (!RecvQueue.empty())
+    {
+        RecvQueue.pop();
+    }
+    send = true;
+    recv = true;
+    parse = true;
     std::string protect_string = Global::Instance().get_ConfigReader().GetString("floodprotect");
     std::string buffer_string = Global::Instance().get_ConfigReader().GetString("floodbuffer");
     std::string time_string = Global::Instance().get_ConfigReader().GetString("floodtime");
@@ -146,6 +190,7 @@ void IrcData::sendloop()
     {
         Send();
     }
+    std::cout << "void IrcData::sendloop() after while()" << std::endl;
 }
 
 void IrcData::recvloop()
@@ -154,6 +199,7 @@ void IrcData::recvloop()
     {
         Recv();
     }
+    std::cout << "void IrcData::sendloop() after while()" << std::endl;
 }
 
 void IrcData::Send()
@@ -173,11 +219,8 @@ void IrcData::Send()
             std::cout << "IrcData::Send >> " << data;
             try
             {
-                if(S)
-                {
-                    buffer--;
-                    S->Send(data);
-                }
+                buffer--;
+                S->Send(data);
             }
             catch (IrcSocket::Exception& e)
             {
@@ -190,7 +233,7 @@ void IrcData::Send()
             std::cout << "IrcData::Send >> " << data;
             try
             {
-                if(S)
+                if (send)
                 {
                     S->Send(data);
                 }
@@ -281,14 +324,10 @@ void IrcData::Parse()
         data = GetRecvQueue();
         boost::split( result, data, boost::is_any_of(" "), boost::token_compress_on );
         unsigned int consumer_iterator;
-        //std::cout << RawConsumers.size() << std::endl;
-        //std::cout << "void IrcData::Parse()  Raw";
         for (consumer_iterator = 0; consumer_iterator < RawConsumers.size(); consumer_iterator++)
         {
-            //std::cout << " | ";
             RawConsumers[consumer_iterator]->AddRawQueue(result);
         }
-        //std::cout << std::endl;
         for (consumer_iterator = 0; consumer_iterator < ModeConsumers.size(); consumer_iterator++)
         {
             //ModeConsumers[consumer_iterator]->AddModeQueue(result);
@@ -301,13 +340,10 @@ void IrcData::Parse()
         {
             if (result[1] == "PRIVMSG")   //PRIVMSG
             {
-                //std::cout << "void IrcData::Parse()  PRIVMSG";
                 for (consumer_iterator = 0; consumer_iterator < PrivmsgConsumers.size(); consumer_iterator++)
                 {
-                    //std::cout << " | ";
                     PrivmsgConsumers[consumer_iterator]->AddPrivmsgQueue(result);
                 }
-                //std::cout << std::endl;
             }
         }
     }
@@ -320,7 +356,7 @@ void IrcData::flood_timer()
         if (buffer < floodbuffer)
         {
             buffer++;
-            std::cout << "void IrcData::flood_timer()  buffer " << buffer << std::endl;
+            //std::cout << "void IrcData::flood_timer()  buffer " << buffer << std::endl;
             floodcondition.notify_one();
         }
         usleep(floodtime*1000);

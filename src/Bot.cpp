@@ -23,9 +23,13 @@ Bot::~Bot()
 {
     // For every new you should call a delete (manualy calling destructors is not-done)
     // delete accepts null pointers, no checking needed \o/
+    std::cout << "Bot::~Bot()" << std::endl;
     parse_sock->Disconnect();
+    std::cout << "parse_sock disconnected" << std::endl;
 	delete P;
+    std::cout << "P deleted" << std::endl;
 	delete parse_sock;
+    std::cout << "parse_sock deleted" << std::endl;
 }
 
 void Bot::Init(string configfile)
@@ -120,8 +124,10 @@ void Bot::parserun()
 
 void Bot::Run()
 {
+    std::cout << "void Bot::Run()" << std::endl;
     //admin_thread->join();
     parse_thread->join();
+    std::cout << "parse_thread stopped" << std::endl;
 }
 /*
 void Bot::LoadAdmin()
