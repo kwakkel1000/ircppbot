@@ -85,7 +85,7 @@ void IrcData::init(IrcSocket *s)
         floodprotect = true;
         bufferss >> floodbuffer;
         timess >> floodtime;
-        buffer = floodbuffer;
+        buffer = 1;
         assert(!flood_thread);
         flood_thread = boost::shared_ptr<boost::thread>(new boost::thread(boost::bind(&IrcData::flood_timer, this)));
     }
@@ -212,11 +212,11 @@ void IrcData::Send()
             boost::mutex::scoped_lock lock(floodmutex);
             while(buffer <= 0)
             {
-                std::cout << "void IrcData::Send()  buffer " << buffer << " wait" << std::endl;
+                //std::cout << "void IrcData::Send()  buffer " << buffer << " wait" << std::endl;
                 floodcondition.wait(lock);
             }
             data = GetSendQueue();
-            std::cout << "IrcData::Send >> " << data;
+            std::cout << ">> " << data;
             try
             {
                 buffer--;
@@ -230,7 +230,7 @@ void IrcData::Send()
         else
         {
             data = GetSendQueue();
-            std::cout << "IrcData::Send >> " << data;
+            std::cout << ">> " << data;
             try
             {
                 if (send)
@@ -254,7 +254,7 @@ void IrcData::Recv()
         if (S)
         {
             S->Recv(buf);
-            std::cout << "Recv: " << buf << std::endl;
+            std::cout << "<< " << buf << std::endl;
             AddRecvQueue(buf);
         }
     }

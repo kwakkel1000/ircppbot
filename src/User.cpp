@@ -88,7 +88,6 @@ void User::God()
 
 void User::SetGod(int data)
 {
-    cout << "User::SetGod(" << data << ")" << endl;
     god = data;
 }
 

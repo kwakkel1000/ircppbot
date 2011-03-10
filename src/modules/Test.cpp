@@ -76,12 +76,12 @@ void Test::parse_privmsg()
 void Test::ParseData(std::vector< std::string > data)
 {
     cout << "Test" << endl;
-    if (data.size() >= 4)
+    if (data.size() >= 1)
     {
-		std::string returnstr = "PRIVMSG #jefo :" + data[0] + " " + data[1] + " " + data[2] + " " + data[3];
-		if (data.size() >= 5)
+		std::string returnstr = "PRIVMSG #blubs :" + data[0];
+		if (data.size() >= 2)
 		{
-			for (unsigned int i = 4; i < data.size(); i++)
+			for (unsigned int i = 1; i < data.size(); i++)
 			{
 				returnstr = returnstr + " " + data[i];
 			}
