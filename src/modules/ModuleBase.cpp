@@ -85,7 +85,7 @@ void ModuleBase::PRIVMSG(std::vector< std::string > data, std::string trigger)
             else if (chanpos1 != string::npos && chanpos2 == string::npos)
             {
                 chantrigger = 0;    //PRIVMSG nick #chan :!command
-                cout << "channel: triggercommand" << endl;
+                //cout << "channel: triggercommand" << endl;
                 if (data.size() >= 4)
                 {
                     command = data3;

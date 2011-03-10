@@ -244,11 +244,6 @@ void ChannelBot::ParsePrivmsg(std::vector<std::string> data, std::string command
                     }
                     overwatch(commands[i], command, chan, nick, auth, args);
                 }
-                /*if (boost::iequals(commands[i], "deluser"))
-                {
-                    deluser(chan, nick, auth, args[0], U.GetAuth(args[0]), cas[i]);
-                    overwatch(commands[i], command, chan, nick, auth, args);
-                }*/
             }
         }
     }
@@ -312,7 +307,7 @@ void ChannelBot::ParsePrivmsg(std::vector<std::string> data, std::string command
                 if (boost::iequals(commands[i], "adduser"))
                 {
                 	unsigned int last_args_it = args.size() - 1;
-                	for (unsigned int args_it = 0; args_it < (last_args_it - 1); args_it++)
+                	for (unsigned int args_it = 0; args_it < last_args_it; args_it++)
                 	{
 						adduser(chan, nick, auth, args[args_it], U.GetAuth(args[args_it]), convertString(args[last_args_it]), cas[i]);
                 	}
@@ -321,7 +316,7 @@ void ChannelBot::ParsePrivmsg(std::vector<std::string> data, std::string command
                 if (boost::iequals(commands[i], "changelevel"))
                 {
                 	unsigned int last_args_it = args.size() - 1;
-                	for (unsigned int args_it = 0; args_it < (last_args_it - 1); args_it++)
+                	for (unsigned int args_it = 0; args_it < last_args_it; args_it++)
                 	{
 						changelevel(chan, nick, auth, args[args_it], U.GetAuth(args[args_it]), convertString(args[last_args_it]), cas[i]);
                 	}
@@ -708,8 +703,6 @@ void ChannelBot::down(string chan, string nick, string auth, int ca)
 {
     Channels& C = Global::Instance().get_Channels();
     Users& U = Global::Instance().get_Users();
-    //bool takeop = false;
-    //bool takevoice = false;
     string reply_string;
     if (C.GetOp(chan, nick) == true && C.GetVoice(chan, nick) == true)
     {
@@ -739,43 +732,57 @@ void ChannelBot::down(string chan, string nick, string auth, int ca)
 
 void ChannelBot::resync(string chan, string nick, string auth, int ca)
 {
-    //int access = C->GetAccess(chan, auth);
-
-            /*if (caseInsensitiveStringCompare(command,"resync"))
-            {
-                vector<string> nicks = C->GetNicks(chan);
-                int i;
-                for (i = 0 ; i < nicks.size() ; i++)
-                {
-                    if (!caseInsensitiveStringCompare(botnick, nicks[i]))
-                    {
-                        down(chan, nicks[i]);
-                        up(chan, nicks[i]);
-                        *//*string auth = U->GetAuth(nicks[i]);
-                        int access = C->GetAccess(chan, auth);
-                        if ((access < C->GetGiveops(chan)) && (access < C->GetGivevoice(chan)))
-                        {
-                            if (C->GetOp(chan, nicks[i]) == true || C->GetVoiceOp(chan, nicks[i]) == true)
-                            {
-                                string returnstring = "MODE " + chan + " -ov " + nicks[i] + " " + nicks[i] + "\r\n";
-                                Send(returnstring);
-                            }
-                            string returnstring = "MODE " + chan + " -ov " + nicks[i] + " " + nicks[i] + "\r\n";
-                            Send(returnstring);
-                        }
-                        else if (access < C->GetGiveops(chan))
-                        {
-                            string returnstring = "MODE " + chan + " -o " + nicks[i] + "\r\n";
-                            Send(returnstring);
-                        }
-                        else if (access < C->GetGivevoice(chan))
-                        {
-                            string returnstring = "MODE " + chan + " -v " + nicks[i] + "\r\n";
-                            Send(returnstring);
-                        }*//*
-                    }
-                }
-            }*/
+	Channels& C = Global::Instance().get_Channels();
+    Users& U = Global::Instance().get_Users();
+	std::vector< std::string > nicks = C.GetNicks(chan);
+	int access ;
+	for (unsigned int i = 0; i < nicks.size(); i++)
+	{
+		if (!boost::iequals(Global::Instance().get_BotNick(), nicks[i]))
+		{
+			access = C.GetAccess(chan, U.GetAuth(nicks[i]));
+			if (access >= C.GetGiveops(chan))
+			{
+				if (C.GetOp(chan, nicks[i]) == false)
+				{
+					string returnstring = "MODE " + chan + " +o " + nicks[i] + "\r\n";
+					Send(returnstring);
+				}
+			}
+			else if (access >= C.GetGivevoice(chan))
+			{
+				if (C.GetVoice(chan, nicks[i]) == false)
+				{
+					string returnstring = "MODE " + chan + " +v " + nicks[i] + "\r\n";
+					Send(returnstring);
+				}
+			}
+			if ((access < C.GetGiveops(chan)) && (access < C.GetGivevoice(chan)))
+			{
+				if (C.GetOp(chan, nicks[i]) == true || C.GetVoice(chan, nicks[i]) == true)
+				{
+					string returnstring = "MODE " + chan + " -ov " + nicks[i] + " " + nicks[i] + "\r\n";
+					Send(returnstring);
+				}
+			}
+			else if (access < C.GetGiveops(chan))
+			{
+				if (C.GetOp(chan, nicks[i]) == false)
+				{
+					string returnstring = "MODE " + chan + " -o " + nicks[i] + "\r\n";
+					Send(returnstring);
+				}
+			}
+			else if (access < C.GetGivevoice(chan))
+			{
+				if (C.GetVoice(chan, nicks[i]) == false)
+				{
+					string returnstring = "MODE " + chan + " -v " + nicks[i] + "\r\n";
+					Send(returnstring);
+				}
+			}
+		}
+	}
 }
 
 void ChannelBot::ccommands(string nick, string auth, int ca)
@@ -984,19 +991,23 @@ void ChannelBot::DBChannelInfo(string data)
 {
     Channels& C = Global::Instance().get_Channels();
     vector< vector<string> > sql_result;
-    string sql_string = "select channels.id, users.access, auth.auth, channels.giveops, channels.givevoice from users JOIN auth ON users.uid = auth.id JOIN channels ON users.cid = channels.id where channels.channel = '" + data + "';";
+    string sql_string = "select channels.id, channels.giveops, channels.givevoice from channels where channels.channel = '" + data + "';";
     sql_result = RawSqlSelect(sql_string);
     unsigned int i;
     for (i = 0 ; i < sql_result.size() ; i++)
     {
-        cout << sql_result[i][0] << " " << sql_result[i][1] << " " << sql_result[i][2] << " " << sql_result[i][3] << " " << sql_result[i][4] << endl;
+        cout << sql_result[i][0] << " " << sql_result[i][1] << " " << sql_result[i][2] << endl;
         C.SetCid(data, convertString(sql_result[i][0]));
-        C.AddAuth(data, sql_result[i][2]);
-        C.SetAccess(data, sql_result[i][2], convertString(sql_result[i][1]));
-        C.SetGiveops(data, convertString(sql_result[i][3]));
-        C.SetGivevoice(data, convertString(sql_result[i][4]));
-        C.SetGiveops(data, convertString(sql_result[i][3]));
-        C.SetGivevoice(data, convertString(sql_result[i][4]));
+        C.SetGiveops(data, convertString(sql_result[i][1]));
+        C.SetGivevoice(data, convertString(sql_result[i][2]));
+    }
+    sql_string = "select users.access, auth.auth from users JOIN auth ON users.uid = auth.id JOIN channels ON users.cid = channels.id where channels.channel = '" + data + "';";
+    sql_result = RawSqlSelect(sql_string);
+    for (i = 0 ; i < sql_result.size() ; i++)
+    {
+        cout << sql_result[i][0] << " " << sql_result[i][1] << endl;
+        C.AddAuth(data, sql_result[i][1]);
+        C.SetAccess(data, sql_result[i][1], convertString(sql_result[i][0]));
     }
 }
 

@@ -5,6 +5,7 @@ User::User()
 {
 oaccess = -1;
 uid = -1;
+god = 0;
 NULLvector.push_back("NULL");
 gone = false;
 x = false;
