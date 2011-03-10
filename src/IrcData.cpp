@@ -212,7 +212,6 @@ void IrcData::Send()
             boost::mutex::scoped_lock lock(floodmutex);
             while(buffer <= 0)
             {
-                //std::cout << "void IrcData::Send()  buffer " << buffer << " wait" << std::endl;
                 floodcondition.wait(lock);
             }
             data = GetSendQueue();
@@ -232,7 +231,7 @@ void IrcData::Send()
             }
             catch (IrcSocket::Exception& e)
             {
-                //cout << "Exception caught: " << e.Description() << endl;
+                std::cout << "Exception caught: " << e.Description() << std::endl;
             }
         }
         else
@@ -253,7 +252,7 @@ void IrcData::Send()
             }
             catch (IrcSocket::Exception& e)
             {
-                //cout << "Exception caught: " << e.Description() << endl;
+                std::cout << "Exception caught: " << e.Description() << std::endl;
             }
         }
     }
@@ -368,9 +367,7 @@ void IrcData::flood_timer()
     {
         if (buffer < floodbuffer)
         {
-            buffer++;
-            //std::cout << "void IrcData::flood_timer()  buffer " << buffer << std::endl;
-            floodcondition.notify_one();
+            buffer++;            floodcondition.notify_one();
         }
         usleep(floodtime*1000);
     }
