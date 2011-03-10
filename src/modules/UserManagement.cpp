@@ -127,7 +127,7 @@ void UserManagement::WHO(vector<string> data)
             Send(whoisstring);
             //WhoisSend = true;
         //}
-        cout << "Parse::WHO(vector<string> data)  user added " << nick << "\r\n";
+        //cout << "UserManagement::WHO(vector<string> data)  user added " << nick << "\r\n";
     }
 }
 
@@ -167,7 +167,7 @@ void UserManagement::JOIN(vector<string> data)
         {
             string whoisstring = "WHOIS " + nick + " " + nick + "\r\n";
             Send(whoisstring);
-            cout << "Parse::JOIN(vector<string> data)  user added " << nick << "\r\n";
+            //cout << "Parse::JOIN(vector<string> data)  user added " << nick << "\r\n";
         }
     }
 }
@@ -202,7 +202,7 @@ void UserManagement::PART(vector<string> data)
             cout << "no channels left" << endl;
             U.DelUser(nick);
         }
-        cout << "PART" << endl;
+        //cout << "PART" << endl;
     }
 }
 
@@ -236,7 +236,7 @@ void UserManagement::KICK(vector<string> data)
             cout << "no channels left" << endl;
             U.DelUser(nick);
         }
-        cout << "KICK" << endl;
+        //cout << "KICK" << endl;
     }
 }
 
@@ -257,7 +257,7 @@ void UserManagement::MODE(vector<string> data)
 	string modeparse = data[3];
     for (unsigned int i = 0; i < modeparse.length(); i++)
     {
-        cout << "modeparse[i]" << modeparse[i] << endl;
+        //cout << "modeparse[i]" << modeparse[i] << endl;
         if (modeparse[i] == addchar)
         {
             //cout << "+" << endl;
@@ -339,7 +339,7 @@ void UserManagement::NICK(vector<string> data)
             C.DelNick(channels[i], oldnick);
             C.AddNick(channels[i], nick[0]);
         }
-        cout << "NICK" << endl;
+        //cout << "NICK" << endl;
     }
     else
     {
@@ -350,7 +350,7 @@ void UserManagement::NICK(vector<string> data)
             C.DelNick(channels[i], oldnick);
             C.AddNick(channels[i], nick[0]);
         }
-        cout << "NICK" << endl;
+        //cout << "NICK" << endl;
     }
 }
 

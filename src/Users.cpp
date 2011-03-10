@@ -378,7 +378,7 @@ bool Users::AddAuth(string data)
         }
     }
     authlist.push_back(data);
-    cout << "addauth " << data << endl;
+    //cout << "addauth " << data << endl;
     return true;
 }
 
@@ -404,7 +404,7 @@ int Users::GetWidthLength(string nick)
 vector<string> Users::GetChannels(string data)
 {
     //boost::mutex::scoped_lock  lock(UsersGetChannels_mutex);
-    cout << "vector<string> Users::GetChannels(string data)    data: " << data << endl;
+    //cout << "vector<string> Users::GetChannels(string data)    data: " << data << endl;
     int i = GetNickIndex(data);
     if (i >= 0)
     {
