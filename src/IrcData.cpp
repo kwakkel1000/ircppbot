@@ -219,8 +219,16 @@ void IrcData::Send()
             std::cout << ">> " << data;
             try
             {
-                buffer--;
-                S->Send(data);
+                if (send)
+                {
+					if (boost::iequals(Global::Instance().get_ConfigReader().GetString("chandebug"), "true"))
+					{
+						std::string tmpdata = "PRIVMSG " + Global::Instance().get_ConfigReader().GetString("debugchannel") + " :" + data;
+						S->Send(tmpdata);
+					}
+					buffer--;
+                    S->Send(data);
+                }
             }
             catch (IrcSocket::Exception& e)
             {
@@ -235,6 +243,11 @@ void IrcData::Send()
             {
                 if (send)
                 {
+					if (boost::iequals(Global::Instance().get_ConfigReader().GetString("chandebug"), "true"))
+					{
+						std::string tmpdata = "PRIVMSG " + Global::Instance().get_ConfigReader().GetString("debugchannel") + " :" + data;
+						S->Send(tmpdata);
+					}
                     S->Send(data);
                 }
             }
