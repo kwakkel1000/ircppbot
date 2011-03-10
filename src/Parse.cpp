@@ -23,7 +23,7 @@ Parse::Parse(IrcSocket *s, bool ns)
     G.set_Channels(new Channels());
     G.set_IrcData(new IrcData());
 
-    G.get_Reply().Init(reader);
+    G.get_Reply().Init();
 
     G.get_IrcData().init(s);
     G.get_IrcData().AddConsumer(D);

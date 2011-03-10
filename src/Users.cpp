@@ -361,6 +361,28 @@ bool Users::GetIrcop(string data)
     return false;
 }
 
+bool Users::SetLanguage(std::string nick, std::string _lang)
+{
+    //boost::mutex::scoped_lock  lock(User_mutex);
+    int i = GetNickIndex(nick);
+    if (i >= 0)
+    {
+        return u[i]->SetLanguage(_lang);
+    }
+    return false;
+}
+
+std::string Users::GetLanguage(std::string nick)
+{
+    //boost::mutex::scoped_lock  lock(User_mutex);
+    int i = GetNickIndex(nick);
+    if (i >= 0)
+    {
+        return u[i]->GetLanguage();
+    }
+    return "en";
+}
+
 vector<string> Users::GetAuths()
 {
     //boost::mutex::scoped_lock  lock(UsersGetAuths_mutex);
@@ -380,11 +402,6 @@ bool Users::AddAuth(string data)
     authlist.push_back(data);
     //cout << "addauth " << data << endl;
     return true;
-}
-
-string Users::GetLanguage(string nick)
-{
-    return "en";
 }
 
 

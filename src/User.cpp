@@ -151,6 +151,17 @@ bool User::GetIrcop()
     return ircop;
 }
 
+bool User::SetLanguage(std::string _lang)
+{
+	lang = _lang;
+    return true;
+}
+
+std::string User::GetLanguage()
+{
+    return lang;
+}
+
 int User::GetChannelIndex(string data)
 {
     for ( unsigned int i = 0 ; i < channels.size(); i++ )

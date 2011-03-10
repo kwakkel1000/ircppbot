@@ -3,6 +3,7 @@
 
 #include <iostream>
 #include <boost/algorithm/string.hpp>
+#include <boost/algorithm/string/trim.hpp>
 
 IrcData::IrcData()
 {
@@ -334,6 +335,7 @@ void IrcData::Parse()
         std::string data;
         std::vector< std::string > result;
         data = GetRecvQueue();
+        boost::algorithm::trim(data);
         boost::split( result, data, boost::is_any_of(" "), boost::token_compress_on );
         unsigned int consumer_iterator;
         for (consumer_iterator = 0; consumer_iterator < RawConsumers.size(); consumer_iterator++)

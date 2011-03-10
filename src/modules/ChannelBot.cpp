@@ -244,11 +244,11 @@ void ChannelBot::ParsePrivmsg(std::vector<std::string> data, std::string command
                     }
                     overwatch(commands[i], command, chan, nick, auth, args);
                 }
-                if (boost::iequals(commands[i], "deluser"))
+                /*if (boost::iequals(commands[i], "deluser"))
                 {
                     deluser(chan, nick, auth, args[0], U.GetAuth(args[0]), cas[i]);
                     overwatch(commands[i], command, chan, nick, auth, args);
-                }
+                }*/
             }
         }
     }
@@ -292,10 +292,18 @@ void ChannelBot::ParsePrivmsg(std::vector<std::string> data, std::string command
                     kickuser(chan, nick, auth, args[0], U.GetAuth(args[0]), reason, cas[i]);
                     overwatch(commands[i], command, chan, nick, auth, args);
                 }
+                if (boost::iequals(commands[i], "deluser"))
+                {
+                	for (unsigned int args_it = 0; args_it < args.size(); args_it++)
+                	{
+						deluser(chan, nick, auth, args[args_it], U.GetAuth(args[args_it]), cas[i]);
+                	}
+                    overwatch(commands[i], command, chan, nick, auth, args);
+                }
             }
         }
     }
-    if (args.size() == 2)
+    if (args.size() >= 2)
     {
         for (unsigned int i = 0; i < binds.size(); i++)
         {
@@ -303,12 +311,20 @@ void ChannelBot::ParsePrivmsg(std::vector<std::string> data, std::string command
             {
                 if (boost::iequals(commands[i], "adduser"))
                 {
-                    adduser(chan, nick, auth, args[0], U.GetAuth(args[0]), convertString(args[1]), cas[i]);
+                	unsigned int last_args_it = args.size() - 1;
+                	for (unsigned int args_it = 0; args_it < (last_args_it - 1); args_it++)
+                	{
+						adduser(chan, nick, auth, args[args_it], U.GetAuth(args[args_it]), convertString(args[last_args_it]), cas[i]);
+                	}
                     overwatch(commands[i], command, chan, nick, auth, args);
                 }
                 if (boost::iequals(commands[i], "changelevel"))
                 {
-                    changelevel(chan, nick, auth, args[0], U.GetAuth(args[0]), convertString(args[1]), cas[i]);
+                	unsigned int last_args_it = args.size() - 1;
+                	for (unsigned int args_it = 0; args_it < (last_args_it - 1); args_it++)
+                	{
+						changelevel(chan, nick, auth, args[args_it], U.GetAuth(args[args_it]), convertString(args[last_args_it]), cas[i]);
+                	}
                     overwatch(commands[i], command, chan, nick, auth, args);
                 }
             }
@@ -318,7 +334,7 @@ void ChannelBot::ParsePrivmsg(std::vector<std::string> data, std::string command
 
 void ChannelBot::version(string chan, string nick, int ca)
 {
-    string returnstr = "PRIVMSG " + chan + " :" + nick + ": Tran V0.1 C++ IRC bot\r\n";
+    string returnstr = "PRIVMSG " + chan + " :" + nick + ": Tran V0.2 C++ IRC bot\r\n";
     Send(returnstr);
 }
 

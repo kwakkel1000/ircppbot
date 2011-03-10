@@ -430,7 +430,7 @@ void UserManagement::DBUserInfo(string data)
     {
         vector< vector<string> > sql_result;
 		// Note: you should escape the "auth" var before inserting into query
-        string sql_string = "select auth.id, auth.oaccess, auth.god from auth where auth = '" + auth + "';";
+        string sql_string = "select auth.id, auth.oaccess, auth.god, auth.language from auth where auth = '" + auth + "';";
         sql_result = RawSqlSelect(sql_string);
         unsigned int i;
         for (i = 0 ; i < sql_result.size() ; i++)
@@ -439,6 +439,7 @@ void UserManagement::DBUserInfo(string data)
             U.SetUid(data, convertString(sql_result[i][0]));
             U.SetOaccess(data, convertString(sql_result[i][1]));
             U.SetGod(data, convertString(sql_result[i][2]));
+            U.SetLanguage(data, sql_result[i][3]);
         }
     }
 }
@@ -447,20 +448,25 @@ void UserManagement::DBChannelInfo(string data)
 {   ////// vet onhandige sql query's binnenkort maar ff 2 van maken.
     Channels& C = Global::Instance().get_Channels();
     vector< vector<string> > sql_result;
-    string sql_string = "select channels.id, users.access, auth.auth, channels.giveops, channels.givevoice from users JOIN auth ON users.uid = auth.id JOIN channels ON users.cid = channels.id where channels.channel = '" + data + "';";
+    string sql_string = "select channels.id, channels.giveops, channels.givevoice from channels where channels.channel = '" + data + "';";
     sql_result = RawSqlSelect(sql_string);
     unsigned int i;
     for (i = 0 ; i < sql_result.size() ; i++)
     {
-        cout << sql_result[i][0] << " " << sql_result[i][1] << " " << sql_result[i][2] << " " << sql_result[i][3] << " " << sql_result[i][4] << endl;
+        cout << sql_result[i][0] << " " << sql_result[i][1] << " " << sql_result[i][2] << endl;
         C.SetCid(data, convertString(sql_result[i][0]));
-        C.AddAuth(data, sql_result[i][2]);
-        C.SetAccess(data, sql_result[i][2], convertString(sql_result[i][1]));
-        C.SetGiveops(data, convertString(sql_result[i][3]));
-        C.SetGivevoice(data, convertString(sql_result[i][4]));
-        C.SetGiveops(data, convertString(sql_result[i][3]));
-        C.SetGivevoice(data, convertString(sql_result[i][4]));
+        C.SetGiveops(data, convertString(sql_result[i][1]));
+        C.SetGivevoice(data, convertString(sql_result[i][2]));
     }
+    sql_string = "select users.access, auth.auth from users JOIN auth ON users.uid = auth.id JOIN channels ON users.cid = channels.id where channels.channel = '" + data + "';";
+    sql_result = RawSqlSelect(sql_string);
+    for (i = 0 ; i < sql_result.size() ; i++)
+    {
+        cout << sql_result[i][0] << " " << sql_result[i][1] << endl;
+        C.AddAuth(data, sql_result[i][1]);
+        C.SetAccess(data, sql_result[i][1], convertString(sql_result[i][0]));
+    }
+
 }
 
 void UserManagement::DBinit()

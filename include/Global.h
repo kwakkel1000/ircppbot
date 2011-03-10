@@ -9,8 +9,6 @@
 #include "Reply.h"
 #include "ConfigReader.h"
 
-//#include "Database.h"
-
 class Users;
 class Channels;
 class IrcData;

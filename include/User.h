@@ -63,6 +63,9 @@ public:
     virtual bool SetIrcop(bool);
     virtual bool GetIrcop();
 
+    virtual bool SetLanguage(std::string);
+    virtual std::string GetLanguage();
+
 
 
 private:
@@ -74,6 +77,7 @@ private:
     bool x;
     bool d;
     bool ircop;
+    std::string lang;
     int uid;
     int GetChannelIndex(string data);
     bool caseInsensitiveStringCompare( const std::string& str1, const std::string& str2 );

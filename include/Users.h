@@ -57,6 +57,7 @@ public:
     virtual bool SetIrcop(std::string, bool);
     virtual bool GetIrcop(std::string);
 
+    virtual bool SetLanguage(std::string, std::string);
     virtual std::string GetLanguage(std::string);
 
     virtual int GetWidthLength(std::string);

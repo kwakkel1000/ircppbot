@@ -1,5 +1,6 @@
 #include "../include/Reply.h"
 #include "../include/Database.h"
+#include "../include/Global.h"
 #include <boost/algorithm/string.hpp>
 
 //public
@@ -14,13 +15,8 @@ Reply::~Reply()
 }
 
 //init
-void Reply::Init(ConfigReader& reader)
+void Reply::Init()
 {
-    hostname_str = reader.GetString("hostname");
-    databasename_str = reader.GetString("databasename");
-    username_str = reader.GetString("username");
-    pass_str = reader.GetString("password");
-
     DBreplyinit();
 }
 
@@ -30,6 +26,13 @@ std::string Reply::irc_reply(std::string reply_name, std::string reply_language)
     for (unsigned int i = 0; i < reply_name_vector.size(); i++)
     {
         if (boost::iequals(reply_name, reply_name_vector[i]) && boost::iequals(reply_language, reply_language_vector[i]))
+        {
+            return reply_vector[i];
+        }
+    }
+    for (unsigned int i = 0; i < reply_name_vector.size(); i++)
+    {
+        if (boost::iequals(reply_name, reply_name_vector[i]) && boost::iequals(Global::Instance().get_ConfigReader().GetString("defaultlanguage"), reply_language_vector[i]))
         {
             return reply_vector[i];
         }
@@ -50,7 +53,7 @@ void Reply::DBreplyinit()
     reply_name_vector.clear();
     reply_vector.clear();
     reply_language_vector.clear();
-    std::vector< std::vector<std::string> > sql_result;
+    std::vector< std::vector< std::string > > sql_result;
     std::string sql_string = "select reply_name, reply, language FROM reply;";
     sql_result = RawSqlSelect(sql_string);
     unsigned int i;
@@ -64,9 +67,13 @@ void Reply::DBreplyinit()
 }
 
 //mysql
-std::vector< std::vector<std::string> > Reply::RawSqlSelect(std::string data)
+std::vector< std::vector< std::string > > Reply::RawSqlSelect(std::string data)
 {
     //cout << data << endl;
+	std::string hostname_str = Global::Instance().get_ConfigReader().GetString("hostname");
+    std::string databasename_str = Global::Instance().get_ConfigReader().GetString("databasename");
+    std::string username_str = Global::Instance().get_ConfigReader().GetString("username");
+    std::string pass_str = Global::Instance().get_ConfigReader().GetString("password");
     database *db;
     std::vector< std::vector<std::string> > sql_result;
     db = new database();    // lol whut... connecting for each query? :'D

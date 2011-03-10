@@ -2,8 +2,6 @@
 
 #include "../../include/Global.h"
 #include "../../include/Database.h"
-#include "../../include/IrcData.h"
-#include "../../include/Reply.h"
 #include <boost/algorithm/string.hpp>
 #include <sstream>
 #include <cstring>
