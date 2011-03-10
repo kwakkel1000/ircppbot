@@ -14,7 +14,7 @@ LIBDIR=.libs/
 EXECUTABLE=bot
 
 #allfunctions = src/bot Admin.so Authserv.so Nickserv.so ChannelBot.so OCommands.so Support.so Test.so
-allfunctions = bot ChannelBot.so Authserv.so Nickserv.so OCommands.so
+allfunctions = bot ChannelBot.so Authserv.so Nickserv.so OCommands.so Test.so
 
 main_objects = $(SRCDIR)main.o $(SRCDIR)ServerSocket.o $(SRCDIR)Socket.o $(SRCDIR)IrcSocket.o \
 	$(SRCDIR)Global.o $(SRCDIR)IrcData.o $(SRCDIR)Database.o $(SRCDIR)Bot.o $(SRCDIR)Parse.o \
