@@ -224,6 +224,10 @@ void IrcData::Send()
 					if (boost::iequals(Global::Instance().get_ConfigReader().GetString("chandebug"), "true"))
 					{
 						std::string tmpdata = "PRIVMSG " + Global::Instance().get_ConfigReader().GetString("debugchannel") + " :" + data;
+<<<<<<< HEAD
+=======
+						std::cout << data << std::endl;
+>>>>>>> 27bb74ea3d16aef860c914f9fb3e7677452a0903
 						S->Send(tmpdata);
 					}
 					buffer--;
@@ -246,6 +250,10 @@ void IrcData::Send()
 					if (boost::iequals(Global::Instance().get_ConfigReader().GetString("chandebug"), "true"))
 					{
 						std::string tmpdata = "PRIVMSG " + Global::Instance().get_ConfigReader().GetString("debugchannel") + " :" + data;
+<<<<<<< HEAD
+=======
+						std::cout << data << std::endl;
+>>>>>>> 27bb74ea3d16aef860c914f9fb3e7677452a0903
 						S->Send(tmpdata);
 					}
                     S->Send(data);
