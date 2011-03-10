@@ -366,7 +366,7 @@ string UserManagement::HostmaskToNick(vector<string> data)
 
 bool UserManagement::Send(string data)
 {
-    Global::Instance().get_IrcData().AddSendQueue(data);
+    Global::Instance().get_IrcData().AddLowPrioritySendQueue(data);
     return true;
 }
 
