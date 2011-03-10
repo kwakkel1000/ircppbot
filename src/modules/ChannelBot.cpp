@@ -131,10 +131,8 @@ void ChannelBot::ParseData(std::vector< std::string > data)
 
 void ChannelBot::ParsePrivmsg(std::vector<std::string> data, std::string command, std::string chan, std::vector< std::string > args, int chantrigger)
 {
-    cout << "ChannelBot" << endl;
+    //cout << "ChannelBot" << endl;
     Users& U = Global::Instance().get_Users();
-    //cout << "chan " << chan << endl;
-    //cout << "command " << command << endl;
     string nick = HostmaskToNick(data);
     string auth = U.GetAuth(nick);
     if (args.size() == 0)
