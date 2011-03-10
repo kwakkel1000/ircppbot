@@ -17,6 +17,28 @@ ModuleBase::ModuleBase()
 
 //protected
 //irc
+
+void ModuleBase::overwatch(std::string bind, std::string command, std::string chan, std::string nick, std::string auth, std::vector< std::string > args)
+{
+    Channels& C = Global::Instance().get_Channels();
+    Users& U = Global::Instance().get_Users();
+    ConfigReader& CR = Global::Instance().get_ConfigReader();
+    std::string overwatchchannel = CR.GetString("overwatchchannel");
+    string debugstring = "PRIVMSG " + overwatchchannel + " :[" + nick + ":" + auth + "] [" + chan + ":" + convertInt(C.GetAccess(chan, auth)) + "] ";
+    if (U.GetGod(nick) == 1)
+    {
+        debugstring = debugstring + "[G] ";
+    }
+    debugstring = debugstring + command + ":" + bind;
+    for (unsigned int i = 0; i < args.size(); i++)
+    {
+        debugstring = debugstring + " " + args[i];
+    }
+    debugstring = debugstring + "\r\n";
+    SendLowPriority(debugstring);
+}
+
+
 void ModuleBase::PRIVMSG(std::vector< std::string > data, std::string trigger)
 {
 	//cout << "PRIVMSG" << endl;

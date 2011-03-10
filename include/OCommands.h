@@ -32,9 +32,6 @@ private:
     void ParseData(std::vector< std::string > data);
     void ParsePrivmsg(std::vector<std::string> data, std::string command, std::string chan, std::vector< std::string > args, int chantrigger);
 
-
-    //overwatch
-    void overwatch(string bind, string command, string chan, string nick, string auth, vector<string> args);
     //functions
     void god(string nick, string auth, int oa);
     void addchannel(string chan, string nick, string auth, string reqchan, string reqnick, string reqauth, int oa);

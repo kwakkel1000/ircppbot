@@ -43,8 +43,6 @@ private:
     void MODE(vector<string> data);
     void QUIT(vector<string> data);
 
-    void overwatch(string bind, string command, string chan, string nick, string auth, vector<string> args);
-
     void adduser(string chan, string nick, string auth, string reqnick, string reqauth, int reqaccess, int ca);
     void deluser(string chan, string nick, string auth, string reqnick, string reqauth, int ca);
     void changelevel(string chan, string nick, string auth, string reqnick, string reqauth, int reqaccess, int ca);

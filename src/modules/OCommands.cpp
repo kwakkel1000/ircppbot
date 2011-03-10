@@ -333,26 +333,6 @@ void OCommands::ParsePrivmsg(std::vector<std::string> data, std::string command,
     }
 }
 
-void OCommands::overwatch(string bind, string command, string chan, string nick, string auth, vector<string> args)
-{
-    Users& U = Global::Instance().get_Users();
-    Channels& C = Global::Instance().get_Channels();
-    ConfigReader& CR = Global::Instance().get_ConfigReader();
-    std::string debugchannel = CR.GetString("debugchannel");
-    string debugstring = "PRIVMSG " + debugchannel + " :[" + nick + ":" + auth + "] [" + chan + ":" + convertInt(C.GetAccess(chan, auth)) + "] ";
-    if (U.GetGod(nick) == 1)
-    {
-        debugstring = debugstring + "[G] ";
-    }
-    debugstring = debugstring + command + ":" + bind;
-    for (unsigned int i = 0; i < args.size(); i++)
-    {
-        debugstring = debugstring + " " + args[i];
-    }
-    debugstring = debugstring + "\r\n";
-    SendLowPriority(debugstring);
-}
-
 
 void OCommands::god(string nick, string auth, int oa)
 {

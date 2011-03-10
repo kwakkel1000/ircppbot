@@ -18,6 +18,7 @@ class ModuleBase : public ModuleInterface
                 //global functions
 
                 //irc
+				void overwatch(std::string bind, std::string command, std::string chan, std::string nick, std::string auth, std::vector< std::string > args);
                 void PRIVMSG(std::vector<std::string> data, std::string trigger);
                 virtual void ParsePrivmsg(std::vector<std::string> data, std::string command, std::string chan, std::vector< std::string > args, int chantrigger){};
                 bool Send(std::string data);

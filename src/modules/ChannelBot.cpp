@@ -318,26 +318,6 @@ void ChannelBot::ParsePrivmsg(std::vector<std::string> data, std::string command
     }
 }
 
-void ChannelBot::overwatch(string bind, string command, string chan, string nick, string auth, vector<string> args)
-{
-    Channels& C = Global::Instance().get_Channels();
-    Users& U = Global::Instance().get_Users();
-    ConfigReader& CR = Global::Instance().get_ConfigReader();
-    std::string debugchannel = CR.GetString("debugchannel");
-    string debugstring = "PRIVMSG " + debugchannel + " :[" + nick + ":" + auth + "] [" + chan + ":" + convertInt(C.GetAccess(chan, auth)) + "] ";
-    if (U.GetGod(nick) == 1)
-    {
-        debugstring = debugstring + "[G] ";
-    }
-    debugstring = debugstring + command + ":" + bind;
-    for (unsigned int i = 0; i < args.size(); i++)
-    {
-        debugstring = debugstring + " " + args[i];
-    }
-    debugstring = debugstring + "\r\n";
-    SendLowPriority(debugstring);
-}
-
 void ChannelBot::version(string chan, string nick, int ca)
 {
     string returnstr = "PRIVMSG " + chan + " :" + nick + ": Tran V0.1 C++ IRC bot\r\n";
