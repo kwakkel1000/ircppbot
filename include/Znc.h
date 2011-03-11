@@ -1,5 +1,5 @@
-#ifndef Test_H
-#define Test_H
+#ifndef Znc_H
+#define Znc_H
 #include "ModuleInterface.h"
 #include "ModuleBase.h"
 #include "Data.h"
@@ -7,11 +7,11 @@
 #include <vector>
 
 class Data;
-class Test : public ModuleBase
+class Znc : public ModuleBase
 {
 public:
-    Test();
-    ~Test();
+    Znc();
+    ~Znc();
     void read();
     void stop();
     void Init();
@@ -37,5 +37,6 @@ private:
     boost::shared_ptr<boost::thread> privmsg_parse_thread;
 };
 
-#endif // Test_H
+#endif // Znc_H
+
 

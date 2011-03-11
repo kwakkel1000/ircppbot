@@ -14,7 +14,7 @@ LIBDIR=.libs/
 EXECUTABLE=bot
 
 #allfunctions = src/bot Admin.so Authserv.so Nickserv.so ChannelBot.so OCommands.so Support.so Test.so
-allfunctions = bot ChannelBot.so Authserv.so Nickserv.so OCommands.so Test.so
+allfunctions = bot ChannelBot.so Authserv.so Nickserv.so OCommands.so Test.so Support.so Znc.so
 
 main_objects = $(SRCDIR)main.o $(SRCDIR)ServerSocket.o $(SRCDIR)Socket.o $(SRCDIR)IrcSocket.o \
 	$(SRCDIR)Global.o $(SRCDIR)IrcData.o $(SRCDIR)Database.o $(SRCDIR)Bot.o $(SRCDIR)Parse.o \
@@ -27,6 +27,7 @@ ocommands_objects = $(MODULEDIR)ModuleBase.o $(MODULEDIR)OCommands.o
 authserv_objects = $(MODULEDIR)ModuleBase.o $(MODULEDIR)Authserv.o $(MODULEDIR)UserManagement.o
 nickserv_objects = $(MODULEDIR)ModuleBase.o $(MODULEDIR)Nickserv.o $(MODULEDIR)UserManagement.o
 test_objects = $(MODULEDIR)ModuleBase.o $(MODULEDIR)Test.o
+znc_objects = $(MODULEDIR)ModuleBase.o $(MODULEDIR)Znc.o
 
 default: bot
 
@@ -46,6 +47,8 @@ Support.so: $(support_objects)
 	$(CC) -shared -o $(LIBDIR)$(@) $(support_objects) $(CXXFLAGS)
 Test.so: $(test_objects)
 	$(CC) -shared -o $(LIBDIR)$(@) $(test_objects) $(CXXFLAGS)
+Znc.so: $(znc_objects)
+	$(CC) -shared -o $(LIBDIR)$(@) $(znc_objects) $(CXXFLAGS)
 
 Debug: all
 Release: all

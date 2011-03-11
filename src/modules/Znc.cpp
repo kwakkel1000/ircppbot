@@ -1,4 +1,4 @@
-#include "../../include/Test.h"
+#include "../../include/Znc.h"
 #include <iostream>
 #include <algorithm>
 #include "../../include/Global.h"
@@ -6,7 +6,7 @@
 
 extern "C" ModuleInterface* create()
 {
-    return new Test;
+    return new Znc;
 }
 
 extern "C" void destroy(ModuleInterface* x)
@@ -14,17 +14,17 @@ extern "C" void destroy(ModuleInterface* x)
     delete x;
 }
 
-Test::Test()
+Znc::Znc()
 {
 }
 
-Test::~Test()
+Znc::~Znc()
 {
     stop();
 	Global::Instance().get_IrcData().DelConsumer(D);
     delete D;
 }
-void Test::Init()
+void Znc::Init()
 {
     D = new Data();
     D->Init(true, false, false, true);
@@ -34,27 +34,27 @@ void Test::Init()
 }
 
 
-void Test::stop()
+void Znc::stop()
 {
     run = false;
     D->stop();
-    std::cout << "Test::stop" << std::endl;
+    std::cout << "Znc::stop" << std::endl;
     raw_parse_thread->join();
     std::cout << "raw_parse_thread stopped" << std::endl;
     privmsg_parse_thread->join();
     std::cout << "privmsg_parse_thread stopped" << std::endl;
 }
 
-void Test::read()
+void Znc::read()
 {
     run = true;
     assert(!raw_parse_thread);
-    raw_parse_thread = boost::shared_ptr<boost::thread>(new boost::thread(boost::bind(&Test::parse_raw, this)));
+    raw_parse_thread = boost::shared_ptr<boost::thread>(new boost::thread(boost::bind(&Znc::parse_raw, this)));
     assert(!privmsg_parse_thread);
-    privmsg_parse_thread = boost::shared_ptr<boost::thread>(new boost::thread(boost::bind(&Test::parse_privmsg, this)));
+    privmsg_parse_thread = boost::shared_ptr<boost::thread>(new boost::thread(boost::bind(&Znc::parse_privmsg, this)));
 }
 
-void Test::parse_raw()
+void Znc::parse_raw()
 {
     std::vector< std::string > data;
     while(run)
@@ -64,7 +64,7 @@ void Test::parse_raw()
     }
 }
 
-void Test::parse_privmsg()
+void Znc::parse_privmsg()
 {
     /*std::vector< std::string > data;
     while(run)
@@ -75,7 +75,7 @@ void Test::parse_privmsg()
 }
 
 
-void Test::ParseData(std::vector< std::string > data)
+void Znc::ParseData(std::vector< std::string > data)
 {
     cout << "Test" << endl;
     if (data.size() >= 1)
@@ -94,12 +94,12 @@ void Test::ParseData(std::vector< std::string > data)
 }
 
 
-void Test::ParsePrivmsg(std::vector<std::string> data, std::string command, std::string chan, std::vector< std::string > args, int chantrigger)
+void Znc::ParsePrivmsg(std::vector<std::string> data, std::string command, std::string chan, std::vector< std::string > args, int chantrigger)
 {
 }
 
 
-void Test::timerrun()
+void Znc::timerrun()
 {
     //cout << "channelbot::timerrun()" << endl;
     int Tijd;
@@ -122,7 +122,7 @@ void Test::timerrun()
     }
 }
 
-void Test::timerlong()
+void Znc::timerlong()
 {
     int Tijd;
     time_t t= time(0);
@@ -140,3 +140,4 @@ void Test::timerlong()
         }
     }
 }
+

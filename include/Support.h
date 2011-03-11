@@ -2,71 +2,49 @@
 #define Support_H
 
 #include "ModuleInterface.h"
-#include <iostream>
-#include <algorithm>
-#include <sstream>
+#include "ModuleBase.h"
+#include "Data.h"
 #include <string>
 #include <vector>
-#include <map>
-#include <cstring>
-#include <boost/thread/condition.hpp>
 
-using namespace std;
-
-class Support : public ModuleInterface
+class Data;
+class Support : public ModuleBase
 {
 public:
-    // No constructor/destructor? :p
-
-    void ParseData(vector<string> data);
-    void threadloop();
-    void stopthreadloop();
-    void Init(string nick, IrcSocket *s, Users *u, Channels *c, ConfigReader& reader, IrcData *id);
+	Support();
+	~Support();
+    void read();
+    void stop();
+    void Init();
     void timerrun();
 
 private:
-    void PRIVMSG(vector<string> data);
-    bool Send(string data);
-    void overwatch(string bind, string command, string chan, string nick, string auth, vector<string> args);
-    void support(string nick, string auth, string supportstring);
+    Data * D;
 
-    string convertInt(int);
-    int convertString(string);
-    string HostmaskToNick(vector<string> data);
-    vector<string> lineout(vector<string> data, unsigned int rowamount, unsigned int length);
-    bool caseInsensitiveStringCompare( const std::string& str1, const std::string& str2 );
-    vector<string> Split(const std::string&, const std::string&, bool, bool);
-    void BindInit();
-    vector< vector<string> > RawSqlSelect(string data);
-    bool RawSql(string data);
-    void DBreplyinit();
-    string irc_reply(string reply_name, string reply_language);
-    string irc_reply_replace(string source_string, string search_string, string replace_string);
+    void parse_raw();
+    void parse_privmsg();
+    void ParseData(std::vector< std::string > data);
+    void ParsePrivmsg(std::vector<std::string> data, std::string command, std::string chan, std::vector< std::string > args, int chantrigger);
+    void support(std::string nick, std::string auth, std::string supportstring);
 
-    vector<string> reply_name_vector;
-    vector<string> reply_vector;
-    vector<string> reply_language_vector;
+    void timerlong();
+    std::vector<int> timer_sec;
+    std::vector< std::string > timer_command;
+    std::vector<int> timer_long_sec;
+    std::vector< std::string > timer_long_command;
+    int longtime;
+
+    bool run;
+    boost::shared_ptr<boost::thread> raw_parse_thread;
+    boost::shared_ptr<boost::thread> privmsg_parse_thread;
 
 
-    //binds
-    vector<string> commands;
-    vector<string> binds;
-    vector<int> oas;
-
-
-    string supportchannel;
-    boost::condition_variable parse_wait_condition;
-    boost::mutex parse_mutex;
-    bool data_ready;
-    bool runthreadloop;
-    vector<string> Data;
-
-
-    map<string, string> support_nick_string_map;
-    map<string, string>::iterator support_nick_string_it;
-    pair<map<string, string>::iterator, bool> support_ret;
-    vector<string> support_nick;
+    std::map< std::string, std::string > support_nick_string_map;
+    std::map< std::string, std::string >::iterator support_nick_string_it;
+    std::pair< std::map< std::string, std::string >::iterator, bool > support_ret;
+    std::vector< std::string > support_nick;
 };
 
 #endif // Support_H
+
 
