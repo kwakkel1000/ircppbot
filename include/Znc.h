@@ -5,6 +5,7 @@
 #include "Data.h"
 #include <string>
 #include <vector>
+#include <map>
 
 class Data;
 class Znc : public ModuleBase
@@ -35,6 +36,12 @@ private:
     bool run;
     boost::shared_ptr<boost::thread> raw_parse_thread;
     boost::shared_ptr<boost::thread> privmsg_parse_thread;
+
+
+    std::map< std::string, std::map< std::string, std::string > > znc_user_setting_map;
+    std::map< std::string, std::map< std::string, std::string > >::iterator znc_user_setting_it;
+    std::vector< std::string > znc_user_nick;
+    bool ReadFile( std::string filename );
 };
 
 #endif // Znc_H
