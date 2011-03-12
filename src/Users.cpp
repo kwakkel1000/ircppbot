@@ -275,6 +275,7 @@ int Users::GetUid(string data)
 			std::string auth = u[i]->GetAuth();
 			if (boost::iequals(auth,data))
 			{
+				std::cout << u[i]->GetUid() << std::endl;
 				return u[i]->GetUid();
 			}
 		}

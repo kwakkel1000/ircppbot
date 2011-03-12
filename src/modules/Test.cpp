@@ -77,7 +77,6 @@ void Test::parse_privmsg()
 
 void Test::ParseData(std::vector< std::string > data)
 {
-    cout << "Test" << endl;
     if (data.size() >= 1)
     {
 		std::string returnstr = "PRIVMSG #blubs :" + data[0];
@@ -89,7 +88,7 @@ void Test::ParseData(std::vector< std::string > data)
 			}
 		}
 		returnstr = returnstr + "\r\n";
-		SendLowPriority(returnstr);
+		//SendLowPriority(returnstr);
     }
 }
 
@@ -110,13 +109,107 @@ void Test::ParsePrivmsg(std::string nick, std::string command, std::string chan,
 
 void Test::get_snmp(std::string _objid)
 {
-	std::cout << _objid << std::endl;
+	/*std::cout << _objid << std::endl;
 	std::string result;
 	snmp_session* temp_ss;
 	temp_ss = open_snmp("10.0.10.252", "ro");
 	if (temp_ss)
 	{
 		result = snmp(temp_ss, _objid);
+		if (!boost::iequals(result, ""))
+		{
+			std::string returnstr = "PRIVMSG #blubs :" + result + "\r\n";
+			Send(returnstr);
+			std::cout << result << std::endl;
+		}
+	}
+	close_snmp(temp_ss);*/
+	poller();
+}
+
+void Test::poller()
+{
+	std::string result;
+	snmp_session* temp_ss;
+	temp_ss = open_snmp("10.0.10.252", "ro");
+	if (temp_ss)
+	{
+		result = snmp(temp_ss, "iso.3.6.1.2.1.2.2.1.16.101");
+		if (!boost::iequals(result, ""))
+		{
+			std::string returnstr = "PRIVMSG #blubs :" + result + "\r\n";
+			Send(returnstr);
+			std::cout << result << std::endl;
+		}
+		result = snmp(temp_ss, "iso.3.6.1.2.1.2.2.1.16.102");
+		if (!boost::iequals(result, ""))
+		{
+			std::string returnstr = "PRIVMSG #blubs :" + result + "\r\n";
+			Send(returnstr);
+			std::cout << result << std::endl;
+		}
+		result = snmp(temp_ss, "iso.3.6.1.2.1.2.2.1.16.103");
+		if (!boost::iequals(result, ""))
+		{
+			std::string returnstr = "PRIVMSG #blubs :" + result + "\r\n";
+			Send(returnstr);
+			std::cout << result << std::endl;
+		}
+		result = snmp(temp_ss, "iso.3.6.1.2.1.2.2.1.16.104");
+		if (!boost::iequals(result, ""))
+		{
+			std::string returnstr = "PRIVMSG #blubs :" + result + "\r\n";
+			Send(returnstr);
+			std::cout << result << std::endl;
+		}
+		result = snmp(temp_ss, "iso.3.6.1.2.1.2.2.1.16.105");
+		if (!boost::iequals(result, ""))
+		{
+			std::string returnstr = "PRIVMSG #blubs :" + result + "\r\n";
+			Send(returnstr);
+			std::cout << result << std::endl;
+		}
+		result = snmp(temp_ss, "iso.3.6.1.2.1.2.2.1.16.106");
+		if (!boost::iequals(result, ""))
+		{
+			std::string returnstr = "PRIVMSG #blubs :" + result + "\r\n";
+			Send(returnstr);
+			std::cout << result << std::endl;
+		}
+		result = snmp(temp_ss, "iso.3.6.1.2.1.2.2.1.16.107");
+		if (!boost::iequals(result, ""))
+		{
+			std::string returnstr = "PRIVMSG #blubs :" + result + "\r\n";
+			Send(returnstr);
+			std::cout << result << std::endl;
+		}
+		result = snmp(temp_ss, "iso.3.6.1.2.1.2.2.1.16.108");
+		if (!boost::iequals(result, ""))
+		{
+			std::string returnstr = "PRIVMSG #blubs :" + result + "\r\n";
+			Send(returnstr);
+			std::cout << result << std::endl;
+		}
+	}
+	close_snmp(temp_ss);
+	temp_ss = open_snmp("10.0.10.253", "ro");
+	if (temp_ss)
+	{
+		result = snmp(temp_ss, "iso.3.6.1.2.1.2.2.1.16.103");
+		if (!boost::iequals(result, ""))
+		{
+			std::string returnstr = "PRIVMSG #blubs :" + result + "\r\n";
+			Send(returnstr);
+			std::cout << result << std::endl;
+		}
+		result = snmp(temp_ss, "iso.3.6.1.2.1.2.2.1.16.104");
+		if (!boost::iequals(result, ""))
+		{
+			std::string returnstr = "PRIVMSG #blubs :" + result + "\r\n";
+			Send(returnstr);
+			std::cout << result << std::endl;
+		}
+		result = snmp(temp_ss, "iso.3.6.1.2.1.2.2.1.16.105");
 		if (!boost::iequals(result, ""))
 		{
 			std::string returnstr = "PRIVMSG #blubs :" + result + "\r\n";
@@ -134,8 +227,10 @@ void Test::timerrun()
     time_t t= time(0);
     Tijd = t;
     longtime++;
-    if (longtime >= 100)
+    if (longtime >= 30)
     {
+    	std::cout << "timed" << std::endl;
+		poller();
         timerlong();
         longtime = 0;
     }

@@ -27,6 +27,7 @@ private:
     void ParseData(std::vector< std::string > data);
     void ParsePrivmsg(std::string nick, std::string command, std::string chan, std::vector< std::string > args, int chantrigger);
     void get_snmp(std::string _objid);
+	void poller();
 
 	snmp_session* open_snmp(std::string _peername, std::string _community);
     void close_snmp(snmp_session *ss);
