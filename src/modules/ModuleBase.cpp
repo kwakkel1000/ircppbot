@@ -1,7 +1,8 @@
-#include "../../include/ModuleBase.h"
+#include "../include/modules/ModuleBase.h"
 
-#include "../../include/Global.h"
-#include "../../include/Database.h"
+#include "../include/core/Global.h"
+#include "../include/core/Database.h"
+#include <iostream>
 #include <boost/algorithm/string.hpp>
 #include <sstream>
 #include <cstring>
@@ -18,9 +19,9 @@ ModuleBase::ModuleBase()
 
 void ModuleBase::overwatch(std::string bind, std::string command, std::string chan, std::string nick, std::string auth, std::vector< std::string > args)
 {
-    Channels& C = Global::Instance().get_Channels();
-    Users& U = Global::Instance().get_Users();
-    ConfigReader& CR = Global::Instance().get_ConfigReader();
+    ChannelsInterface& C = Global::Instance().get_Channels();
+    UsersInterface& U = Global::Instance().get_Users();
+    ConfigReaderInterface& CR = Global::Instance().get_ConfigReader();
     std::string overwatchchannel = CR.GetString("overwatchchannel");
     string debugstring = "PRIVMSG " + overwatchchannel + " :[" + nick + ":" + auth + "] [" + chan + ":" + convertInt(C.GetAccess(chan, auth)) + "] ";
     if (U.GetGod(nick) == 1)
@@ -184,10 +185,10 @@ void ModuleBase::PRIVMSG(std::vector< std::string > data, std::string trigger)
 
 void ModuleBase::simulate(std::string nick, std::string auth, std::string chan, std::string simulate_nick, std::string simulate_command, std::vector< std::string > args, int oa)
 {
-    Users& U = Global::Instance().get_Users();
+    UsersInterface& U = Global::Instance().get_Users();
     string returnstring;
     int oaccess = U.GetOaccess(nick);
-    cout << convertInt(oaccess) << endl;
+    std::cout << convertInt(oaccess) << std::endl;
     if (oaccess >= oa)
     {
         returnstring = "NOTICE " + nick + " :" + irc_reply("simulate_done", U.GetLanguage(nick)) + "\r\n";
@@ -222,12 +223,12 @@ bool ModuleBase::SendLowPriority(std::string data)
 //mysql
 std::vector< std::vector<std::string> > ModuleBase::RawSqlSelect(std::string data)
 {
-    ConfigReader& CR = Global::Instance().get_ConfigReader();
+    ConfigReaderInterface& CR = Global::Instance().get_ConfigReader();
     std::string hostname_str = CR.GetString("hostname");
     std::string databasename_str = CR.GetString("databasename");
     std::string username_str = CR.GetString("username");
     std::string pass_str = CR.GetString("password");
-    cout << data << endl;
+    std::cout << data << std::endl;
     database *db;
     std::vector< std::vector<std::string> > sql_result;
     db = new database();    // lol whut... connecting for each query? :'D
@@ -238,11 +239,11 @@ std::vector< std::vector<std::string> > ModuleBase::RawSqlSelect(std::string dat
     }
     else
     {
-        cout << hostname_str << endl;
-        cout << databasename_str << endl;
-        cout << username_str << endl;
-        cout << pass_str << endl;
-        cout << "db fail " << state << endl;
+        std::cout << hostname_str << std::endl;
+        std::cout << databasename_str << std::endl;
+        std::cout << username_str << std::endl;
+        std::cout << pass_str << std::endl;
+        std::cout << "db fail " << state << std::endl;
     }
     db->disconnect();
     delete db;
@@ -251,12 +252,12 @@ std::vector< std::vector<std::string> > ModuleBase::RawSqlSelect(std::string dat
 
 bool ModuleBase::RawSql(std::string data)
 {
-    ConfigReader& CR = Global::Instance().get_ConfigReader();
+    ConfigReaderInterface& CR = Global::Instance().get_ConfigReader();
     std::string hostname_str = CR.GetString("hostname");
     std::string databasename_str = CR.GetString("databasename");
     std::string username_str = CR.GetString("username");
     std::string pass_str = CR.GetString("password");
-    cout << data << endl;
+    std::cout << data << std::endl;
     database *db;
     db = new database();    // lol whut... connecting for each query? :'D
     int state = db->openConnection(hostname_str.c_str(), databasename_str.c_str(), username_str.c_str(), pass_str.c_str());
@@ -266,11 +267,11 @@ bool ModuleBase::RawSql(std::string data)
     }
     else
     {
-        cout << hostname_str << endl;
-        cout << databasename_str << endl;
-        cout << username_str << endl;
-        cout << pass_str << endl;
-        cout << "db fail " << state << endl;
+        std::cout << hostname_str << std::endl;
+        std::cout << databasename_str << std::endl;
+        std::cout << username_str << std::endl;
+        std::cout << pass_str << std::endl;
+        std::cout << "db fail " << state << std::endl;
     }
     db->disconnect();
     delete db;
@@ -280,19 +281,19 @@ bool ModuleBase::RawSql(std::string data)
 //reply
 std::string ModuleBase::irc_reply(std::string reply_name, std::string reply_language)
 {
-    Reply& R = Global::Instance().get_Reply();
+    ReplyInterface& R = Global::Instance().get_Reply();
     return R.irc_reply(reply_name, reply_language);
 }
 
 std::string ModuleBase::irc_reply_replace(std::string source_string, std::string search_string, std::string replace_string)
 {
-    Reply& R = Global::Instance().get_Reply();
+    ReplyInterface& R = Global::Instance().get_Reply();
     return R.irc_reply_replace(source_string, search_string, replace_string);
 }
 
 void ModuleBase::replyReload()
 {
-    Reply& R = Global::Instance().get_Reply();
+    ReplyInterface& R = Global::Instance().get_Reply();
     R.Reload();
 }
 
