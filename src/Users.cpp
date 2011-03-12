@@ -265,10 +265,27 @@ bool Users::SetUid(string data, int uid)
 int Users::GetUid(string data)
 {
     //boost::mutex::scoped_lock  lock(User_mutex);
-    int i = GetNickIndex(data);
-    if (i >= 0)
+    size_t authstar;
+    authstar = data.find("*");
+    if (authstar != string::npos)
     {
-        return u[i]->GetUid();
+		data.replace(authstar, 1, "");
+		for ( unsigned int i = 0 ; i < u.size(); i++ )
+		{
+			std::string auth = u[i]->GetAuth();
+			if (boost::iequals(auth,data))
+			{
+				return u[i]->GetUid();
+			}
+		}
+    }
+    else
+    {
+		int i = GetNickIndex(data);
+		if (i >= 0)
+		{
+			return u[i]->GetUid();
+		}
     }
     return -1;
 }

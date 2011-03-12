@@ -5,6 +5,8 @@
 #include "Data.h"
 #include <string>
 #include <vector>
+#include <net-snmp/net-snmp-config.h>
+#include <net-snmp/net-snmp-includes.h>
 
 class Data;
 class Test : public ModuleBase
@@ -24,6 +26,11 @@ private:
     void parse_privmsg();
     void ParseData(std::vector< std::string > data);
     void ParsePrivmsg(std::vector<std::string> data, std::string command, std::string chan, std::vector< std::string > args, int chantrigger);
+    void get_snmp(std::string _objid);
+
+	snmp_session* open_snmp(std::string _peername, std::string _community);
+    void close_snmp(snmp_session *ss);
+    std::string snmp(snmp_session *_ss, std::string _objid);
 
     void timerlong();
     std::vector<int> timer_sec;
@@ -35,6 +42,7 @@ private:
     bool run;
     boost::shared_ptr<boost::thread> raw_parse_thread;
     boost::shared_ptr<boost::thread> privmsg_parse_thread;
+
 };
 
 #endif // Test_H

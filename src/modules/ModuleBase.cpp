@@ -53,6 +53,7 @@ void ModuleBase::PRIVMSG(std::vector< std::string > data, std::string trigger)
     //int triggered = 0;
     int triggertype = -1;
     int chantrigger = -1;
+    string nick = HostmaskToNick(data);
     if (data.size() >= 4)
     {
         data3 = data[3];
@@ -78,7 +79,7 @@ void ModuleBase::PRIVMSG(std::vector< std::string > data, std::string trigger)
                         {
                             args.push_back(data[i]);
                         }
-                        ParsePrivmsg(data, command, chan, args, chantrigger);
+                        ParsePrivmsg(nick, command, chan, args, chantrigger);
                     }
                 }
             }
@@ -98,7 +99,7 @@ void ModuleBase::PRIVMSG(std::vector< std::string > data, std::string trigger)
                         {
                             args.push_back(data[i]);
                         }
-                        ParsePrivmsg(data, command, chan, args, chantrigger);
+                        ParsePrivmsg(nick, command, chan, args, chantrigger);
                     }
                 }
             }
@@ -117,7 +118,7 @@ void ModuleBase::PRIVMSG(std::vector< std::string > data, std::string trigger)
                         {
                             args.push_back(data[i]);
                         }
-                        ParsePrivmsg(data, command, chan, args, chantrigger);
+                        ParsePrivmsg(nick, command, chan, args, chantrigger);
                     }
                 }
             }
@@ -136,7 +137,7 @@ void ModuleBase::PRIVMSG(std::vector< std::string > data, std::string trigger)
                         {
                             args.push_back(data[i]);
                         }
-                        ParsePrivmsg(data, command, chan, args, chantrigger);
+                        ParsePrivmsg(nick, command, chan, args, chantrigger);
                     }
                 }
             }
@@ -158,7 +159,7 @@ void ModuleBase::PRIVMSG(std::vector< std::string > data, std::string trigger)
                     {
                         args.push_back(data[i]);
                     }
-                    ParsePrivmsg(data, command, chan, args, chantrigger);
+                    ParsePrivmsg(nick, command, chan, args, chantrigger);
                 }
             }
             if (chanpos1 == string::npos && chanpos2 == string::npos)
@@ -173,12 +174,33 @@ void ModuleBase::PRIVMSG(std::vector< std::string > data, std::string trigger)
                     {
                         args.push_back(data[i]);
                     }
-                    ParsePrivmsg(data, command, chan, args, chantrigger);
+                    ParsePrivmsg(nick, command, chan, args, chantrigger);
                 }
             }
         }
     }
 }
+
+
+void ModuleBase::simulate(std::string nick, std::string auth, std::string chan, std::string simulate_nick, std::string simulate_command, std::vector< std::string > args, int oa)
+{
+    Users& U = Global::Instance().get_Users();
+    string returnstring;
+    int oaccess = U.GetOaccess(nick);
+    cout << convertInt(oaccess) << endl;
+    if (oaccess >= oa)
+    {
+        returnstring = "NOTICE " + nick + " :" + irc_reply("simulate_done", U.GetLanguage(nick)) + "\r\n";
+        Send(returnstring);
+    	ParsePrivmsg(simulate_nick, simulate_command, chan, args, 1);
+    }
+    else
+    {
+        returnstring = "NOTICE " + nick + " :" + irc_reply("need_oaccess", U.GetLanguage(nick)) + "\r\n";
+        Send(returnstring);
+    }
+}
+
 bool ModuleBase::Send(std::string data)
 {
     Global::Instance().get_IrcData().AddSendQueue(data);

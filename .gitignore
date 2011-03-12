@@ -2,6 +2,7 @@ conf/test.ini
 conf/tranogn.ini
 conf/trantweak.ini
 conf/warblegarble.ini
+conf/trantravi.ini
 bot
 ircppbot.cbp
 *.o

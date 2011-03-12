@@ -1,4 +1,4 @@
-#include "../../include/Test.h"
+#include <Test.h>
 #include <iostream>
 #include <algorithm>
 #include "../../include/Global.h"
@@ -66,12 +66,12 @@ void Test::parse_raw()
 
 void Test::parse_privmsg()
 {
-    /*std::vector< std::string > data;
+    std::vector< std::string > data;
     while(run)
     {
         data = D->GetPrivmsgQueue();
-        //PRIVMSG(data, channelbottrigger);
-    }*/
+        PRIVMSG(data, "!");
+    }
 }
 
 
@@ -96,8 +96,37 @@ void Test::ParseData(std::vector< std::string > data)
 
 void Test::ParsePrivmsg(std::vector<std::string> data, std::string command, std::string chan, std::vector< std::string > args, int chantrigger)
 {
+    Users& U = Global::Instance().get_Users();
+    string nick = HostmaskToNick(data);
+    string auth = U.GetAuth(nick);
+	if (args.size() == 1)
+    {
+		if (boost::iequals(command, "snmp"))
+		{
+			get_snmp(args[0]);
+			overwatch(command, command, chan, nick, auth, args);
+		}
+    }
 }
 
+void Test::get_snmp(std::string _objid)
+{
+	std::cout << _objid << std::endl;
+	std::string result;
+	snmp_session* temp_ss;
+	temp_ss = open_snmp("10.0.10.252", "ro");
+	if (temp_ss)
+	{
+		result = snmp(temp_ss, _objid);
+		if (!boost::iequals(result, ""))
+		{
+			std::string returnstr = "PRIVMSG #blubs :" + result + "\r\n";
+			Send(returnstr);
+			std::cout << result << std::endl;
+		}
+	}
+	close_snmp(temp_ss);
+}
 
 void Test::timerrun()
 {
@@ -140,3 +169,88 @@ void Test::timerlong()
         }
     }
 }
+
+snmp_session* Test::open_snmp(std::string _peername, std::string _community)
+{
+	snmp_session session, *ss;
+	const char *arg = _community.c_str();
+	init_snmp("ircppsnmp");
+	snmp_sess_init( &session );
+	session.peername = strdup(_peername.c_str());
+	session.version = SNMP_VERSION_2c;
+	session.community = (unsigned char*)arg;
+	session.community_len = strlen(arg);
+	/*
+	* Open the session
+	*/
+	SOCK_STARTUP;
+	ss = snmp_open(&session);                     /* establish the session */
+
+	if (!ss)
+	{
+		snmp_sess_perror("ack", &session);
+		SOCK_CLEANUP;
+	}
+	return ss;
+}
+
+void Test::close_snmp(snmp_session *_ss)
+{
+	snmp_close(_ss);
+	SOCK_CLEANUP;
+}
+
+std::string Test::snmp(snmp_session *ss, std::string _objid)
+{
+	snmp_pdu *pdu;
+	snmp_pdu *response;
+	oid anOID[MAX_OID_LEN];
+	size_t anOID_len;
+	netsnmp_variable_list *vars;
+	int status;
+	std::string return_string = "";
+
+	pdu = snmp_pdu_create(SNMP_MSG_GET);
+	anOID_len = MAX_OID_LEN;
+	if (!read_objid(_objid.c_str(), anOID, &anOID_len))
+	{
+		snmp_perror(_objid.c_str());
+		return "";
+	}
+
+	snmp_add_null_var(pdu, anOID, anOID_len);
+
+	status = snmp_synch_response(ss, pdu, &response);
+	char buf[1024];
+
+	vars = response->variables;
+	if (response->errstat == SNMP_ERR_NOERROR)
+	{
+		snprint_variable(buf, sizeof(buf), vars->name, vars->name_length, vars);
+		fprintf(stdout, "%s: %s\n", ss->peername, buf);
+		return_string = string(buf);
+	}
+	else
+	{
+		/*for (ix = 1; vp && ix != pdu->errindex; vp = vp->next_variable, ix++)
+			;
+		if (vp)
+		{
+			snprint_objid(buf, sizeof(buf), vp->name, vp->name_length);
+		}
+		else
+		{
+			strcpy(buf, "(none)");
+		}
+		fprintf(stdout, "%s: %s: %s\n", ss->peername, buf, snmp_errstring(pdu->errstat));*/
+	}
+	if (response)
+	{
+		snmp_free_pdu(response);
+	}
+	return return_string;
+}
+
+
+
+

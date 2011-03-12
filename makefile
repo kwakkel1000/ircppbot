@@ -5,6 +5,8 @@ MYSQLFLAGS = -L/usr/include/mysql -lmysqlclient -I/usr/include/mysql #depends on
 #MYSQLFLAGS = -L/usr/include/mysql -lmysqlclient -I/usr/include/mysql -L/usr/local/lib/mysql -lz #depends on arch 	wine
 BOOSTLIB = -lboost_thread #depends on arch	linux
 #BOOSTLIB = -lboost_thread-mt #depends on arch	wine
+SNMPLIB = -lsnmp
+SNMPFLAG = -I/usr/local/include
 LIBS = -ldl $(BOOSTLIB)
 MAKEFLAGS = -j5 #-j#n for threaded compiling
 
@@ -14,7 +16,7 @@ LIBDIR=.libs/
 EXECUTABLE=bot
 
 #allfunctions = src/bot Admin.so Authserv.so Nickserv.so ChannelBot.so OCommands.so Support.so Test.so
-allfunctions = bot ChannelBot.so Authserv.so Nickserv.so OCommands.so Test.so Support.so Znc.so
+allfunctions = bot ChannelBot.so Authserv.so Nickserv.so OCommands.so Support.so Znc.so
 
 main_objects = $(SRCDIR)main.o $(SRCDIR)ServerSocket.o $(SRCDIR)Socket.o $(SRCDIR)IrcSocket.o \
 	$(SRCDIR)Global.o $(SRCDIR)IrcData.o $(SRCDIR)Database.o $(SRCDIR)Bot.o $(SRCDIR)Parse.o \
@@ -46,7 +48,7 @@ Nickserv.so: $(nickserv_objects)
 Support.so: $(support_objects)
 	$(CC) -shared -o $(LIBDIR)$(@) $(support_objects) $(CXXFLAGS)
 Test.so: $(test_objects)
-	$(CC) -shared -o $(LIBDIR)$(@) $(test_objects) $(CXXFLAGS)
+	$(CC) -shared -o $(LIBDIR)$(@) $(test_objects) $(CXXFLAGS) $(SNMPFLAG) $(SNMPLIB)
 Znc.so: $(znc_objects)
 	$(CC) -shared -o $(LIBDIR)$(@) $(znc_objects) $(CXXFLAGS)
 

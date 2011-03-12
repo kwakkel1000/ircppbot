@@ -89,11 +89,10 @@ void OCommands::parse_privmsg()
     }
 }
 
-void OCommands::ParsePrivmsg(std::vector<std::string> data, std::string command, std::string chan, std::vector< std::string > args, int chantrigger)
+void OCommands::ParsePrivmsg(std::string nick, std::string command, std::string chan, std::vector< std::string > args, int chantrigger)
 {
     cout << "OCommands" << endl;
     Users& U = Global::Instance().get_Users();
-    string nick = HostmaskToNick(data);
     string auth = U.GetAuth(nick);
     if (args.size() == 0)
     {
@@ -331,8 +330,34 @@ void OCommands::ParsePrivmsg(std::vector<std::string> data, std::string command,
             }
         }
     }
+    if (args.size() >= 3)
+    {
+        for (unsigned int i = 0; i < binds.size(); i++)
+        {
+            if (boost::iequals(command, binds[i]))
+            {
+                if (boost::iequals(commands[i], "simulate"))
+                {
+                    if (U.GetGod(nick) == 1)
+                    {
+                        overwatch(commands[i], command, chan, nick, auth, args);
+                    	std::vector< std::string > simulate_args;
+                        for (unsigned int j = 2; j < args.size(); j++)
+                        {
+                        	simulate_args.push_back(args[j]);
+                        }
+                        simulate(nick, auth, chan, args[0], args[1], simulate_args, oas[i]);
+                    }
+                    else
+                    {
+                        string returnstring = "NOTICE " + nick + " :" + irc_reply("need_god", U.GetLanguage(nick)) + "\r\n";
+                        Send(returnstring);
+                    }
+                }
+            }
+        }
+    }
 }
-
 
 void OCommands::god(string nick, string auth, int oa)
 {
@@ -355,7 +380,8 @@ void OCommands::god(string nick, string auth, int oa)
     }
     else
     {
-        if (U.GetOaccess(auth) >= oa)
+    	int oaccess = U.GetOaccess(nick);
+        if (oaccess >= oa)
         {
             vector<string> nicks = U.GetNicks(auth);
             for (unsigned int i = 0; i < nicks.size(); i++)

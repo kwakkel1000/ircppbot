@@ -20,10 +20,11 @@ class ModuleBase : public ModuleInterface
                 //irc
 				void overwatch(std::string bind, std::string command, std::string chan, std::string nick, std::string auth, std::vector< std::string > args);
                 void PRIVMSG(std::vector<std::string> data, std::string trigger);
-                virtual void ParsePrivmsg(std::vector<std::string> data, std::string command, std::string chan, std::vector< std::string > args, int chantrigger){};
+                virtual void ParsePrivmsg(std::string nick, std::string command, std::string chan, std::vector< std::string > args, int chantrigger){};
                 bool Send(std::string data);
                 bool SendHighPriority(std::string data);
                 bool SendLowPriority(std::string data);
+				void simulate(std::string nick, std::string auth, std::string chan, std::string simulate_nick, std::string simulate_command, std::vector< std::string > args, int oa);
 
                 //database
                 std::vector< std::vector<std::string> > RawSqlSelect(std::string data);

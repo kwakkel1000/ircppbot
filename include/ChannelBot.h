@@ -31,7 +31,7 @@ private:
     void parse_raw();
     void parse_privmsg();
     void ParseData(std::vector< std::string > data);
-    void ParsePrivmsg(std::vector<std::string> data, std::string command, std::string chan, std::vector< std::string > args, int chantrigger);
+    void ParsePrivmsg(std::string nick, std::string command, std::string chan, std::vector< std::string > args, int chantrigger);
     void PING(vector<string> data);
     //void PRIVMSG(vector<string> data);
     void INVITE(vector<string> data);

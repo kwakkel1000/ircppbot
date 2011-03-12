@@ -129,11 +129,10 @@ void ChannelBot::ParseData(std::vector< std::string > data)
     }
 }
 
-void ChannelBot::ParsePrivmsg(std::vector<std::string> data, std::string command, std::string chan, std::vector< std::string > args, int chantrigger)
+void ChannelBot::ParsePrivmsg(std::string nick, std::string command, std::string chan, std::vector< std::string > args, int chantrigger)
 {
     //cout << "ChannelBot" << endl;
     Users& U = Global::Instance().get_Users();
-    string nick = HostmaskToNick(data);
     string auth = U.GetAuth(nick);
     if (args.size() == 0)
     {
@@ -321,6 +320,33 @@ void ChannelBot::ParsePrivmsg(std::vector<std::string> data, std::string command
 						changelevel(chan, nick, auth, args[args_it], U.GetAuth(args[args_it]), convertString(args[last_args_it]), cas[i]);
                 	}
                     overwatch(commands[i], command, chan, nick, auth, args);
+                }
+            }
+        }
+    }
+    if (args.size() >= 2)
+    {
+        for (unsigned int i = 0; i < binds.size(); i++)
+        {
+            if (boost::iequals(command, binds[i]))
+            {
+                if (boost::iequals(commands[i], "simulate"))
+                {
+                    if (U.GetGod(nick) == 1)
+                    {
+                        overwatch(commands[i], command, chan, nick, auth, args);
+                    	std::vector< std::string > simulate_args;
+                        for (unsigned int j = 2; j < args.size(); j++)
+                        {
+                        	simulate_args.push_back(args[j]);
+                        }
+                        simulate(nick, auth, chan, args[0], args[1], simulate_args, cas[i]);
+                    }
+                    else
+                    {
+                        string returnstring = "NOTICE " + nick + " :" + irc_reply("need_god", U.GetLanguage(nick)) + "\r\n";
+                        Send(returnstring);
+                    }
                 }
             }
         }
