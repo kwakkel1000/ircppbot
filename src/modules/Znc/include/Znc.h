@@ -1,18 +1,21 @@
-#ifndef Support_H
-#define Support_H
+#ifndef Znc_H
+#define Znc_H
 
-#include "ModuleInterface.h"
-#include "ModuleBase.h"
-#include "Data.h"
+#include "../../../include/interfaces/ModuleInterface.h"
+#include "../../../include/core/Data.h"
+#include "../../../include/core/ModuleBase.h"
+#include <iostream>
+#include <algorithm>
 #include <string>
 #include <vector>
+#include <map>
 
 class Data;
-class Support : public ModuleBase
+class Znc : public ModuleBase
 {
 public:
-	Support();
-	~Support();
+    Znc();
+    ~Znc();
     void read();
     void stop();
     void Init();
@@ -25,7 +28,6 @@ private:
     void parse_privmsg();
     void ParseData(std::vector< std::string > data);
     void ParsePrivmsg(std::vector<std::string> data, std::string command, std::string chan, std::vector< std::string > args, int chantrigger);
-    void support(std::string nick, std::string auth, std::string supportstring);
 
     void timerlong();
     std::vector<int> timer_sec;
@@ -39,12 +41,12 @@ private:
     boost::shared_ptr<boost::thread> privmsg_parse_thread;
 
 
-    std::map< std::string, std::string > support_nick_string_map;
-    std::map< std::string, std::string >::iterator support_nick_string_it;
-    std::pair< std::map< std::string, std::string >::iterator, bool > support_ret;
-    std::vector< std::string > support_nick;
+    std::map< std::string, std::map< std::string, std::string > > znc_user_setting_map;
+    std::map< std::string, std::map< std::string, std::string > >::iterator znc_user_setting_it;
+    std::vector< std::string > znc_user_nick;
+    bool ReadFile( std::string filename );
 };
 
-#endif // Support_H
+#endif // Znc_H
 
 

@@ -1,4 +1,4 @@
-#include "../../include/modules/Test/Test.h"
+#include "include/Test.h"
 #include "../../include/core/Global.h"
 #include <iostream>
 #include <algorithm>

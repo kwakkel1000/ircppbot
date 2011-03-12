@@ -9,11 +9,10 @@ MAKEFLAGS = -j5 #-j#n for threaded compiling
 
 TOPDIR=../../../
 SRCDIR=src/
-MODULEDIR=../
 LIBDIR=$(TOPDIR).libs/
 
-authserv_objects = $(MODULEDIR)ModuleBase.o Authserv.o UserManagement.o
-nickserv_objects = $(MODULEDIR)ModuleBase.o Nickserv.o UserManagement.o
+authserv_objects = Authserv.o UserManagement.o
+nickserv_objects = Nickserv.o UserManagement.o
 
 default: Authserv.so Nickserv.so
 Debug: all

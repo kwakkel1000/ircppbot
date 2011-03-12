@@ -3,14 +3,14 @@ CFLAGS = -march=native -pipe #-O#n for nondebug
 CXXFLAGS = $(CFLAGS) -fPIC -Wall -g #-g << debugging
 BOOSTLIB = -lboost_thread #depends on arch	linux
 #BOOSTLIB = -lboost_thread-mt #depends on arch	wine
-LIBS = -ldl $(BOOSTLIB) -lsnmp
+LIBS = -ldl $(BOOSTLIB)
 FLAGS = -I/usr/local/include
 MAKEFLAGS = -j5 #-j#n for threaded compiling
 
 TOPDIR=../../../
 SRCDIR=src/
 LIBDIR=$(TOPDIR).libs/
-module_name=Test
+module_name=Support
 objects=$(module_name).o
 output=$(module_name).so
 

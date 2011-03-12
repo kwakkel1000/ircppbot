@@ -1,5 +1,7 @@
-#include "../../include/OCommands.h"
-#include "../../include/Global.h"
+#include "include/OCommands.h"
+#include "../../include/core/Global.h"
+#include <iostream>
+#include <algorithm>
 #include <boost/algorithm/string.hpp>
 
 extern "C" ModuleInterface* create()
@@ -92,7 +94,7 @@ void OCommands::parse_privmsg()
 void OCommands::ParsePrivmsg(std::string nick, std::string command, std::string chan, std::vector< std::string > args, int chantrigger)
 {
     cout << "OCommands" << endl;
-    Users& U = Global::Instance().get_Users();
+    UsersInterface& U = Global::Instance().get_Users();
     string auth = U.GetAuth(nick);
     if (args.size() == 0)
     {
@@ -361,7 +363,7 @@ void OCommands::ParsePrivmsg(std::string nick, std::string command, std::string 
 
 void OCommands::god(string nick, string auth, int oa)
 {
-    Users& U = Global::Instance().get_Users();
+    UsersInterface& U = Global::Instance().get_Users();
     string returnstring;
     if (U.GetGod(nick) > 0)
     {
@@ -406,7 +408,7 @@ void OCommands::god(string nick, string auth, int oa)
 
 void OCommands::say(string chan, string nick, string auth, string saystring, int oa)
 {
-    Users& U = Global::Instance().get_Users();
+    UsersInterface& U = Global::Instance().get_Users();
     string returnstring;
     int oaccess = U.GetOaccess(nick);
     cout << convertInt(oaccess) << endl;
@@ -426,7 +428,7 @@ void OCommands::say(string chan, string nick, string auth, string saystring, int
 
 void OCommands::raw(string nick, string auth, string dostring, int oa)
 {
-    Users& U = Global::Instance().get_Users();
+    UsersInterface& U = Global::Instance().get_Users();
     string returnstring;
     int oaccess = U.GetOaccess(nick);
     cout << convertInt(oaccess) << endl;
@@ -446,8 +448,8 @@ void OCommands::raw(string nick, string auth, string dostring, int oa)
 
 void OCommands::addchannel(string chan, string nick, string auth, string reqchan, string reqnick, string reqauth, int oa)
 {
-    Users& U = Global::Instance().get_Users();
-    Channels& C = Global::Instance().get_Channels();
+    UsersInterface& U = Global::Instance().get_Users();
+    ChannelsInterface& C = Global::Instance().get_Channels();
     string returnstring;
     if (boost::iequals(reqauth,"NULL") != true)
     {
@@ -498,8 +500,8 @@ void OCommands::addchannel(string chan, string nick, string auth, string reqchan
 
 void OCommands::delchannel(string chan, string nick, string auth, string reqchan, int oa)
 {
-    Users& U = Global::Instance().get_Users();
-    Channels& C = Global::Instance().get_Channels();
+    UsersInterface& U = Global::Instance().get_Users();
+    ChannelsInterface& C = Global::Instance().get_Channels();
     string returnstring;
     int oaccess = U.GetOaccess(nick);
     cout << convertInt(oaccess) << endl;
@@ -546,7 +548,7 @@ void OCommands::delchannel(string chan, string nick, string auth, string reqchan
 
 void OCommands::addobind(string nick, string auth, string command, string newbind, int reqaccess, int oa)
 {
-    Users& U = Global::Instance().get_Users();
+    UsersInterface& U = Global::Instance().get_Users();
     string returnstring;
     bool exists = false;
     int oaccess = U.GetOaccess(nick);
@@ -586,7 +588,7 @@ void OCommands::addobind(string nick, string auth, string command, string newbin
 
 void OCommands::delobind(string nick, string auth, string command, string bind, int oa)
 {
-    Users& U = Global::Instance().get_Users();
+    UsersInterface& U = Global::Instance().get_Users();
     string returnstring;
     int oaccess = U.GetOaccess(nick);
     cout << convertInt(oaccess) << endl;
@@ -626,7 +628,7 @@ void OCommands::delobind(string nick, string auth, string command, string bind, 
 
 void OCommands::addbind(string nick, string auth, string command, string newbind, int reqaccess, int oa)
 {
-    Users& U = Global::Instance().get_Users();
+    UsersInterface& U = Global::Instance().get_Users();
     string returnstring;
     bool exists = false;
     int oaccess = U.GetOaccess(nick);
@@ -666,7 +668,7 @@ void OCommands::addbind(string nick, string auth, string command, string newbind
 
 void OCommands::delbind(string nick, string auth, string command, string bind, int oa)
 {
-    Users& U = Global::Instance().get_Users();
+    UsersInterface& U = Global::Instance().get_Users();
     string returnstring;
     int oaccess = U.GetOaccess(nick);
     cout << convertInt(oaccess) << endl;
@@ -760,7 +762,7 @@ void OCommands::delouser(string nick, string auth, string reqnick, string reqaut
 
 void OCommands::changeolevel(string nick, string auth, string reqnick, string reqauth, int reqaccess, int oa)
 {
-    Users& U = Global::Instance().get_Users();
+    UsersInterface& U = Global::Instance().get_Users();
     string returnstring;
     if (boost::iequals(reqauth,"NULL") != true)
     {
@@ -815,7 +817,7 @@ void OCommands::ousers(string nick, int oa)
 
 void OCommands::ocommands(string nick, string auth, int oa)
 {
-    Users& U = Global::Instance().get_Users();
+    UsersInterface& U = Global::Instance().get_Users();
     string returnstring;
     if (boost::iequals(auth,"NULL") != true)
     {

@@ -1,4 +1,4 @@
-#include "../../include/modules/ircserv/Authserv.h"
+#include "include/Authserv.h"
 #include "../../include/interfaces/UsersInterface.h"
 #include "../../include/core/Global.h"
 

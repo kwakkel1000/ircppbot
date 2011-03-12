@@ -1,5 +1,7 @@
-#include "../../include/ChannelBot.h"
-#include "../../include/Global.h"
+#include "include/ChannelBot.h"
+#include "../../include/core/Global.h"
+#include <iostream>
+#include <algorithm>
 #include <boost/algorithm/string.hpp>
 
 extern "C" ModuleInterface* create()
@@ -30,7 +32,7 @@ void ChannelBot::Init()
     D->Init(true, false, false, true);
     Global::Instance().get_IrcData().AddConsumer(D);
 
-    Channels& C = Global::Instance().get_Channels();
+    ChannelsInterface& C = Global::Instance().get_Channels();
     vector<string> chans = C.GetChannels();
     for (unsigned int i = 0; i < chans.size(); i++)
     {
@@ -132,7 +134,7 @@ void ChannelBot::ParseData(std::vector< std::string > data)
 void ChannelBot::ParsePrivmsg(std::string nick, std::string command, std::string chan, std::vector< std::string > args, int chantrigger)
 {
     //cout << "ChannelBot" << endl;
-    Users& U = Global::Instance().get_Users();
+    UsersInterface& U = Global::Instance().get_Users();
     string auth = U.GetAuth(nick);
     if (args.size() == 0)
     {
@@ -373,8 +375,8 @@ void ChannelBot::ping(string chan, string nick, int ca)
 
 void ChannelBot::adduser(string chan, string nick, string auth, string reqnick, string reqauth, int reqaccess, int ca)
 {
-    Channels& C = Global::Instance().get_Channels();
-    Users& U = Global::Instance().get_Users();
+    ChannelsInterface& C = Global::Instance().get_Channels();
+    UsersInterface& U = Global::Instance().get_Users();
     if (boost::iequals(reqauth,"NULL") != true)
     {
         int access = C.GetAccess(chan, auth);
@@ -399,8 +401,8 @@ void ChannelBot::adduser(string chan, string nick, string auth, string reqnick, 
 
 void ChannelBot::deluser(string chan, string nick, string auth, string reqnick, string reqauth, int ca)
 {
-    Channels& C = Global::Instance().get_Channels();
-    Users& U = Global::Instance().get_Users();
+    ChannelsInterface& C = Global::Instance().get_Channels();
+    UsersInterface& U = Global::Instance().get_Users();
     if (boost::iequals(reqauth,"NULL") != true)
     {
         int access = C.GetAccess(chan, auth);
@@ -427,8 +429,8 @@ void ChannelBot::deluser(string chan, string nick, string auth, string reqnick, 
 
 void ChannelBot::changelevel(string chan, string nick, string auth, string reqnick, string reqauth, int reqaccess, int ca)
 {
-    Channels& C = Global::Instance().get_Channels();
-    Users& U = Global::Instance().get_Users();
+    ChannelsInterface& C = Global::Instance().get_Channels();
+    UsersInterface& U = Global::Instance().get_Users();
     if (boost::iequals(reqauth,"NULL") != true)
     {
         int oldaccess = C.GetAccess(chan, reqauth);
@@ -451,8 +453,8 @@ void ChannelBot::changelevel(string chan, string nick, string auth, string reqni
 
 void ChannelBot::op(string chan, string nick, string auth, string reqnick, string reqauth, int ca)
 {
-    Channels& C = Global::Instance().get_Channels();
-    Users& U = Global::Instance().get_Users();
+    ChannelsInterface& C = Global::Instance().get_Channels();
+    UsersInterface& U = Global::Instance().get_Users();
     int access = C.GetAccess(chan, auth);
     if (access >= C.GetGiveops(chan))
     {
@@ -479,8 +481,8 @@ void ChannelBot::op(string chan, string nick, string auth, string reqnick, strin
 
 void ChannelBot::deop(string chan, string nick, string auth, string reqnick, string reqauth, int ca)
 {
-    Channels& C = Global::Instance().get_Channels();
-    Users& U = Global::Instance().get_Users();
+    ChannelsInterface& C = Global::Instance().get_Channels();
+    UsersInterface& U = Global::Instance().get_Users();
     int access = C.GetAccess(chan, auth);
     if (access >= C.GetGiveops(chan))
     {
@@ -507,8 +509,8 @@ void ChannelBot::deop(string chan, string nick, string auth, string reqnick, str
 
 void ChannelBot::voice(string chan, string nick, string auth, string reqnick, string reqauth, int ca)
 {
-    Channels& C = Global::Instance().get_Channels();
-    Users& U = Global::Instance().get_Users();
+    ChannelsInterface& C = Global::Instance().get_Channels();
+    UsersInterface& U = Global::Instance().get_Users();
     int access = C.GetAccess(chan, auth);
     if (access >= C.GetGiveops(chan))
     {
@@ -535,8 +537,8 @@ void ChannelBot::voice(string chan, string nick, string auth, string reqnick, st
 
 void ChannelBot::devoice(string chan, string nick, string auth, string reqnick, string reqauth, int ca)
 {
-    Channels& C = Global::Instance().get_Channels();
-    Users& U = Global::Instance().get_Users();
+    ChannelsInterface& C = Global::Instance().get_Channels();
+    UsersInterface& U = Global::Instance().get_Users();
     int access = C.GetAccess(chan, auth);
     if (access >= C.GetGiveops(chan))
     {
@@ -563,7 +565,7 @@ void ChannelBot::devoice(string chan, string nick, string auth, string reqnick, 
 
 void ChannelBot::users(string chan, string nick, int ca)
 {
-    Channels& C = Global::Instance().get_Channels();
+    ChannelsInterface& C = Global::Instance().get_Channels();
     vector<string> auths = C.GetAuths(chan);
     sort(auths.begin(), auths.end());
     string returnstr;
@@ -602,8 +604,8 @@ void ChannelBot::users(string chan, string nick, int ca)
 
 void ChannelBot::kickuser(string chan, string nick, string auth, string reqnick, string reqauth, string reason, int ca)
 {
-    Channels& C = Global::Instance().get_Channels();
-    Users& U = Global::Instance().get_Users();
+    ChannelsInterface& C = Global::Instance().get_Channels();
+    UsersInterface& U = Global::Instance().get_Users();
     if (boost::iequals(reqauth,"NULL") != true)
     {
         int access = C.GetAccess(chan, auth);
@@ -627,8 +629,8 @@ void ChannelBot::kickuser(string chan, string nick, string auth, string reqnick,
 
 void ChannelBot::access(string chan, string nick, string reqnick, string reqauth, int ca)
 {
-    Channels& C = Global::Instance().get_Channels();
-    Users& U = Global::Instance().get_Users();
+    ChannelsInterface& C = Global::Instance().get_Channels();
+    UsersInterface& U = Global::Instance().get_Users();
     int access = C.GetAccess(chan, reqauth);
     int oaccess = U.GetOaccess(reqnick);
     int god = U.GetGod(reqnick);
@@ -657,8 +659,8 @@ void ChannelBot::access(string chan, string nick, string reqnick, string reqauth
 
 void ChannelBot::myaccess(string nick, string reqnick, string reqauth, int ca)
 {
-    Channels& C = Global::Instance().get_Channels();
-    Users& U = Global::Instance().get_Users();
+    ChannelsInterface& C = Global::Instance().get_Channels();
+    UsersInterface& U = Global::Instance().get_Users();
     string reply_string = "NOTICE " + nick + " :" + irc_reply("myaccess", U.GetLanguage(nick)) + "\r\n";
     reply_string = irc_reply_replace(reply_string, "$nick$", reqnick);
     reply_string = irc_reply_replace(reply_string, "$auth$", reqauth);
@@ -677,8 +679,8 @@ void ChannelBot::myaccess(string nick, string reqnick, string reqauth, int ca)
 
 void ChannelBot::up(string chan, string nick, string auth, int ca)
 {
-    Channels& C = Global::Instance().get_Channels();
-    Users& U = Global::Instance().get_Users();
+    ChannelsInterface& C = Global::Instance().get_Channels();
+    UsersInterface& U = Global::Instance().get_Users();
     string reply_string;
     //bool giveop = false;
     //bool givevoice = false;
@@ -727,8 +729,8 @@ void ChannelBot::up(string chan, string nick, string auth, int ca)
 
 void ChannelBot::down(string chan, string nick, string auth, int ca)
 {
-    Channels& C = Global::Instance().get_Channels();
-    Users& U = Global::Instance().get_Users();
+    ChannelsInterface& C = Global::Instance().get_Channels();
+    UsersInterface& U = Global::Instance().get_Users();
     string reply_string;
     if (C.GetOp(chan, nick) == true && C.GetVoice(chan, nick) == true)
     {
@@ -758,8 +760,8 @@ void ChannelBot::down(string chan, string nick, string auth, int ca)
 
 void ChannelBot::resync(string chan, string nick, string auth, int ca)
 {
-	Channels& C = Global::Instance().get_Channels();
-    Users& U = Global::Instance().get_Users();
+	ChannelsInterface& C = Global::Instance().get_Channels();
+    UsersInterface& U = Global::Instance().get_Users();
 	std::vector< std::string > nicks = C.GetNicks(chan);
 	int access ;
 	for (unsigned int i = 0; i < nicks.size(); i++)
@@ -813,7 +815,7 @@ void ChannelBot::resync(string chan, string nick, string auth, int ca)
 
 void ChannelBot::ccommands(string nick, string auth, int ca)
 {
-    Users& U = Global::Instance().get_Users();
+    UsersInterface& U = Global::Instance().get_Users();
     string returnstring;
     unsigned int length = U.GetWidth(nick);
     unsigned int amount = U.GetWidthLength(nick);
@@ -844,7 +846,7 @@ void ChannelBot::INVITE(vector<string> data)
 void ChannelBot::JOIN(vector<string> data)
 {
     std::string botnick = Global::Instance().get_BotNick();
-    Users& U = Global::Instance().get_Users();
+    UsersInterface& U = Global::Instance().get_Users();
     std::string chan = data[2];
     boost::erase_all(chan, ":");
     string nick = HostmaskToNick(data);
@@ -988,7 +990,7 @@ void ChannelBot::NICK(vector<string> data)
 
 void ChannelBot::OnUserJoin(string chan, string nick)
 {
-    Users& U = Global::Instance().get_Users();
+    UsersInterface& U = Global::Instance().get_Users();
     up(chan, nick, U.GetAuth(nick), 0);
 }
 
@@ -1015,7 +1017,7 @@ void ChannelBot::BindInit()
 
 void ChannelBot::DBChannelInfo(string data)
 {
-    Channels& C = Global::Instance().get_Channels();
+    ChannelsInterface& C = Global::Instance().get_Channels();
     vector< vector<string> > sql_result;
     string sql_string = "select channels.id, channels.giveops, channels.givevoice from channels where channels.channel = '" + data + "';";
     sql_result = RawSqlSelect(sql_string);

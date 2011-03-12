@@ -1,10 +1,9 @@
-#include "../../include/Support.h"
+#include "include/Support.h"
+#include "../../include/core/Global.h"
 #include <iostream>
 #include <algorithm>
 #include <map>
-#include "../../include/Global.h"
 #include <boost/algorithm/string.hpp>
-
 extern "C" ModuleInterface* create()
 {
     return new Support;
@@ -83,9 +82,9 @@ void Support::ParseData(std::vector< std::string > data)
 
 void Support::ParsePrivmsg(std::vector<std::string> data, std::string command, std::string chan, std::vector< std::string > args, int chantrigger)
 {
-    Users& U = Global::Instance().get_Users();
-    string nick = HostmaskToNick(data);
-    string auth = U.GetAuth(nick);
+    UsersInterface& U = Global::Instance().get_Users();
+    std::string nick = HostmaskToNick(data);
+    std::string auth = U.GetAuth(nick);
     /*if (args.size() == 0)
     {
         for (unsigned int i = 0; i < binds.size(); i++)
@@ -146,7 +145,7 @@ void Support::timerrun()
     {
         if (timer_sec[i] < Tijd)
         {
-            cout << timer_command[i] << endl;
+            std::cout << timer_command[i] << std::endl;
             timer_sec.erase(timer_sec.begin()+i);
             timer_command.erase(timer_command.begin()+i);
         }
@@ -163,7 +162,7 @@ void Support::timerlong()
     {
         if (timer_long_sec[i] < Tijd)
         {
-            cout << "timer_long to timer " << timer_long_command[i] << endl;
+            std::cout << "timer_long to timer " << timer_long_command[i] << std::endl;
             timer_sec.push_back(timer_long_sec[i]);
             timer_command.push_back(timer_long_command[i]);
             timer_long_sec.erase(timer_long_sec.begin()+i);
@@ -175,7 +174,7 @@ void Support::timerlong()
 void Support::support(std::string nick, std::string auth, std::string supportstring)
 {
     std::cout << "Support::support" << std::endl;
-    support_ret = support_nick_string_map.insert (pair< std::string, std::string > (nick, supportstring));
+    support_ret = support_nick_string_map.insert (std::pair< std::string, std::string > (nick, supportstring));
     if (support_ret.second == true)
     {
         std::cout << "new ticket" << std::endl;

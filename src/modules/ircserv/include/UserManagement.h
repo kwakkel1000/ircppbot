@@ -1,8 +1,8 @@
 #ifndef UserManagement_h
 #define UserManagement_h
 
-#include "../../interfaces/UserManagementInterface.h"
-#include "../../interfaces/DataInterface.h"
+#include "../../../include/interfaces/UserManagementInterface.h"
+#include "../../../include/interfaces/DataInterface.h"
 #include <string>
 #include <vector>
 

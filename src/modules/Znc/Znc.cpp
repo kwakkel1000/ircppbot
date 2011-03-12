@@ -1,9 +1,9 @@
-#include "../../include/Znc.h"
+#include "include/Znc.h"
+#include "../../include/core/Global.h"
 #include <iostream>
 #include <algorithm>
 #include <iostream>
 #include <fstream>
-#include "../../include/Global.h"
 #include <boost/algorithm/string.hpp>
 
 extern "C" ModuleInterface* create()
@@ -117,7 +117,7 @@ void Znc::timerrun()
     {
         if (timer_sec[i] < Tijd)
         {
-            cout << timer_command[i] << endl;
+            std::cout << timer_command[i] << std::endl;
             timer_sec.erase(timer_sec.begin()+i);
             timer_command.erase(timer_command.begin()+i);
         }
@@ -134,7 +134,7 @@ void Znc::timerlong()
     {
         if (timer_long_sec[i] < Tijd)
         {
-            cout << "timer_long to timer " << timer_long_command[i] << endl;
+            std::cout << "timer_long to timer " << timer_long_command[i] << std::endl;
             timer_sec.push_back(timer_long_sec[i]);
             timer_command.push_back(timer_long_command[i]);
             timer_long_sec.erase(timer_long_sec.begin()+i);
@@ -146,12 +146,12 @@ void Znc::timerlong()
 
 bool Znc::ReadFile( std::string filename )
 {
-    cout << "readfile: " << filename << endl;
+    std::cout << "readfile: " << filename << std::endl;
 	std::string tmp_user_str;
 	bool in_user_section = false;
 	std::map< std::string, std::string > setting;
     std::string line;
-    ifstream configfile;
+    std::ifstream configfile;
     int linenr = 0;
 
     // Start fresh :)
@@ -206,7 +206,7 @@ bool Znc::ReadFile( std::string filename )
 					if (boost::iequals(vector_line[0], "</User>"))
 					{
 						std::pair< std::map< std::string, std::map< std::string, std::string > >::iterator, bool > znc_user_setting_ret;
-						znc_user_setting_ret = znc_user_setting_map.insert (pair< std::string, std::map< std::string, std::string > > (tmp_user_str, setting));
+						znc_user_setting_ret = znc_user_setting_map.insert (std::pair< std::string, std::map< std::string, std::string > > (tmp_user_str, setting));
 						if (znc_user_setting_ret.second == true)
 						{
 							std::cout << "new user: " << tmp_user_str << std::endl;
@@ -232,7 +232,7 @@ bool Znc::ReadFile( std::string filename )
     }
     else
     {
-        cout << "Could not open file '" << filename << "'" << endl;
+        std::cout << "Could not open file '" << filename << "'" << std::endl;
     }
 
     return false;

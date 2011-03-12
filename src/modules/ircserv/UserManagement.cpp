@@ -1,4 +1,4 @@
-#include "../../include/modules/ircserv/UserManagement.h"
+#include "include/UserManagement.h"
 
 #include "../../include/interfaces/UsersInterface.h"
 #include "../../include/interfaces/ChannelsInterface.h"

@@ -1,8 +1,8 @@
 #ifndef Test_H
 #define Test_H
-#include "../../interfaces/ModuleInterface.h"
-#include "../../core/Data.h"
-#include "../../modules/ModuleBase.h"
+#include "../../../include/interfaces/ModuleInterface.h"
+#include "../../../include/core/Data.h"
+#include "../../../include/core/ModuleBase.h"
 #include <string>
 #include <vector>
 #include <net-snmp/net-snmp-config.h>

@@ -1,4 +1,4 @@
-#include "../include/modules/ModuleBase.h"
+#include "../include/core/ModuleBase.h"
 
 #include "../include/core/Global.h"
 #include "../include/core/Database.h"

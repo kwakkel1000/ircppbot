@@ -1,4 +1,4 @@
-#include "../../include/modules/ircserv/Nickserv.h"
+#include "include/Nickserv.h"
 #include "../../include/interfaces/UsersInterface.h"
 #include "../../include/core/Global.h"
 
