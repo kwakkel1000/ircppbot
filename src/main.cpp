@@ -81,7 +81,7 @@ int main (int argc, char *argv[])
 	SetupSIGSEGVSignal();
 	SetupSIGTERMSignal();
     string inifile = "NULL";
-    inifile = "conf/trantravi.ini";
+    inifile = "conf/trantweak.ini";
     bool ineedroot = false;
 
     vector<string> args;

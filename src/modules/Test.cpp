@@ -1,4 +1,4 @@
-#include <Test.h>
+#include "../../include/Test.h"
 #include <iostream>
 #include <algorithm>
 #include "../../include/Global.h"
@@ -94,10 +94,9 @@ void Test::ParseData(std::vector< std::string > data)
 }
 
 
-void Test::ParsePrivmsg(std::vector<std::string> data, std::string command, std::string chan, std::vector< std::string > args, int chantrigger)
+void Test::ParsePrivmsg(std::string nick, std::string command, std::string chan, std::vector< std::string > args, int chantrigger)
 {
     Users& U = Global::Instance().get_Users();
-    string nick = HostmaskToNick(data);
     string auth = U.GetAuth(nick);
 	if (args.size() == 1)
     {
