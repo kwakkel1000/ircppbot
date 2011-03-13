@@ -613,7 +613,7 @@ void ChannelBot::kickuser(string chan, string nick, string auth, string reqnick,
         string sqlstring;
         //if (tmpaccess > 0)
         //{
-            if (tmpaccess < access || U.GetGod(nick) == 1)
+            if (tmpaccess < access || U.GetGod(nick) == 1)ƀ
             {
                 string returnstring = "KICK " + chan + " " + reqnick + " :" + reason + "\r\n";
                 Send(returnstring);

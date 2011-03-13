@@ -1,10 +1,11 @@
 conf/*.ini
 bot
-ircppbot.cbp
+*.cbp
 *.o
 *.so
 *.svn
 .svn
 .svn*
-ircppbot_build_log.html
-ircppbot.layout
+*_build_log.html
+*.layout
+src/modules/snmp/*

@@ -5,24 +5,29 @@ realname=tran
 chandebug=false
 loadmods=ChannelBot OCommands Support
 moduledir=.libs/
+defaultlanguage=en
 
 [channels]
 debugchannel=#chan.debug
+overwatchchannel=#chan.overwatch
 supportchannel=#chan.support
 teamchannel=#chan.team
 
 [irc]
 trigger=!
+channelbottrigger=!
+ocommandstrigger=?
 ircserver=irc.server.tld
 ircport=6667
 ircpass=passwd
 nickserv=true
-floodprotect=true
-floodbuffer=10
-floodtime=2
+floodprotect=false
+floodbuffer=20
+floodtime=1500
 
 [database]
 hostname=localhost
 databasename=database
 username=dbuser
 password=dbpass
+
