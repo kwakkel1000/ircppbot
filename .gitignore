@@ -8,4 +8,5 @@ bot
 .svn*
 *_build_log.html
 *.layout
-src/modules/snmp/*
+src/modules/Snmp/*
+#src/modules/Znc/*
