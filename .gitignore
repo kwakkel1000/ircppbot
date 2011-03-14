@@ -9,3 +9,4 @@ bot
 *_build_log.html
 *.layout
 src/modules/*
+!src/modules/MODULE_CONFIG

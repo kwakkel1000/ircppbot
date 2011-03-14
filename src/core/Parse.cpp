@@ -219,7 +219,7 @@ bool Parse::LoadModule(std::string modulename)
         std::cout << "Module " << modulename << " Loaded" << std::endl;
         // create an instance of the class
         mi = create_module();
-        mi->Init();
+        mi->Init(new Data());
         modulelist.push_back(modulename);
         modulevector.push_back(module);
         moduleinterfacevector.push_back(mi);
