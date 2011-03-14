@@ -12,9 +12,8 @@
 #include <dlfcn.h>
 
 
-Parse::Parse(bool ns)
+Parse::Parse()
 {
-    NS=ns;
     Global& G = Global::Instance();
 	ConfigReaderInterface& reader = G.get_ConfigReader();
 
@@ -52,14 +51,7 @@ Parse::Parse(bool ns)
         LoadModule(loadmods[i]);
     }
     DBinit();
-    if (NS)
-    {
-        LoadNickserv();
-    }
-    else
-    {
-        LoadAuthserv();
-    }
+    LoadIrcserv(reader.GetString("ircserv"));
     timeron = true;
     assert(!timer_thread);
     timer_thread = boost::shared_ptr<boost::thread>(new boost::thread(boost::bind(&Parse::timerrun, this)));
@@ -82,98 +74,46 @@ Parse::~Parse()
 		std::cout << "unloading " << modname << std::endl;
 		UnLoadModule(modname);
 	}
-	if (NS == true)
-	{
-		UnLoadNickserv();
-	}
-	else
-	{
-		UnLoadAuthserv();
-	}
+	UnLoadIrcserv();
 	/*Global::Instance().get_IrcData().DelConsumer(D);
     delete D;*/
 }
 
-void Parse::LoadAuthserv()
+
+void Parse::LoadIrcserv(std::string modulename)
 {
-    // load the authserv library
-    std::string modulepath = "./" + moduledir + "Authserv.so";
-    authserv = dlopen(modulepath.c_str(), RTLD_LAZY);
-    if (!authserv) {
+    // load the ircserv library
+    std::string modulepath = "./" + moduledir + modulename + ".so";
+    ircserv = dlopen(modulepath.c_str(), RTLD_LAZY);
+    if (!ircserv) {
         cerr << "Cannot load library: " << dlerror() << '\n';
         exit(1);
         //return 1;
     }
 
     // load the symbols
-    create_authserv = (create_tUMI*) dlsym(authserv, "create");
-    destroy_authserv = (destroy_tUMI*) dlsym(authserv, "destroy");
-    if (!create_authserv || !destroy_authserv) {
+    create_ircserv = (create_tUMI*) dlsym(ircserv, "create");
+    destroy_ircserv = (destroy_tUMI*) dlsym(ircserv, "destroy");
+    if (!create_ircserv || !destroy_ircserv) {
         cerr << "Cannot load symbols: " << dlerror() << '\n';
         exit(1);
         //return 1;
     }
-    std::cout << "authserv Loaded" << std::endl;
+    std::cout << "ircserv Loaded" << std::endl;
     // create an instance of the class
-    umi = create_authserv();
-    umi->Init();
+    umi = create_ircserv();
+    umi->Init(new Data());
     umi->read();
-    /*assert(!user_thread);
-    user_thread = boost::shared_ptr<boost::thread>(new boost::thread(boost::bind(&Parse::LoadUserThreadLoop, this)));*/
 }
 
-void Parse::UnLoadAuthserv()
+void Parse::UnLoadIrcserv()
 {
     // destroy the class
-    destroy_authserv(umi);
+    destroy_ircserv(umi);
 
     // unload the channelbot library
-    dlclose(authserv);
-    cout << "authserv UnLoaded" << endl;
-
-}
-
-void Parse::LoadNickserv()
-{
-    // load the nickserv library
-    std::string modulepath = "./" + moduledir + "Nickserv.so";
-    nickserv = dlopen(modulepath.c_str(), RTLD_LAZY);
-    if (!nickserv) {
-        cerr << "Cannot load library: " << dlerror() << '\n';
-        exit(1);
-        //return 1;
-    }
-
-    // load the symbols
-    create_nickserv = (create_tUMI*) dlsym(nickserv, "create");
-    destroy_nickserv = (destroy_tUMI*) dlsym(nickserv, "destroy");
-    if (!create_nickserv || !destroy_nickserv) {
-        cerr << "Cannot load symbols: " << dlerror() << '\n';
-        exit(1);
-        //return 1;
-    }
-    std::cout << "nickserv Loaded" << std::endl;
-    // create an instance of the class
-    umi = create_nickserv();
-    umi->Init();
-    umi->read();
-    /*assert(!user_thread);
-    user_thread = boost::shared_ptr<boost::thread>(new boost::thread(boost::bind(&Parse::LoadUserThreadLoop, this)));*/
-}
-
-void Parse::UnLoadNickserv()
-{
-    // destroy the class
-    destroy_nickserv(umi);
-
-    // unload the channelbot library
-    dlclose(nickserv);
-    cout << "nickserv UnLoaded" << endl;
-}
-
-void Parse::LoadUserThreadLoop()
-{
-    umi->read();
+    dlclose(ircserv);
+    cout << "ircserv UnLoaded" << endl;
 }
 
 void Parse::LoadThreadLoop(int i)
@@ -542,16 +482,8 @@ void Parse::PRIVMSG(std::vector< std::string > data)
                     std::string returnstring = "NOTICE " + nick + " :[" + convertInt(i) + "] " + modname + " loaded\r\n";
                     Send(returnstring);
                 }
-                if (NS == true)
-                {
-                    UnLoadNickserv();
-                    LoadNickserv();
-                }
-                else
-                {
-                    UnLoadAuthserv();
-                    LoadAuthserv();
-                }
+                UnLoadIrcserv();
+				LoadIrcserv(Global::Instance().get_ConfigReader().GetString("ircserv"));
                 reply_string = "NOTICE " + nick + " :Reloaded " + convertInt(tmpmodulelist.size()) + " modules\r\n";
                 Send(reply_string);
             }
@@ -596,16 +528,8 @@ void Parse::ReloadAll()
         std::string modname = tmpmodulelist[i];
         LoadModule(modname);
     }
-    if (NS == true)
-    {
-        UnLoadNickserv();
-        LoadNickserv();
-    }
-    else
-    {
-        UnLoadAuthserv();
-        LoadAuthserv();
-    }
+	UnLoadIrcserv();
+	LoadIrcserv(Global::Instance().get_ConfigReader().GetString("ircserv"));
 }
 
 std::string Parse::convertInt(int number)

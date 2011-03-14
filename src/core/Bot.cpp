@@ -78,7 +78,6 @@ void Bot::parseinit()
     //floodprotect = reader->GetString("floodprotect");
     //floodbuffer = reader->GetString("floodbuffer");
     //floodtime = reader->GetString("floodtime");
-    bool ns(nickserv == "true");
     try
     {
         parse_sock = new IrcSocket();
@@ -90,7 +89,7 @@ void Bot::parseinit()
         exit(1);
     }
     G.get_IrcData().init(parse_sock);
-    P = new Parse(ns);
+    P = new Parse();
     assert(!parse_thread);
     parse_thread = boost::shared_ptr<boost::thread>(new boost::thread(boost::bind(&Bot::parserun, this)));
 }

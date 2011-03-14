@@ -1,36 +1,25 @@
-CC = g++
-CFLAGS = -march=native -pipe #-O#n for nondebug
-CXXFLAGS = $(CFLAGS) -fPIC -Wall -g #-g << debugging
-BOOSTLIB = -lboost_thread #depends on arch	linux
-#BOOSTLIB = -lboost_thread-mt #depends on arch	wine
-LIBS = -ldl $(BOOSTLIB) -lsnmp
-FLAGS = -I/usr/local/include
-MAKEFLAGS = -j5 #-j#n for threaded compiling
+include ../MODULE_CONFIG
 
-TOPDIR=../../../
-SRCDIR=src/
-LIBDIR=$(TOPDIR).libs/
+CXX_CFLAGS 		=
+CXX_LDFLAGS 	=
+LIBRARIES 		= $(CXX_SYSLIBS)
 
-authserv_objects = Authserv.o UserManagement.o
-nickserv_objects = Nickserv.o UserManagement.o
+MODULE_NAME		= UserManagement
+OBJECTS			= $(MODULE_NAME).o
+OUTPUT			= $(MODULE_NAME).so
 
-default: Authserv.so Nickserv.so
+default: $(OUTPUT)
 Debug: all
 Release: all
 all: default
 
 
-Authserv.so: $(authserv_objects)
-	$(CC) -shared -o $(LIBDIR)$(@) $(authserv_objects) $(CXXFLAGS)
-Nickserv.so: $(nickserv_objects)
-	$(CC) -shared -o $(LIBDIR)$(@) $(nickserv_objects) $(CXXFLAGS)
+$(OUTPUT): $(SRC_DIR)$(OBJECTS)
+	$(CXX_LINK) -o $(LIB_DIR)$@ $(OBJECTS) $(LIBRARIES)
 
 cleanDebug: clean
 cleanRelease: clean
 clean:
-	rm -f $(authserv_objects) $(nickserv_objects) $(LIBDIR)Authserv.so $(LIBDIR)Nickserv.so
+	rm -f $(OBJECTS) $(LIB_DIR)$(OUTPUT)
 
 cleanall: clean
-
-
-

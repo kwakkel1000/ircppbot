@@ -1,11 +1,11 @@
 #include "include/UserManagement.h"
 
-#include "../../include/interfaces/UsersInterface.h"
-#include "../../include/interfaces/ChannelsInterface.h"
-#include "../../include/interfaces/ConfigReaderInterface.h"
-#include "../../include/core/Database.h"
-#include "../../include/core/Global.h"
-#include "../../include/core/Data.h"
+#include <interfaces/UsersInterface.h>
+#include <interfaces/ChannelsInterface.h>
+#include <interfaces/ConfigReaderInterface.h>
+#include <core/Database.h>
+#include <core/Global.h>
+#include <core/Data.h>
 
 #include <boost/algorithm/string.hpp>
 #include <iostream>
@@ -34,17 +34,124 @@ const char opwhochar     = '@';
 const char halfopwhochar = '%';
 const char voicewhochar  = '+';
 
-
-UserManagement::UserManagement()
-{
-
+extern "C" UserManagement* create() {
+    return new UserManagement;
 }
 
-void UserManagement::Init()
+extern "C" void destroy(UserManagement* x) {
+    delete x;
+}
+
+void UserManagement::stop()
 {
-    D = new Data();
-    D->Init(true, false, false, false);
-    Global::Instance().get_IrcData().AddConsumer(D);
+    Run = false;
+    raw_parse_thread->join();
+}
+
+void UserManagement::Init(DataInterface* pData)
+{
+	mpDataInterface = pData;
+	mpDataInterface->Init(true, false, false, false);
+    Global::Instance().get_IrcData().AddConsumer(mpDataInterface);
+    NickServ = (Global::Instance().get_ConfigReader().GetString("nickserv") == "true");
+    WhoExtra = (Global::Instance().get_ConfigReader().GetString("whoextra") == "true");
+}
+
+void UserManagement::read()
+{
+    Run = true;
+    assert(!raw_parse_thread);
+    raw_parse_thread = boost::shared_ptr<boost::thread>(new boost::thread(boost::bind(&UserManagement::parse_raw, this)));
+}
+
+void UserManagement::parse_raw()
+{
+    std::vector< std::string > data;
+    while(Run)
+    {
+        data = mpDataInterface->GetRawQueue();
+        ParseData(data);
+    }
+}
+
+void UserManagement::ParseData(std::vector< std::string > data)
+{
+    if (data.size() == 3)
+    {
+        if (data[1] == "JOIN")      //JOIN
+        {
+            JOIN(data);
+        }
+        if (data[1] == "NICK")      //NICK nickchange
+        {
+            NICK(data);
+        }
+    }
+    if (data.size() >= 3)
+    {
+        if (data[1] == "QUIT")      //QUIT
+        {
+            QUIT(data);
+        }
+        if (data[1] == "PART")      //PART
+        {
+            PART(data);
+        }
+    }
+    if (data.size() >= 4)
+    {
+        if (data[1] == "001")   //welcome
+        {
+            Global::Instance().set_BotNick(data[2]);
+        }
+        if (data[1] == "307")       //WHOIS regged nick
+        {
+        	if (NickServ)
+        	{
+				UserAuth(data[3], data[3]);
+        	}
+        }
+        if (data[1] == "318")       //WHOIS end
+        {
+            //WHOIS(data);
+        }
+        if (data[1] == "330")       //WHOIS auth
+        {
+        	if (!NickServ)
+        	{
+				UserAuth(data[3], data[4]);
+        	}
+        }
+        if (data[1] == "402")       //WHOIS no server
+        {
+            //WHOIS(data);
+        }
+        if (data[1] == "354")       //WHO (extra)
+        {
+        	if (WhoExtra)
+        	{
+				WHOEXTRA(data);
+        	}
+        }
+    }
+    if (data.size() >= 5)
+    {
+        if (data[1] == "KICK")      //KICK
+        {
+            KICK(data);
+        }
+        if (data[1] == "MODE")      //KICK
+        {
+            MODE(data);
+        }
+    }
+    if (data.size() >= 11)
+    {
+        if (data[1] == "352")       //WHO
+        {
+            WHO(data);
+        }
+    }
 }
 
 void UserManagement::WHO(vector<string> data)
@@ -122,13 +229,83 @@ void UserManagement::WHO(vector<string> data)
 	if (added)
     {
         U.AddWhois(nick);
-        //if (WhoisSend == false)
-        //{
-            string whoisstring = "WHOIS " + nick + " " + nick + "\r\n";
-            Send(whoisstring);
-            //WhoisSend = true;
-        //}
-        //cout << "UserManagement::WHO(vector<string> data)  user added " << nick << "\r\n";
+        string whoisstring = "WHOIS " + nick + " " + nick + "\r\n";
+        Send(whoisstring);
+    }
+}
+
+void UserManagement::WHOEXTRA(vector<string> data)
+{
+    string chan = data[3];
+    string nick = data[4];
+    string modes = data[5];
+    string auth = data[6];
+
+    UsersInterface& U = Global::Instance().get_Users();
+    ChannelsInterface& C = Global::Instance().get_Channels();
+    C.AddNick(chan, nick);
+    U.AddUser(nick);
+    U.AddChannel(nick, chan);
+    UserAuth(nick, auth);
+
+	size_t Gonepos = modes.find(gonechar);
+    if (Gonepos != string::npos)
+    {
+        U.SetGone(nick, true);
+    }
+
+    size_t Herepos = modes.find(herechar);
+	if (Herepos != string::npos)
+    {
+        U.SetGone(nick, false);
+    }
+
+    size_t Ownerpos = modes.find(ownerwhochar);
+	if (Ownerpos != string::npos)
+    {
+        C.SetOp(chan, nick, true);
+    }
+
+    size_t Adminpos = modes.find(adminwhochar);
+	if (Adminpos != string::npos)
+    {
+        C.SetOp(chan, nick, true);
+    }
+
+    size_t Oppos = modes.find(opwhochar);
+	if (Oppos != string::npos)
+    {
+        C.SetOp(chan, nick, true);
+    }
+
+    size_t Halfoppos = modes.find(halfopwhochar);
+	if (Halfoppos != string::npos)
+    {
+        C.SetVoice(chan, nick, true);
+    }
+
+    size_t Voicepos = modes.find(voicewhochar);
+	if (Voicepos != string::npos)
+    {
+        C.SetVoice(chan, nick, true);
+    }
+
+    size_t Xpos = modes.find("x");
+	if (Xpos != string::npos)
+    {
+        U.SetX(nick, true);
+    }
+
+    size_t Dpos = modes.find(botchar);
+	if (Dpos != string::npos)
+    {
+        U.SetD(nick, true);
+    }
+
+    size_t Ircoppos = modes.find(operchar);
+	if (Ircoppos != string::npos)
+    {
+        U.SetIrcop(nick, true);
     }
 }
 
@@ -136,7 +313,6 @@ void UserManagement::WHOIS(vector<string> data)
 {
     UsersInterface& U = Global::Instance().get_Users();
     U.DelWhois(data[3]);
-    //WhoisSend = false;
     string whois = U.GetWhois();
     if (whois != "NULL")
     {
@@ -154,7 +330,15 @@ void UserManagement::JOIN(vector<string> data)
     if (nick == Global::Instance().get_BotNick())
     {
         C.AddChannel(chan[0]);
-        string whostring = "WHO " + chan[0] + "\r\n";
+        string whostring;
+		if (WhoExtra)
+		{
+			 whostring = "WHO " + chan[0] + " %ncaf\r\n";
+		}
+		else
+		{
+			whostring = "WHO " + chan[0] + "\r\n";
+		}
         Send(whostring);
         DBChannelInfo(chan[0]);
     }
@@ -168,7 +352,6 @@ void UserManagement::JOIN(vector<string> data)
         {
             string whoisstring = "WHOIS " + nick + " " + nick + "\r\n";
             Send(whoisstring);
-            //cout << "Parse::JOIN(vector<string> data)  user added " << nick << "\r\n";
         }
     }
 }
@@ -352,6 +535,32 @@ void UserManagement::NICK(vector<string> data)
             C.AddNick(channels[i], nick[0]);
         }
         //cout << "NICK" << endl;
+    }
+}
+
+void UserManagement::UserAuth(std::string mNick, std::string mAuth)
+{
+    UsersInterface& U = Global::Instance().get_Users();
+    U.SetAuth(mNick, mAuth);
+    U.SetOaccess(mNick, -1);
+    std::string sqlstring;
+    if (U.AddAuth(mAuth) == true)
+    {
+        sqlstring = "INSERT into auth (auth) VALUES ( '" + mAuth + "' );";
+        RawSql(sqlstring);
+    }
+    std::vector< std::string > userchannels = U.GetChannels(mNick);
+    if (boost::iequals(userchannels[0], "NULL") == false)
+    {
+        for ( unsigned int i = 0 ; i < userchannels.size(); i++ )
+        {
+            std::cout << "userchannels[" << convertInt(i) << "] " << userchannels[i] << std::endl;
+        }
+        DBUserInfo(mNick);
+    }
+    else
+    {
+        U.DelUser(mNick);
     }
 }
 

@@ -116,11 +116,14 @@ string Users::GetWhois()
 bool Users::SetAuth(string tmpnick, string auth)
 {
     //boost::mutex::scoped_lock  lock(User_mutex);
-    int i = GetNickIndex(tmpnick);
-    if (i >= 0)
+    if (auth != "0")
     {
-        u[i]->SetAuth(auth);
-        return true;
+		int i = GetNickIndex(tmpnick);
+		if (i >= 0)
+		{
+			u[i]->SetAuth(auth);
+			return true;
+		}
     }
     return false;
 }

@@ -1,10 +1,11 @@
 #ifndef UserManagementInterface_H
 #define UserManagementInterface_H
+#include "DataInterface.h"
 class UserManagementInterface
 {
 public:
     UserManagementInterface() { }
-    virtual void Init()=0;
+    virtual void Init(DataInterface* pData)=0;
     virtual void read()=0;
     virtual void stop()=0;
 

@@ -12,14 +12,12 @@ class Data;
 class Parse
 {
 public:
-    Parse(bool);
+    Parse();
     virtual ~Parse();
 
     virtual void read( );
-    virtual void LoadAuthserv();
-    virtual void UnLoadAuthserv();
-    virtual void LoadNickserv();
-    virtual void UnLoadNickserv();
+    virtual void LoadIrcserv(std::string);
+    virtual void UnLoadIrcserv();
     virtual bool LoadModule(std::string);
     virtual bool UnLoadModule(std::string);
     virtual bool UnLoadModuleId(unsigned int);
@@ -29,7 +27,6 @@ public:
 private:
     //vars
     std::string configfile;
-    bool NS;
     bool run;
 
     //classes
@@ -37,12 +34,9 @@ private:
 
     //service modules
     UserManagementInterface* umi;
-    void* authserv;
-    void* nickserv;
-    create_tUMI* create_authserv;
-    destroy_tUMI* destroy_authserv;
-    create_tUMI* create_nickserv;
-    destroy_tUMI* destroy_nickserv;
+    void* ircserv;
+    create_tUMI* create_ircserv;
+    destroy_tUMI* destroy_ircserv;
 
     //modules
     std::vector< std::string > modulelist;
@@ -80,7 +74,6 @@ private:
     std::string trigger;
     std::string moduledir;
 
-    void LoadUserThreadLoop();
     void LoadThreadLoop(int i);
     bool timeron;
     boost::shared_ptr< boost::thread > raw_parse_thread;

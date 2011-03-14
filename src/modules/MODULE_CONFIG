@@ -8,7 +8,7 @@ LDFLAGS		=
 
 # OPTIMIZE with the -O option.  Override from the command line for
 # building debug versions.
-OPTFLAGS	= -O2
+OPTFLAGS	=
 MAKEFLAGS 	= -j5
 
 
@@ -27,8 +27,8 @@ CXX_FORCE	=
 # System Flags -- Things for static linking or making sure that the
 # compiler understands that a file is a C++ file or whatever.  These
 # usually change from platform to platform.
-CXX_SYSCFLAGS 	= -march=native -pipe -Wall -fPIC -I$(MODULE_INCLUDE)
-CXX_SYSLDFLAGS 	= -shared
+CXX_SYSCFLAGS 	= -march=native -pipe -Wall -fPIC -I$(MODULE_INCLUDE) -g
+CXX_SYSLDFLAGS 	= -shared -g
 CXX_SYSLIBS		=
 
 .cpp.o:	; $(CXX_COMPILE) $<
@@ -38,5 +38,3 @@ TOP_DIR			= ../../../
 SRC_DIR			= src/
 LIB_DIR			= $(TOP_DIR).libs/
 MODULE_INCLUDE	= $(TOP_DIR)src/include
-OBJECTS			= $(MODULE_NAME).o
-OUTPUT			= $(MODULE_NAME).so

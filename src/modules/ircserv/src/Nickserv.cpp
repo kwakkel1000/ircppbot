@@ -1,6 +1,6 @@
 #include "include/Nickserv.h"
-#include "../../include/interfaces/UsersInterface.h"
-#include "../../include/core/Global.h"
+#include <interfaces/UsersInterface.h>
+#include <core/Global.h>
 
 #include <boost/algorithm/string.hpp>
 #include <iostream>
@@ -33,7 +33,7 @@ void Nickserv::parse_raw()
     std::vector< std::string > data;
     while(run)
     {
-        data = D->GetRawQueue();
+        data = mpDataInterface->GetRawQueue();
         ParseData(data);
     }
 }
@@ -80,6 +80,10 @@ void Nickserv::ParseData(std::vector< std::string > data)
         if (data[1] == "402")       //WHOIS no server
         {
             //WHOIS(data);
+        }
+        if (data[1] == "354")       //WHO (extra)
+        {
+            WHOEXTRA(data);
         }
     }
     if (data.size() >= 5)

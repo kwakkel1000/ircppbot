@@ -14,6 +14,9 @@ SRCDIR=src/
 COREDIR=$(SRCDIR)core/
 MANAGEMENTDIR=$(SRCDIR)management/
 SOCKETDIR=$(SRCDIR)socket/
+
+
+MODULES	= ChannelBot OCommands Support Znc Snmp Example
 EXECUTABLE=bot
 
 allfunctions = bot
@@ -42,4 +45,17 @@ bot: $(core_objects) $(management_objects) $(socket_objects)
 	$(CC) -rdynamic -o $(EXECUTABLE) $(core_objects) $(management_objects) $(socket_objects) $(MYSQLFLAGS) $(LIBS) $(CXXFLAGS)
 
 clean:
-	rm -f $(core_objects) $(management_objects) $(socket_objects) $(EXECUTABLE)
+	rm -f $(core_objects) $(EXECUTABLE)
+	rm -f $(management_objects)
+	rm -f $(socket_objects)
+
+
+modules: force_look
+	-for d in $(SRCDIR)modules/$(MODULES); do (echo make $(SRCDIR)modules/$$d; cd $(SRCDIR)modules/$$d; $(MAKE)); done
+
+cleanmodules:
+	echo cleaning up in .
+	-for d in $(MODULES); do (cd $(SRCDIR)modules/$$d; $(MAKE) clean ); done
+
+force_look :
+	true
