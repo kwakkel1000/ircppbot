@@ -108,6 +108,7 @@ void Parse::LoadIrcserv(std::string modulename)
 
 void Parse::UnLoadIrcserv()
 {
+	umi->stop();
     // destroy the class
     destroy_ircserv(umi);
 
@@ -467,6 +468,7 @@ void Parse::PRIVMSG(std::vector< std::string > data)
                 std::string reply_string;
                 reply_string = "NOTICE " + nick + " :unloading " + convertInt(tmpmodulelist.size()) + " modules\r\n";
                 Send(reply_string);
+                UnLoadIrcserv();
                 for (unsigned int i = 0; i < tmpmodulelist.size(); i++)
                 {
                     std::string modname = tmpmodulelist[i];
@@ -482,7 +484,6 @@ void Parse::PRIVMSG(std::vector< std::string > data)
                     std::string returnstring = "NOTICE " + nick + " :[" + convertInt(i) + "] " + modname + " loaded\r\n";
                     Send(returnstring);
                 }
-                UnLoadIrcserv();
 				LoadIrcserv(Global::Instance().get_ConfigReader().GetString("ircserv"));
                 reply_string = "NOTICE " + nick + " :Reloaded " + convertInt(tmpmodulelist.size()) + " modules\r\n";
                 Send(reply_string);

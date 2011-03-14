@@ -95,7 +95,7 @@ void IrcData::init(IrcSocketInterface *s)
 
 void IrcData::AddConsumer(DataInterface *d)
 {
-    Consumers.push_back(d);
+    //Consumers.push_back(d);
     if (d->GetRaw() == true)
     {
         RawConsumers.push_back(d);
@@ -117,13 +117,13 @@ void IrcData::AddConsumer(DataInterface *d)
 void IrcData::DelConsumer(DataInterface *d)
 {
     unsigned int consumer_iterator;
-    for (consumer_iterator = (Consumers.size() - 1); consumer_iterator >= 0; consumer_iterator--)
+    /*for (consumer_iterator = (Consumers.size() - 1); consumer_iterator >= 0; consumer_iterator--)
     {
         if (Consumers[consumer_iterator] == d)
         {
             Consumers.erase(Consumers.begin() + consumer_iterator);
         }
-    }
+    }*/
     for (consumer_iterator = (RawConsumers.size() - 1); consumer_iterator >= 0; consumer_iterator--)
     {
         if (RawConsumers[consumer_iterator] == d)

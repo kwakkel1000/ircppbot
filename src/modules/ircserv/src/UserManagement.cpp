@@ -42,9 +42,19 @@ extern "C" void destroy(UserManagement* x) {
     delete x;
 }
 
+UserManagement::UserManagement()
+{
+}
+
+UserManagement::~UserManagement()
+{
+}
+
 void UserManagement::stop()
 {
     Run = false;
+	Global::Instance().get_IrcData().DelConsumer(mpDataInterface);
+    delete mpDataInterface;
     raw_parse_thread->join();
 }
 

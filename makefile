@@ -16,7 +16,7 @@ MANAGEMENTDIR=$(SRCDIR)management/
 SOCKETDIR=$(SRCDIR)socket/
 
 
-MODULES	= ChannelBot OCommands Support Znc Snmp Example
+MODULE_DIR	= $(SRCDIR)modules
 EXECUTABLE=bot
 
 allfunctions = bot
@@ -51,11 +51,11 @@ clean:
 
 
 modules: force_look
-	-for d in $(SRCDIR)modules/$(MODULES); do (echo make $(SRCDIR)modules/$$d; cd $(SRCDIR)modules/$$d; $(MAKE)); done
+	echo make $(MODULE_DIR); cd $(MODULE_DIR); $(MAKE)
 
 cleanmodules:
 	echo cleaning up in .
-	-for d in $(MODULES); do (cd $(SRCDIR)modules/$$d; $(MAKE) clean ); done
+	cd $(MODULE_DIR); $(MAKE) clean
 
 force_look :
 	true

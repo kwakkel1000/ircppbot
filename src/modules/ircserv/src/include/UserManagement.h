@@ -12,6 +12,8 @@ class DataInterface;
 class UserManagement : public UserManagementInterface
 {
 public:
+	UserManagement();
+	~UserManagement();
     void ParseData(std::vector< std::string > data);
     void read();
     void stop();

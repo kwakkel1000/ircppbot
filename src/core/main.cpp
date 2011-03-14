@@ -81,7 +81,7 @@ int main (int argc, char *argv[])
 	SetupSIGSEGVSignal();
 	SetupSIGTERMSignal();
     std::string inifile = "NULL";
-    inifile = "conf/tranogn.ini";
+    inifile = "conf/testtravi.ini";
     bool ineedroot = false;
 
     std::vector< std::string > args;
