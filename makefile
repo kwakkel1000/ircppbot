@@ -1,4 +1,4 @@
-include MODULES
+include MODULES.mk
 CC				= g++
 CFLAGS			= -march=native -pipe #-O#n for nondebug
 CXXFLAGS		= $(CFLAGS) -fPIC -Wall -g #-g << debugging
