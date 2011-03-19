@@ -12,3 +12,4 @@ src/modules/*
 !src/modules/MODULE_CONFIG
 !src/modules/ircserv
 !src/modules/Admin
+!src/modules/makefile

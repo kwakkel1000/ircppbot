@@ -38,3 +38,7 @@ TOP_DIR			= ../../../
 SRC_DIR			= src/
 LIB_DIR			= $(TOP_DIR).libs/
 MODULE_INCLUDE	= $(TOP_DIR)src/include
+
+
+update:
+	git pull
