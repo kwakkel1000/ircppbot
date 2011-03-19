@@ -1,3 +1,4 @@
+include MODULES
 CC				= g++
 CFLAGS			= -march=native -pipe #-O#n for nondebug
 CXXFLAGS		= $(CFLAGS) -fPIC -Wall -g #-g << debugging
@@ -7,8 +8,6 @@ BOOSTLIB		= -lboost_thread #depends on arch	linux
 #BOOSTLIB		= -lboost_thread-mt #depends on arch	wine
 LIBS			= -ldl $(BOOSTLIB)
 MAKEFLAGS		= -j5 #-j#n for threaded compiling
-MODULES			= $(MODULE_DIR)ircserv $(MODULE_DIR)ChannelBot $(MODULE_DIR)OCommands $(MODULE_DIR)Support $(MODULE_DIR)Znc $(MODULE_DIR)Snmp $(MODULE_DIR)Example
-
 
 TOPDIR			=
 LIBDIR			= $(TOPDIR).libs/
@@ -21,7 +20,7 @@ SOCKETDIR		= $(SRCDIR)socket/
 MODULE_DIR		= $(SRCDIR)modules/
 EXECUTABLE		= bot
 
-allfunctions 	= bot
+allfunctions 	= bot modules
 
 core_objects 		= \
 	$(COREDIR)main.o $(COREDIR)Bot.o $(COREDIR)Parse.o \
@@ -42,7 +41,8 @@ cleanDebug: clean
 cleanRelease: clean
 
 all: $(allfunctions)
-cleanall: clean
+updateall: update updatemodules
+cleanall: clean cleanmodules
 
 default: bot
 
