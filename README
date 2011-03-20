@@ -20,6 +20,10 @@ edit it to your needs.
 
 
 making modules:
+copy MODULES.exampel to MODULES
+edit MODULES to your modules locations
+
+
 copy src/modules/Test.cpp to src/modules/yourmodule.cpp
 copy include/Test.h to include/yourmodule.h
 edit both files.

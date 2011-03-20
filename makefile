@@ -25,7 +25,7 @@ allfunctions 	= bot modules
 core_objects 		= \
 	$(COREDIR)main.o $(COREDIR)Bot.o $(COREDIR)Parse.o \
 	$(COREDIR)Data.o $(COREDIR)IrcData.o \
-	$(COREDIR)Database.o $(COREDIR)Auth.o \
+	$(COREDIR)Database.o $(COREDIR)DatabaseData.o $(COREDIR)Auth.o \
 	$(COREDIR)ConfigReader.o $(COREDIR)Global.o $(COREDIR)Reply.o $(COREDIR)ModuleBase.o
 management_objects 	= \
 	$(MANAGEMENTDIR)ChannelAuth.o \
@@ -34,6 +34,8 @@ management_objects 	= \
 socket_objects 		= \
 	$(SOCKETDIR)IrcSocket.o \
 	$(SOCKETDIR)ServerSocket.o $(SOCKETDIR)Socket.o
+
+default: bot
 
 Debug: all
 Release: all
@@ -44,7 +46,6 @@ all: $(allfunctions)
 updateall: update updatemodules
 cleanall: clean cleanmodules
 
-default: bot
 
 bot: $(core_objects) $(management_objects) $(socket_objects)
 	$(CC) -rdynamic -o $(EXECUTABLE) $(core_objects) $(management_objects) $(socket_objects) $(MYSQLFLAGS) $(LIBS) $(CXXFLAGS)
