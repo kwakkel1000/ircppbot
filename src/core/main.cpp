@@ -34,8 +34,8 @@ void SegFaultAction( int i_num, siginfo_t * i_info, void * i_val )
 
 void SetupSIGSEGVSignal()
 {
-	struct sigaction a_sig[1] = { { 0 } };
-	struct sigaction a_old_sig[1] = { { 0 } };
+	struct sigaction a_sig[1] = { { {0} } };
+	struct sigaction a_old_sig[1] = { { {0} } };
 
 	a_sig->sa_sigaction = SegFaultAction;
 	a_sig->sa_flags = SA_SIGINFO
@@ -59,8 +59,8 @@ void TermAction( int i_num, siginfo_t * i_info, void * i_val )
 void SetupSIGTERMSignal()
 {
 
-	struct sigaction a_sig[1] = { { 0 } };
-	struct sigaction a_old_sig[1] = { { 0 } };
+	struct sigaction a_sig[1] = { { {0} } };
+	struct sigaction a_old_sig[1] = { { {0} } };
 
 	a_sig->sa_sigaction = TermAction;
 	a_sig->sa_flags = SA_SIGINFO
@@ -81,7 +81,7 @@ int main (int argc, char *argv[])
 	SetupSIGSEGVSignal();
 	SetupSIGTERMSignal();
     std::string inifile = "NULL";
-    inifile = "conf/testtravi.ini";
+    inifile = "conf/trantweak.ini";
     bool ineedroot = false;
 
     std::vector< std::string > args;

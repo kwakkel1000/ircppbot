@@ -25,8 +25,8 @@ public:
 	virtual bool SetGivevoice(std::string, int)=0;
 	virtual int GetGivevoice(std::string)=0;
 
-	virtual int GetCid(std::string)=0;
-	virtual bool SetCid(std::string, int)=0;
+	virtual std::string GetCid(std::string)=0;
+	virtual bool SetCid(std::string, std::string)=0;
 
 	virtual bool GetOp(std::string, std::string)=0;
 	virtual bool SetOp(std::string, std::string, bool)=0;

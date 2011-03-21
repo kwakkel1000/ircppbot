@@ -32,9 +32,9 @@ public:
 	virtual int GetGiveops();
 	virtual bool SetGivevoice(int);
 	virtual int GetGivevoice();
-	virtual int GetCid();
-	virtual bool SetCid(int);
-	
+	virtual std::string GetCid();
+	virtual bool SetCid(std::string);
+
 	virtual vector<string> GetNicks();
 	virtual vector<string> GetAuths();
 
@@ -46,7 +46,7 @@ private:
 	vector<bool> voice;
 	int giveops;
 	int givevoice;
-	int cid;
+	std::string cid;
 	int GetChannelAuthIndex(string data);
 	int GetNicksIndex(string data);
 	bool caseInsensitiveStringCompare( const std::string& str1, const std::string& str2 );

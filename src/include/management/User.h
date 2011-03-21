@@ -11,35 +11,22 @@ class User
 {
 public:
 
-
     User();
-
-
     virtual ~User();
 
-
-
     virtual void SetNick(string);
-
-
     virtual string GetNick();
 
 
     virtual void SetAuth(string);
-
-
     virtual string GetAuth();
 
 
     virtual bool AddChannel(string);
-
-
     virtual bool DelChannel(string);
 
 
     virtual vector<string> GetChannels();
-
-
 
     virtual void SetOaccess(int);
     virtual int GetOaccess();
@@ -48,8 +35,8 @@ public:
     virtual void SetGod(int);
     virtual int GetGod();
 
-    virtual bool SetUid(int);
-    virtual int GetUid();
+    virtual bool SetUid(std::string);
+    virtual std::string GetUid();
 
     virtual bool SetGone(bool);
     virtual bool GetGone();
@@ -78,9 +65,8 @@ private:
     bool d;
     bool ircop;
     std::string lang;
-    int uid;
+    std::string uid;
     int GetChannelIndex(string data);
-    bool caseInsensitiveStringCompare( const std::string& str1, const std::string& str2 );
     int oaccess;
     int god;
 };

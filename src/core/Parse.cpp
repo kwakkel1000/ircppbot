@@ -3,6 +3,7 @@
 #include "../include/management/Users.h"
 #include "../include/management/Channels.h"
 #include "../include/core/Database.h"
+#include "../include/core/DatabaseData.h"
 #include "../include/core/Global.h"
 #include "../include/core/Reply.h"
 #include "../include/interfaces/ConfigReaderInterface.h"
@@ -14,6 +15,8 @@
 
 Parse::Parse()
 {
+	DatabaseData::Instance().init();
+	DatabaseData::Instance().DatabaseInit();
     Global& G = Global::Instance();
 	ConfigReaderInterface& reader = G.get_ConfigReader();
 
@@ -50,7 +53,6 @@ Parse::Parse()
     {
         LoadModule(loadmods[i]);
     }
-    DBinit();
     LoadIrcserv(reader.GetString("ircserv"));
     timeron = true;
     assert(!timer_thread);
@@ -546,20 +548,6 @@ int Parse::convertString(std::string data)
     stringstream ss(data);//create a stringstream
     ss >> i;//add number to the stream
     return i;//return a string with the contents of the stream
-}
-
-void Parse::DBinit()
-{
-    std::vector< std::vector< std::string > > sql_result;
-    std::string sql_string = "select auth from auth";
-    sql_result = RawSqlSelect(sql_string);
-    UsersInterface& U = Global::Instance().get_Users();
-    unsigned int i;
-    for (i = 0 ; i < sql_result.size() ; i++)
-    {
-        U.AddAuth(sql_result[i][0]);
-        std::cout << sql_result[i][0] << std::endl;
-    }
 }
 
 std::vector< std::vector< std::string > > Parse::RawSqlSelect(std::string data)

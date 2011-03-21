@@ -23,7 +23,7 @@ void ModuleBase::overwatch(std::string bind, std::string command, std::string ch
     UsersInterface& U = Global::Instance().get_Users();
     ConfigReaderInterface& CR = Global::Instance().get_ConfigReader();
     std::string overwatchchannel = CR.GetString("overwatchchannel");
-    string debugstring = "PRIVMSG " + overwatchchannel + " :[" + nick + ":" + auth + "] [" + chan + ":" + convertInt(C.GetAccess(chan, auth)) + "] ";
+    std::string debugstring = "PRIVMSG " + overwatchchannel + " :[" + nick + ":" + auth + "] [" + chan + ":" + convertInt(C.GetAccess(chan, auth)) + "] ";
     if (U.GetGod(nick) == 1)
     {
         debugstring = debugstring + "[G] ";
@@ -54,18 +54,18 @@ void ModuleBase::PRIVMSG(std::vector< std::string > data, std::string trigger)
     //int triggered = 0;
     int triggertype = -1;
     int chantrigger = -1;
-    string nick = HostmaskToNick(data);
+    std::string nick = HostmaskToNick(data);
     if (data.size() >= 4)
     {
         data3 = data[3];
         boost::erase_all(data3, ":");
     }
-    if (triggerpos != string::npos)
+    if (triggerpos != std::string::npos)
     {
         triggertype = 1; //PRIVMSG ... :!;
         if (data3 != "")
         {
-            if (chanpos1 != string::npos && chanpos2 != string::npos)
+            if (chanpos1 != std::string::npos && chanpos2 != std::string::npos)
             {
                 chantrigger = 1;    //PRIVMSG nick #channel :!#chan command
                 if (data.size() >= 5)
@@ -84,7 +84,7 @@ void ModuleBase::PRIVMSG(std::vector< std::string > data, std::string trigger)
                     }
                 }
             }
-            else if (chanpos1 != string::npos && chanpos2 == string::npos)
+            else if (chanpos1 != std::string::npos && chanpos2 == std::string::npos)
             {
                 chantrigger = 0;    //PRIVMSG nick #chan :!command
                 //cout << "channel: triggercommand" << endl;
@@ -104,7 +104,7 @@ void ModuleBase::PRIVMSG(std::vector< std::string > data, std::string trigger)
                     }
                 }
             }
-            else if (chanpos1 == string::npos && chanpos2 == string::npos)
+            else if (chanpos1 == std::string::npos && chanpos2 == std::string::npos)
             {
                 chantrigger = -1;   //PRIVMSG nick user :!command
                 if (data.size() >= 4)
@@ -123,7 +123,7 @@ void ModuleBase::PRIVMSG(std::vector< std::string > data, std::string trigger)
                     }
                 }
             }
-            else if (chanpos1 == string::npos && chanpos2 != string::npos)
+            else if (chanpos1 == std::string::npos && chanpos2 != std::string::npos)
             {
                 chantrigger = 1;   //PRIVMSG nick user :!#chan command
                 if (data.size() >= 5)
@@ -148,7 +148,7 @@ void ModuleBase::PRIVMSG(std::vector< std::string > data, std::string trigger)
     {
         if (data3 != "")
         {
-            if (chanpos1 == string::npos && chanpos2 != string::npos)
+            if (chanpos1 == std::string::npos && chanpos2 != std::string::npos)
             {
                 chantrigger = 1;   //PRIVMSG nick user :#chan command
                 if (data.size() >= 5)
@@ -163,7 +163,7 @@ void ModuleBase::PRIVMSG(std::vector< std::string > data, std::string trigger)
                     ParsePrivmsg(nick, command, chan, args, chantrigger);
                 }
             }
-            if (chanpos1 == string::npos && chanpos2 == string::npos)
+            if (chanpos1 == std::string::npos && chanpos2 == std::string::npos)
             {
                 chantrigger = 1;   //PRIVMSG nick user :command
                 if (data.size() >= 5)
@@ -186,7 +186,7 @@ void ModuleBase::PRIVMSG(std::vector< std::string > data, std::string trigger)
 void ModuleBase::simulate(std::string nick, std::string auth, std::string chan, std::string simulate_nick, std::string simulate_command, std::vector< std::string > args, int oa)
 {
     UsersInterface& U = Global::Instance().get_Users();
-    string returnstring;
+    std::string returnstring;
     int oaccess = U.GetOaccess(nick);
     std::cout << convertInt(oaccess) << std::endl;
     if (oaccess >= oa)
@@ -339,7 +339,7 @@ std::vector<std::string> ModuleBase::lineout(std::vector<std::string> data, unsi
 
 std::string ModuleBase::convertInt(int number)
 {
-    stringstream ss;//create a stringstream
+    std::stringstream ss;//create a stringstream
     ss << number;//add number to the stream
     return ss.str();//return a string with the contents of the stream
 }
@@ -347,7 +347,7 @@ std::string ModuleBase::convertInt(int number)
 int ModuleBase::convertString(std::string data)
 {
     int i;
-    stringstream ss(data);//create a stringstream
+    std::stringstream ss(data);//create a stringstream
     ss >> i;//add number to the stream
     return i;//return a string with the contents of the stream
 }

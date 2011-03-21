@@ -175,7 +175,7 @@ vector<string> Channels::GetAuths(string data)
     return tmp;
 }
 
-bool Channels::SetCid(string data, int cid)
+bool Channels::SetCid(string data, std::string cid)
 {
     unsigned int i = GetChannelIndex(data);
     if ((i >= 0) && (i < channellist.size()))
@@ -186,14 +186,14 @@ bool Channels::SetCid(string data, int cid)
     return false;
 }
 
-int Channels::GetCid(string data)
+std::string Channels::GetCid(string data)
 {
     unsigned int i = GetChannelIndex(data);
     if ((i >= 0) && (i < channellist.size()))
     {
         return c[i]->GetCid();
     }
-    return -1;
+    return "NULL";
 }
 
 bool Channels::GetOp(string data, string nick)

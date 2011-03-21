@@ -253,7 +253,7 @@ bool Users::DelChannel(string data, string chan)
     return false;
 }
 
-bool Users::SetUid(string data, int uid)
+bool Users::SetUid(string data, std::string uid)
 {
     //boost::mutex::scoped_lock  lock(User_mutex);
     int i = GetNickIndex(data);
@@ -265,7 +265,7 @@ bool Users::SetUid(string data, int uid)
     return false;
 }
 
-int Users::GetUid(string data)
+std::string Users::GetUid(string data)
 {
     //boost::mutex::scoped_lock  lock(User_mutex);
     size_t authstar;
@@ -291,7 +291,7 @@ int Users::GetUid(string data)
 			return u[i]->GetUid();
 		}
     }
-    return -1;
+    return "NULL";
 }
 
 bool Users::SetGone(string data, bool set)

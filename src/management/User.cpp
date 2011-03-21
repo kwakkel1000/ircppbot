@@ -1,10 +1,11 @@
 #include "../include/management/User.h"
+#include <boost/algorithm/string.hpp>
 
 User::User()
 
 {
 oaccess = -1;
-uid = -1;
+uid = "NULL";
 god = 0;
 NULLvector.push_back("NULL");
 gone = false;
@@ -97,13 +98,13 @@ int User::GetGod()
     return god;
 }
 
-bool User::SetUid(int data)
+bool User::SetUid(std::string data)
 {
     uid = data;
     return true;
 }
 
-int User::GetUid()
+std::string User::GetUid()
 {
     return uid;
 }
@@ -167,20 +168,10 @@ int User::GetChannelIndex(string data)
 {
     for ( unsigned int i = 0 ; i < channels.size(); i++ )
     {
-        if (caseInsensitiveStringCompare(channels[i],data))
+        if (boost::iequals(channels[i],data))
         {
             return i;
         }
     }
     return -1;
-}
-
-
-bool User::caseInsensitiveStringCompare( const std::string& str1, const std::string& str2 )
-{
-    std::string str1Cpy( str1 );
-    std::string str2Cpy( str2 );
-    std::transform( str1Cpy.begin(), str1Cpy.end(), str1Cpy.begin(), ::tolower );
-    std::transform( str2Cpy.begin(), str2Cpy.end(), str2Cpy.begin(), ::tolower );
-    return ( str1Cpy == str2Cpy );
 }

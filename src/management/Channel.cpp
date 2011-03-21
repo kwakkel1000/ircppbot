@@ -170,13 +170,13 @@ int Channel::GetGivevoice()
 }
 
 
-bool Channel::SetCid(int data)
+bool Channel::SetCid(std::string data)
 {
 	cid = data;
 	return true;
 }
 
-int Channel::GetCid()
+std::string Channel::GetCid()
 {
 	return cid;
 }

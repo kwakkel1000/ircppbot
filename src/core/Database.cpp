@@ -1,11 +1,13 @@
 #include <iostream>
+#include <cstddef>
+#include <cstring>
+#include <sstream>
 /**************
 * File Name: database.cpp
 * Author: Jade@design1online.com
 * Purpose: mysql database class
 **************/
 #include "../include/core/Database.h"
-using namespace std;
 /**************
 * Purpose: default constructor, initialize class values
 * Precondition: none
@@ -83,10 +85,10 @@ bool database::free()
 * Precondition: error code
 * Postcondition: string with the error returned
 **************/
-static string suc_str = "SUCCESS";
-static string e201_str = "201 SOCKET ERROR: SOCKET FAILURE";
-static string e202_str = "202 CONNECTION ERROR: CANNOT ACCESS THE SERVER";
-static string e203_str = "203 DATABASE ERROR: QUERY FAILED";
+static std::string suc_str = "SUCCESS";
+static std::string e201_str = "201 SOCKET ERROR: SOCKET FAILURE";
+static std::string e202_str = "202 CONNECTION ERROR: CANNOT ACCESS THE SERVER";
+static std::string e203_str = "203 DATABASE ERROR: QUERY FAILED";
 const char *dberror(int errorcode)
 {
     //display the appropriate error message for this error
@@ -124,9 +126,9 @@ MYSQL_RES *database::query(const char *query)
     return result;
 }
 
-vector< vector<string> > database::sql_query(const char* sql_string)
+std::vector< std::vector< std::string > > database::sql_query(const char* sql_string)
 {
-    vector< vector<string> > sql_result;
+    std::vector< std::vector< std::string > > sql_result;
     int query_state = mysql_query(sock, sql_string );
     if (!query_state)
     {
@@ -136,7 +138,7 @@ vector< vector<string> > database::sql_query(const char* sql_string)
         num_fields = mysql_num_fields(result);
         while ( ( row = mysql_fetch_row(result)) != NULL )
         {
-            vector<string> tmp;
+            std::vector< std::string > tmp;
             for (i=0; i < num_fields; i++)
             {
                 if (row[i] != NULL)
@@ -156,7 +158,7 @@ vector< vector<string> > database::sql_query(const char* sql_string)
         std::vector< std::string > tmp;
         tmp.push_back("NULL");
         dummy.push_back(tmp);
-        cout << query_state << endl;
+        std::cout << query_state << std::endl;
         return dummy;
     }
 }

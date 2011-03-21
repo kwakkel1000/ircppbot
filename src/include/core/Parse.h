@@ -54,7 +54,7 @@ private:
     void PRIVMSG(std::vector< std::string > data);
     std::string convertInt(int);
     int convertString(std::string);
-    void DBinit();
+
     bool Send(std::string data);
     bool SendHighPriority(std::string data);
     bool SendLowPriority(std::string data);

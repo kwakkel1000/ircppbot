@@ -89,7 +89,7 @@ std::string Reply::irc_reply_replace(std::string source_string, std::string sear
 {
     size_t search_pos;
     search_pos = source_string.find(search_string);
-    if (search_pos != string::npos)
+    if (search_pos != std::string::npos)
     {
         source_string.replace(search_pos, search_string.length(), replace_string);
     }

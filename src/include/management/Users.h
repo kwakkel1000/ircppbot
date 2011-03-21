@@ -43,8 +43,8 @@ public:
     virtual bool DelChannel(std::string, std::string);
     virtual std::vector< std::string > GetChannels(std::string);
 
-    virtual int GetUid(std::string);
-    virtual bool SetUid(std::string, int);
+    virtual std::string GetUid(std::string);
+    virtual bool SetUid(std::string, std::string);
 
     virtual bool SetGone(std::string, bool);
     virtual bool GetGone(std::string);

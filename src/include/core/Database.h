@@ -2,13 +2,8 @@
 #define DATABASE_H
 
 #include <mysql/mysql.h>
-#include <cstddef>
-#include <cstring>
-#include <sstream>
 #include <string>
 #include <vector>
-
-using namespace std;
 
 /**************
 * Database Error Definitions
@@ -47,7 +42,7 @@ public:
     int       intQuery(const char *query); //return an integer
     bool      boolQuery(const char *query); //return a boolean
     bool      updateQuery(const char *query); //updates, returns true if update went through
-    vector< vector<std::string> > sql_query(const char* sql_string );
+    std::vector< std::vector< std::string> > sql_query(const char* sql_string );
     //free the query results
     bool free();
 
