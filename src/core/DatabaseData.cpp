@@ -24,11 +24,11 @@ void DatabaseData::init()
 	mDatabaseName = reader.GetString("databasename");
     mUserName = reader.GetString("username");
     mPass = reader.GetString("password");
-    mRun = true;
 }
 
 void DatabaseData::DatabaseInit()
 {
+	//usleep(10000000);
     std::string sql_string;
 	auth_vector.clear();
 	channels_vector.clear();
@@ -43,7 +43,9 @@ void DatabaseData::DatabaseInit()
     sql_string = "select users.ChannelUuid, users.UserUuid, users.access from users;";
     users_vector = RawSqlSelect(sql_string);
     std::cout << "DatabaseInit() DONE" << std::endl;
+    mRun = true;
 }
+
 
 void DatabaseData::AddAuth(std::string mUserUuid, std::string mAuth)
 {
@@ -332,6 +334,11 @@ void DatabaseData::QueryRun()
     int state;
 	unsigned int wait_time = 5;
 	unsigned int counter = wait_time;
+	while(!mRun)
+	{
+		usleep(100000);
+	}
+	std::cout << "QueryRun started" << std::endl;
 	while(mRun)
 	{
 		boost::mutex::scoped_lock lock(SqlMutex);
@@ -341,8 +348,11 @@ void DatabaseData::QueryRun()
 		}
 		if (counter >= wait_time)
 		{
-			db = new database();
-			state = db->openConnection(mHostName.c_str(), mDatabaseName.c_str(), mUserName.c_str(), mPass.c_str());
+			if (!db)
+			{
+				db = new database();
+				state = db->openConnection(mHostName.c_str(), mDatabaseName.c_str(), mUserName.c_str(), mPass.c_str());
+			}
 		}
 		if (state == 200)
 		{
@@ -361,19 +371,19 @@ void DatabaseData::QueryRun()
 					break;
 				}
 			}
-		}
-		if(sql_queue.empty() && mRun)
-		{
-			counter = 0;
-			while (counter < wait_time && sql_queue.empty())
+			if(sql_queue.empty() && mRun)
 			{
-				usleep(1000000);
-				counter++;
-			}
-			if (counter >= wait_time)
-			{
-				db->disconnect();
-				delete db;
+				counter = 0;
+				while (counter < wait_time && sql_queue.empty())
+				{
+					usleep(1000000);
+					counter++;
+				}
+				if (counter >= wait_time)
+				{
+					db->disconnect();
+					delete db;
+				}
 			}
 		}
 	}
