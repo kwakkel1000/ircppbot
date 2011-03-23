@@ -9,7 +9,7 @@ LDFLAGS		=
 # OPTIMIZE with the -O option.  Override from the command line for
 # building debug versions.
 OPTFLAGS	=
-MAKEFLAGS 	= -j5
+MAKEFLAGS 	=
 
 
 CXX			= g++
