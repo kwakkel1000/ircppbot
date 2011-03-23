@@ -35,6 +35,7 @@ public:
     //connection & disconnect
     int       openConnection(const char *host, const char *db, const char *user, const char *pass); //connect to the database
     bool      disconnect(); //disconnect from the database
+    bool      connected();
 
     //querying
     MYSQL_RES *query(const char *query); //return result set

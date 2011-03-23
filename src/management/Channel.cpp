@@ -7,7 +7,6 @@ Channel::Channel()
 }
 
 Channel::~Channel()
-
 {
 	for ( unsigned int i = 0 ; i < channelauthlist.size(); i++ )
 	{

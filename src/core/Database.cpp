@@ -57,12 +57,27 @@ bool database::disconnect()
     if (sock) //they have a socket open
         mysql_close(sock);
 
+	sock = NULL;
+
     //release result data
     free();
 
     //database disconnected
     return true;
 }
+
+/************
+*return true if connected
+************/
+bool database::connected()
+{
+	if(sock)
+	{
+		return true;
+	}
+	return false;
+}
+
 
 /**************
 * Purpose: free the results from the database query

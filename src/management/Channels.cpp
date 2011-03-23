@@ -183,25 +183,23 @@ vector<string> Channels::GetChannels()
 
 vector<string> Channels::GetNicks(string data)
 {
+    vector<string> tmp;
     unsigned int i = GetChannelIndex(data);
     if ((i >= 0) && (i < channellist.size()))
     {
-        return c[i]->GetNicks();
+        tmp = c[i]->GetNicks();
     }
-    vector<string> tmp;
-    tmp.push_back("NULL"); // Why not pass an empty vector
     return tmp;
 }
 
 vector<string> Channels::GetAuths(string data)
 {
+    vector<string> tmp;
     unsigned int i = GetChannelIndex(data);
     if ((i >= 0) && (i < channellist.size()))
     {
-        return c[i]->GetAuths();
+        tmp = c[i]->GetAuths();
     }
-    vector<string> tmp;
-    tmp.push_back("NULL"); // Why not pass an empty vector
     return tmp;
 }
 
@@ -283,17 +281,6 @@ void Channels::Debug()
         for ( unsigned int j = 0 ; j < auths.size(); j++ )
         {
             cout << "  " << auths[j];
-        }
-        cout << endl;
-    }
-    for ( unsigned int i = 0; i < channellist.size(); i++ )
-    {
-        cout << "CHANNEL: " << channellist[i] << endl;
-        vector<string> nicks = c[i]->GetNicks();
-        cout << "Channel Nicks:";
-        for ( unsigned int j = 0 ; j < nicks.size(); j++ )
-        {
-            cout << "  " << nicks[j];
         }
         cout << endl;
     }

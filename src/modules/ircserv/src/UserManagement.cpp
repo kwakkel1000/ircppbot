@@ -383,7 +383,7 @@ void UserManagement::PART(std::vector< std::string > data)
             C.DelNick(chan, chanusers[i]);
             if (U.GetChannels(chanusers[i])[0] == "NULL")
             {
-                std::cout << "no channels left" << std::endl;
+                std::cout << "no channels left " << chanusers[i] << std::endl;
                 U.DelUser(chanusers[i]);
             }
         }

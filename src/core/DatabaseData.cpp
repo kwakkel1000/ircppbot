@@ -28,7 +28,6 @@ void DatabaseData::init()
 
 void DatabaseData::DatabaseInit()
 {
-	//usleep(10000000);
     std::string sql_string;
 	auth_vector.clear();
 	channels_vector.clear();
@@ -305,13 +304,6 @@ std::vector< std::vector< std::string > > DatabaseData::GetUserUuidAndAccessByCh
 			}
         }
     }
-    if (return_vector.size() == 0)
-    {
-		std::vector< std::string > tmp;
-		tmp.push_back("NULL");
-		tmp.push_back("NULL");
-		return_vector.push_back(tmp);
-    }
     return return_vector;
 }
 
@@ -331,8 +323,9 @@ std::vector< std::string > DatabaseData::GetAuths()
 void DatabaseData::QueryRun()
 {
     database *db;
+	db = new database();
     int state;
-	unsigned int wait_time = 5;
+	unsigned int wait_time = 600;
 	unsigned int counter = wait_time;
 	while(!mRun)
 	{
@@ -348,13 +341,13 @@ void DatabaseData::QueryRun()
 		}
 		if (counter >= wait_time)
 		{
-			if (!db)
+			while(!db->connected())
 			{
-				db = new database();
+				std::cout << "open connection" << std::endl;
 				state = db->openConnection(mHostName.c_str(), mDatabaseName.c_str(), mUserName.c_str(), mPass.c_str());
 			}
 		}
-		if (state == 200)
+		if (state == 200 && db->connected())
 		{
 			while(!sql_queue.empty() && mRun)
 			{
@@ -362,7 +355,6 @@ void DatabaseData::QueryRun()
 				sql_queue.pop();
 				if (state == 200)
 				{
-
 					std::cout << temp << std::endl;
 					db->updateQuery( temp.c_str() );
 				}
@@ -376,18 +368,22 @@ void DatabaseData::QueryRun()
 				counter = 0;
 				while (counter < wait_time && sql_queue.empty())
 				{
-					usleep(1000000);
+					usleep(100000);
 					counter++;
 				}
 				if (counter >= wait_time)
 				{
+					std::cout << "connection closed" << std::endl;
 					db->disconnect();
-					delete db;
+					//delete db;
 				}
 			}
 		}
 	}
-	db->disconnect();
+	if(db)
+	{
+		db->disconnect();
+	}
 	delete db;
 }
 
