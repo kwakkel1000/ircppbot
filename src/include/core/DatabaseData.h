@@ -24,10 +24,25 @@ public:
 
     void AddAuth(std::string mUserUuid, std::string mAuth);
 
+	void AddChannel(std::string mChannelUuid, std::string mChannel);
+	void DeleteChannel(std::string mChannelUuid);
+
+	void AddUserToChannel(std::string mChannelUuid, std::string mUserUuid, int mAccess);
+	void DeleteUserFromChannel(std::string mChannelUuid, std::string mUserUuid);
+
 	std::string GetUserUuidByAuth(std::string auth);
+	std::string GetAuthByUserUuid(std::string UserUuid);
 	int GetOaccessByAuth(std::string auth);
 	int GetGodByAuth(std::string auth);
 	std::string GetLanguageByAuth(std::string auth);
+
+	std::string GetChannelUuidByChannel(std::string channel);
+	std::string GetChannelByChannelUuid(std::string ChannelUuid);
+	int GetGiveOpsByChannel(std::string channel);
+	int GetGiveVoiceByChannel(std::string channel);
+
+	std::vector< std::vector< std::string > > GetUserUuidAndAccessByChannelUuid(std::string ChannelUuid);
+	std::vector< std::string > GetAuths();
 
 private:
     DatabaseData();
@@ -39,6 +54,8 @@ private:
 
     //database_results
     std::vector< std::vector< std::string > > auth_vector;
+	std::vector< std::vector< std::string > > channels_vector;
+	std::vector< std::vector< std::string > > users_vector;
 
     //config vars
     std::string mHostName;

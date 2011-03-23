@@ -35,9 +35,6 @@ public:
     virtual void SetGod(int);
     virtual int GetGod();
 
-    virtual bool SetUid(std::string);
-    virtual std::string GetUid();
-
     virtual bool SetGone(bool);
     virtual bool GetGone();
 
@@ -65,7 +62,6 @@ private:
     bool d;
     bool ircop;
     std::string lang;
-    std::string uid;
     int GetChannelIndex(string data);
     int oaccess;
     int god;

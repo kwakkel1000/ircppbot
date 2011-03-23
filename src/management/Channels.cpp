@@ -1,4 +1,6 @@
 #include "../include/management/Channels.h"
+#include <boost/algorithm/string.hpp>
+#include "../include/core/DatabaseData.h"
 
 Channels::Channels() { }
 
@@ -12,6 +14,34 @@ Channels::~Channels()
         delete c[i];
         c.erase(c.begin()+i);
     }
+}
+
+void Channels::RegistrateChannel(std::string mChannelUuid, std::string mChannel)
+{
+	DatabaseData::Instance().AddChannel(mChannelUuid, mChannel);
+}
+
+void Channels::UnregistrateChannel(std::string mChannelUuid)
+{
+	DatabaseData::Instance().DeleteChannel(mChannelUuid);
+	std::vector< std::string > _auths = GetAuths(DatabaseData::Instance().GetChannelByChannelUuid(mChannelUuid));
+	for (unsigned int i = 0; i < _auths.size(); i++)
+	{
+		DelAuth(DatabaseData::Instance().GetChannelByChannelUuid(mChannelUuid), _auths[0]);
+	}
+	DelChannel(DatabaseData::Instance().GetChannelByChannelUuid(mChannelUuid));
+}
+
+void Channels::AddUserToChannel(std::string mChannelUuid, std::string mUserUuid, int mAccess)
+{
+	DatabaseData::Instance().AddUserToChannel(mChannelUuid, mUserUuid, mAccess);
+	SetAccess(DatabaseData::Instance().GetChannelByChannelUuid(mChannelUuid), DatabaseData::Instance().GetAuthByUserUuid(mUserUuid), mAccess);
+}
+
+void Channels::DeleteUserFromChannel(std::string mChannelUuid, std::string mUserUuid)
+{
+	DatabaseData::Instance().DeleteUserFromChannel(mChannelUuid, mUserUuid);
+	DelAuth(DatabaseData::Instance().GetChannelByChannelUuid(mChannelUuid), DatabaseData::Instance().GetAuthByUserUuid(mUserUuid));
 }
 
 bool Channels::AddChannel(string data)
@@ -113,7 +143,7 @@ int Channels::GetGiveops(string data)
     {
         return c[i]->GetGiveops();
     }
-    return -1;
+    return 501;
 }
 
 bool Channels::SetGiveops(string data, int giveops)
@@ -133,7 +163,7 @@ int Channels::GetGivevoice(string data)
     {
         return c[i]->GetGivevoice();
     }
-    return -1;
+    return 501;
 }
 
 bool Channels::SetGivevoice(string data, int givevoice)
@@ -273,19 +303,10 @@ unsigned int Channels::GetChannelIndex(string data)
 {
     for ( unsigned int i = 0; i < channellist.size(); i++ )
     {
-        if (caseInsensitiveStringCompare(channellist[i],data))
+        if (boost::iequals(channellist[i],data))
         {
             return i;
         }
     }
     return -1;
-}
-
-bool Channels::caseInsensitiveStringCompare( const std::string& str1, const std::string& str2 )
-{
-    std::string str1Cpy( str1 );
-    std::string str2Cpy( str2 );
-    std::transform( str1Cpy.begin(), str1Cpy.end(), str1Cpy.begin(), ::tolower );
-    std::transform( str2Cpy.begin(), str2Cpy.end(), str2Cpy.begin(), ::tolower );
-    return ( str1Cpy == str2Cpy );
 }

@@ -39,15 +39,12 @@ private:
 	void UserAuth(std::string mNick, std::string mAuth);
     bool Send(std::string data);
 
-    std::vector< std::vector< std::string > > RawSqlSelect(std::string data);
-    bool RawSql(std::string data);
-
     std::string convertInt(int);
     int convertString(std::string);
 
-    void DBChannelInfo(std::string data);
-    void DBUserInfo(std::string data);
-    void DBinit();
+    void GetChannelInfo(std::string data);
+    void GetUserInfo(std::string data);
+    void GetAuths();
 
     void parse_raw();
     boost::shared_ptr<boost::thread> raw_parse_thread;

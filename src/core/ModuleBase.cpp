@@ -307,6 +307,26 @@ std::string ModuleBase::HostmaskToNick(std::vector<std::string> data)
     return nick;
 }
 
+std::string ModuleBase::centre(int cmdsize, unsigned int rowamount, unsigned int length)
+{
+	std::string returnstring = "";
+    for (unsigned int l = 0; l < (((length * rowamount) / 2) - cmdsize/2); l++)
+    {
+        returnstring = returnstring + " ";
+    }
+    return returnstring;
+}
+
+std::string ModuleBase::fillspace(std::string data, unsigned int length)
+{
+	std::string tmpstr = data;
+	for (unsigned int l = data.size(); l < length; l++)
+	{
+		tmpstr = tmpstr + " ";
+	}
+    return tmpstr;
+}
+
 std::vector<std::string> ModuleBase::lineout(std::vector<std::string> data, unsigned int rowamount, unsigned int length)
 {
     std::vector< std::string > return_vector;
@@ -316,11 +336,7 @@ std::vector<std::string> ModuleBase::lineout(std::vector<std::string> data, unsi
     {
         if (k < rowamount)
         {
-            tmpvector = tmpvector + data[j];
-            for (unsigned int l = data[j].size(); l < length; l++)
-            {
-                tmpvector = tmpvector + " ";
-            }
+            tmpvector = tmpvector + fillspace(data[j], length);
             k++;
         }
         if (k >= rowamount)

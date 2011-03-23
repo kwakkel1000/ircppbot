@@ -18,6 +18,12 @@ public:
 	Channels();
 	virtual ~Channels();
 
+	void RegistrateChannel(std::string mChannelUuid, std::string mChannel);
+	void UnregistrateChannel(std::string mChannelUuid);
+
+	void AddUserToChannel(std::string mChannelUuid, std::string mUserUuid, int mAccess);
+	void DeleteUserFromChannel(std::string mChannelUuid, std::string mUserUuid);
+
 	virtual bool AddChannel(string);
 	virtual bool DelChannel(string);
 
@@ -56,7 +62,6 @@ private:
 	vector<string> channellist;
 	vector<Channel*> c;
 	unsigned int GetChannelIndex(string data);
-	bool caseInsensitiveStringCompare( const std::string& str1, const std::string& str2 );
 };
 
 #endif // Channels_h

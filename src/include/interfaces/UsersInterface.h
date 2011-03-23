@@ -45,8 +45,6 @@ private:
 	virtual bool AddAuth(std::string)=0;
     virtual bool SetAuth(std::string, std::string)=0;
 
-    virtual bool SetUid(std::string, std::string)=0;
-
 	virtual bool SetGone(std::string, bool)=0;
 
     virtual bool SetX(std::string, bool)=0;

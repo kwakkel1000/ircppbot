@@ -1,5 +1,5 @@
-#ifndef AppelBot_Channel_h
-#define AppelBot_Channel_h
+#ifndef Channel_h
+#define Channel_h
 
 #include <string>
 #include <vector>
@@ -8,8 +8,6 @@
 #include "ChannelAuth.h"
 
 using namespace std;
-
-//namespace Bot {
 
 class Channel
 {
@@ -52,6 +50,5 @@ private:
 	bool caseInsensitiveStringCompare( const std::string& str1, const std::string& str2 );
 };
 
-//} /* End of namespace Bot */
 
-#endif // AppelBot_Channel_h
+#endif // Channel_h

@@ -2,9 +2,8 @@
 
 Channel::Channel()
 {
-	    giveops = -1;
-	    givevoice = -1;
-	    cid = -1;
+	    giveops = 501;
+	    givevoice = 501;
 }
 
 Channel::~Channel()

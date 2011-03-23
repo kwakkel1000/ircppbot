@@ -7,6 +7,13 @@
 class ChannelsInterface {
 
 public:
+
+	virtual void RegistrateChannel(std::string mChannelUuid, std::string mChannel)=0;
+	virtual void UnregistrateChannel(std::string mChannelUuid)=0;
+
+	virtual void AddUserToChannel(std::string mChannelUuid, std::string mUserUuid, int mAccess)=0;
+	virtual void DeleteUserFromChannel(std::string mChannelUuid, std::string mUserUuid)=0;
+
 	virtual bool AddChannel(std::string)=0;
 	virtual bool DelChannel(std::string)=0;
 

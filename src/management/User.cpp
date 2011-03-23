@@ -5,7 +5,6 @@ User::User()
 
 {
 oaccess = -1;
-uid = "NULL";
 god = 0;
 NULLvector.push_back("NULL");
 gone = false;
@@ -96,17 +95,6 @@ void User::SetGod(int data)
 int User::GetGod()
 {
     return god;
-}
-
-bool User::SetUid(std::string data)
-{
-    uid = data;
-    return true;
-}
-
-std::string User::GetUid()
-{
-    return uid;
 }
 
 bool User::SetGone(bool set)

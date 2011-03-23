@@ -3,7 +3,6 @@
 #include <interfaces/UsersInterface.h>
 #include <interfaces/ChannelsInterface.h>
 #include <interfaces/ConfigReaderInterface.h>
-#include <core/Database.h>
 #include <core/DatabaseData.h>
 #include <core/Global.h>
 #include <core/Data.h>
@@ -64,7 +63,7 @@ void UserManagement::stop()
 
 void UserManagement::Init(DataInterface* pData)
 {
-	DBinit();
+	GetAuths();
 	mpDataInterface = pData;
 	mpDataInterface->Init(true, false, false, false);
     Global::Instance().get_IrcData().AddConsumer(mpDataInterface);
@@ -250,77 +249,84 @@ void UserManagement::WHO(std::vector< std::string > data)
 
 void UserManagement::WHOEXTRA(std::vector< std::string > data)
 {
-    std::string chan = data[3];
-    std::string nick = data[4];
-    std::string modes = data[5];
-    std::string auth = data[6];
+	if (data.size() == 7)
+	{
+		std::string chan = data[3];
+		std::string nick = data[4];
+		std::string modes = data[5];
+		std::string auth = data[6];
+		size_t chanpos;
+		chanpos = chan.find("#");
+		if (chanpos != std::string::npos)
+		{
+			UsersInterface& U = Global::Instance().get_Users();
+			ChannelsInterface& C = Global::Instance().get_Channels();
+			C.AddNick(chan, nick);
+			U.AddUser(nick);
+			U.AddChannel(nick, chan);
+			UserAuth(nick, auth);
 
-    UsersInterface& U = Global::Instance().get_Users();
-    ChannelsInterface& C = Global::Instance().get_Channels();
-    C.AddNick(chan, nick);
-    U.AddUser(nick);
-    U.AddChannel(nick, chan);
-    UserAuth(nick, auth);
+			size_t Gonepos = modes.find(gonechar);
+			if (Gonepos != std::string::npos)
+			{
+				U.SetGone(nick, true);
+			}
 
-	size_t Gonepos = modes.find(gonechar);
-    if (Gonepos != std::string::npos)
-    {
-        U.SetGone(nick, true);
-    }
+			size_t Herepos = modes.find(herechar);
+			if (Herepos != std::string::npos)
+			{
+				U.SetGone(nick, false);
+			}
 
-    size_t Herepos = modes.find(herechar);
-	if (Herepos != std::string::npos)
-    {
-        U.SetGone(nick, false);
-    }
+			size_t Ownerpos = modes.find(ownerwhochar);
+			if (Ownerpos != std::string::npos)
+			{
+				C.SetOp(chan, nick, true);
+			}
 
-    size_t Ownerpos = modes.find(ownerwhochar);
-	if (Ownerpos != std::string::npos)
-    {
-        C.SetOp(chan, nick, true);
-    }
+			size_t Adminpos = modes.find(adminwhochar);
+			if (Adminpos != std::string::npos)
+			{
+				C.SetOp(chan, nick, true);
+			}
 
-    size_t Adminpos = modes.find(adminwhochar);
-	if (Adminpos != std::string::npos)
-    {
-        C.SetOp(chan, nick, true);
-    }
+			size_t Oppos = modes.find(opwhochar);
+			if (Oppos != std::string::npos)
+			{
+				C.SetOp(chan, nick, true);
+			}
 
-    size_t Oppos = modes.find(opwhochar);
-	if (Oppos != std::string::npos)
-    {
-        C.SetOp(chan, nick, true);
-    }
+			size_t Halfoppos = modes.find(halfopwhochar);
+			if (Halfoppos != std::string::npos)
+			{
+				C.SetVoice(chan, nick, true);
+			}
 
-    size_t Halfoppos = modes.find(halfopwhochar);
-	if (Halfoppos != std::string::npos)
-    {
-        C.SetVoice(chan, nick, true);
-    }
+			size_t Voicepos = modes.find(voicewhochar);
+			if (Voicepos != std::string::npos)
+			{
+				C.SetVoice(chan, nick, true);
+			}
 
-    size_t Voicepos = modes.find(voicewhochar);
-	if (Voicepos != std::string::npos)
-    {
-        C.SetVoice(chan, nick, true);
-    }
+			size_t Xpos = modes.find("x");
+			if (Xpos != std::string::npos)
+			{
+				U.SetX(nick, true);
+			}
 
-    size_t Xpos = modes.find("x");
-	if (Xpos != std::string::npos)
-    {
-        U.SetX(nick, true);
-    }
+			size_t Dpos = modes.find(botchar);
+			if (Dpos != std::string::npos)
+			{
+				U.SetD(nick, true);
+			}
 
-    size_t Dpos = modes.find(botchar);
-	if (Dpos != std::string::npos)
-    {
-        U.SetD(nick, true);
-    }
-
-    size_t Ircoppos = modes.find(operchar);
-	if (Ircoppos != std::string::npos)
-    {
-        U.SetIrcop(nick, true);
-    }
+			size_t Ircoppos = modes.find(operchar);
+			if (Ircoppos != std::string::npos)
+			{
+				U.SetIrcop(nick, true);
+			}
+		}
+	}
 }
 
 void UserManagement::JOIN(std::vector< std::string > data)
@@ -344,7 +350,7 @@ void UserManagement::JOIN(std::vector< std::string > data)
 			whostring = "WHO " + chan + "\r\n";
 		}
         Send(whostring);
-        DBChannelInfo(chan);
+        GetChannelInfo(chan);
     }
     else
     {
@@ -564,11 +570,7 @@ void UserManagement::UserAuth(std::string mNick, std::string mAuth)
     std::vector< std::string > userchannels = U.GetChannels(mNick);
     if (boost::iequals(userchannels[0], "NULL") == false)
     {
-        /*for ( unsigned int i = 0 ; i < userchannels.size(); i++ )
-        {
-            std::cout << "userchannels[" << convertInt(i) << "] " << userchannels[i] << std::endl;
-        }*/
-        DBUserInfo(mNick);
+        GetUserInfo(mNick);
     }
     else
     {
@@ -591,43 +593,6 @@ bool UserManagement::Send(std::string data)
     return true;
 }
 
-// Hmm... where have i seen this function before...
-std::vector< std::vector< std::string > > UserManagement::RawSqlSelect(std::string data)
-{
-    ConfigReaderInterface& CR = Global::Instance().get_ConfigReader();
-    std::string hostname_str = CR.GetString("hostname");
-    std::string databasename_str = CR.GetString("databasename");
-    std::string username_str = CR.GetString("username");
-    std::string pass_str = CR.GetString("password");
-    std::cout << data << std::endl;
-    std::vector< std::vector< std::string > > sql_result;
-    database *db;
-    db = new database();
-    db->openConnection(hostname_str.c_str(), databasename_str.c_str(), username_str.c_str(), pass_str.c_str());
-    sql_result = db->sql_query( data.c_str() );
-    db->disconnect();
-	delete db;
-    return sql_result;
-}
-
-// Looksie, another function i know ;)
-bool UserManagement::RawSql(std::string data)
-{
-    ConfigReaderInterface& CR = Global::Instance().get_ConfigReader();
-    std::string hostname_str = CR.GetString("hostname");
-    std::string databasename_str = CR.GetString("databasename");
-    std::string username_str = CR.GetString("username");
-    std::string pass_str = CR.GetString("password");
-    std::cout << data << std::endl;
-    database *db;
-    db = new database();
-    db->openConnection(hostname_str.c_str(), databasename_str.c_str(), username_str.c_str(), pass_str.c_str());
-    db->updateQuery( data.c_str() );
-    db->disconnect();
-	delete db;
-    return true;
-}
-
 std::string UserManagement::convertInt(int number)
 {
     std::stringstream ss;//create a stringstream
@@ -643,55 +608,48 @@ int UserManagement::convertString(std::string data)
     return i;//return a string with the contents of the stream
 }
 
-void UserManagement::DBUserInfo(std::string data)
+void UserManagement::GetUserInfo(std::string data)
 {
     UsersInterface& U = Global::Instance().get_Users();
     std::string auth = U.GetAuth(data);
-    std::cout << "void UserManagement::DBUserInfo(std::string data) " << data << " " << auth << std::endl;
     if (boost::iequals(auth, "NULL") != true)
     {
-    	U.SetUid(data, DatabaseData::Instance().GetUserUuidByAuth(auth));
+    	//U.SetUid(data, DatabaseData::Instance().GetUserUuidByAuth(auth));
     	U.SetOaccess(data, DatabaseData::Instance().GetOaccessByAuth(auth));
     	U.SetGod(data, DatabaseData::Instance().GetGodByAuth(auth));
     	U.SetLanguage(data, DatabaseData::Instance().GetLanguageByAuth(auth));
     }
 }
 
-void UserManagement::DBChannelInfo(std::string data)
+void UserManagement::GetChannelInfo(std::string data)
 {
     ChannelsInterface& C = Global::Instance().get_Channels();
-    std::vector< std::vector< std::string > > sql_result;
-    std::string sql_string = "select channels.ChannelUuid, channels.giveops, channels.givevoice from channels where channels.channel = '" + data + "';";
-    sql_result = RawSqlSelect(sql_string);
-    unsigned int i;
-    for (i = 0 ; i < sql_result.size() ; i++)
-    {
-        std::cout << sql_result[i][0] << " " << sql_result[i][1] << " " << sql_result[i][2] << std::endl;
-        C.SetCid(data, sql_result[i][0]);
-        C.SetGiveops(data, convertString(sql_result[i][1]));
-        C.SetGivevoice(data, convertString(sql_result[i][2]));
-    }
-    sql_string = "select users.access, auth.auth from users JOIN auth ON users.UserUuid = auth.UserUuid JOIN channels ON users.ChannelUuid = channels.ChannelUuid where channels.channel = '" + data + "';";
-    sql_result = RawSqlSelect(sql_string);
-    for (i = 0 ; i < sql_result.size() ; i++)
-    {
-        std::cout << sql_result[i][0] << " " << sql_result[i][1] << std::endl;
-        C.AddAuth(data, sql_result[i][1]);
-        C.SetAccess(data, sql_result[i][1], convertString(sql_result[i][0]));
-    }
+    C.SetCid(data, DatabaseData::Instance().GetChannelUuidByChannel(data));
+    C.SetGiveops(data, DatabaseData::Instance().GetGiveOpsByChannel(data));
+    C.SetGivevoice(data, DatabaseData::Instance().GetGiveVoiceByChannel(data));
 
+    std::vector< std::vector< std::string > > channels_vector;
+    std::string ChannelUuid = DatabaseData::Instance().GetChannelUuidByChannel(data);
+    channels_vector = DatabaseData::Instance().GetUserUuidAndAccessByChannelUuid(ChannelUuid);
+	unsigned int i;
+    for (i = 0 ; i < channels_vector.size() ; i++)
+    {
+    	std::string auth = DatabaseData::Instance().GetAuthByUserUuid(channels_vector[i][0]);
+    	std::cout << data << " " << auth << " " << channels_vector[i][1] << std::endl;
+    	C.AddAuth(data, auth);
+        C.SetAccess(data, auth, convertString(channels_vector[i][1]));
+    }
 }
 
-void UserManagement::DBinit()
+void UserManagement::GetAuths()
 {
     UsersInterface& U = Global::Instance().get_Users();
-	std::vector< std::vector< std::string > > sql_result;
-	std::string sql_string = "select auth from auth";
-	sql_result = RawSqlSelect(sql_string);
+	std::vector< std::string > auth_vector;
+	auth_vector = DatabaseData::Instance().GetAuths();
 	unsigned int i;
-	for (i = 0; i < sql_result.size(); i++)
+	for (i = 0; i < auth_vector.size(); i++)
 	{
-		U.AddAuth(sql_result[i][0]);
-		std::cout << sql_result[i][0] << std::endl;
+		U.AddAuth(auth_vector[i]);
+		std::cout << auth_vector[i] << std::endl;
 	}
 }

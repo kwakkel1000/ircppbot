@@ -39,6 +39,8 @@ protected:
 
 	//other
 	std::string HostmaskToNick(std::vector<std::string> data);
+	std::string centre(int cmdsize, unsigned int rowamount, unsigned int length);
+	std::string fillspace(std::string data, unsigned int length);
 	std::vector<std::string> lineout(std::vector<std::string> data, unsigned int rowamount, unsigned int length);
 	std::string convertInt(int);
 	int convertString(std::string);

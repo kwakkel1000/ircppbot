@@ -1,5 +1,6 @@
 #include "../include/management/Users.h"
 #include <boost/algorithm/string.hpp>
+#include "../include/core/DatabaseData.h"
 
 Users::Users()
 {
@@ -253,21 +254,32 @@ bool Users::DelChannel(string data, string chan)
     return false;
 }
 
-bool Users::SetUid(string data, std::string uid)
-{
-    //boost::mutex::scoped_lock  lock(User_mutex);
-    int i = GetNickIndex(data);
-    if (i >= 0)
-    {
-        u[i]->SetUid(uid);
-        return true;
-    }
-    return false;
-}
-
 std::string Users::GetUid(string data)
 {
     //boost::mutex::scoped_lock  lock(User_mutex);
+    size_t authstar;
+    authstar = data.find("*");
+    std::string auth = "NULL";
+    if (authstar != string::npos)
+    {
+		data.replace(authstar, 1, "");
+		auth = data;
+    }
+    else
+    {
+		int i = GetNickIndex(data);
+		if (i >= 0)
+		{
+			auth = u[i]->GetAuth();
+		}
+    }
+    std::cout << auth << std::endl;
+    if (auth != "NULL")
+    {
+    	return DatabaseData::Instance().GetUserUuidByAuth(auth);
+    }
+    return "NULL";
+    /*//boost::mutex::scoped_lock  lock(User_mutex);
     size_t authstar;
     authstar = data.find("*");
     if (authstar != string::npos)
@@ -291,7 +303,7 @@ std::string Users::GetUid(string data)
 			return u[i]->GetUid();
 		}
     }
-    return "NULL";
+    return "NULL";*/
 }
 
 bool Users::SetGone(string data, bool set)
