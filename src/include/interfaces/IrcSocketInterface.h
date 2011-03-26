@@ -18,6 +18,7 @@ class IrcSocketInterface
 
     virtual void Connect(std::string address, std::string service)=0;
     virtual void Disconnect()=0;
+    virtual void set_non_blocking ( const bool )=0;
 
     virtual void Send(const std::string data)=0;
     virtual void Recv(std::string &data)=0;

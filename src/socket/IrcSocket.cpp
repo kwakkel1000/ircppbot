@@ -161,3 +161,27 @@ void IrcSocket::Recv(std::string& data)
         data += std::string(buffer);
     }
 }
+
+
+void IrcSocket::set_non_blocking ( const bool b )
+{
+
+  int opts;
+
+  opts = fcntl ( m_socket,
+		 F_GETFL );
+
+  if ( opts < 0 )
+    {
+      return;
+    }
+
+  if ( b )
+    opts = ( opts | O_NONBLOCK );
+  else
+    opts = ( opts & ~O_NONBLOCK );
+
+  fcntl ( m_socket,
+	  F_SETFL,opts );
+
+}

@@ -29,6 +29,7 @@ class IrcSocket : public IrcSocketInterface
 
     virtual void Connect(std::string address, std::string service);
     virtual void Disconnect();
+    virtual void set_non_blocking ( const bool );
 
     virtual void Send(const std::string data);
     virtual void Recv(std::string &data);
