@@ -128,7 +128,7 @@ void IrcSocket::Recv(std::string& data)
     static const int buffersize( 64 );
     static char buffer[buffersize];
     static int length;
-    memset( buffer, 0, buffersize );
+    memset( buffer, '\0', buffersize );
     length = 0;
     data = "";
 
@@ -150,7 +150,7 @@ void IrcSocket::Recv(std::string& data)
             if (length == buffersize-1)
             {
                 data += std::string(buffer);
-                memset( buffer, 0, buffersize );
+                memset( buffer, '\0', buffersize );
                 length = 0;
             }
         }
@@ -160,6 +160,4 @@ void IrcSocket::Recv(std::string& data)
     {
         data += std::string(buffer);
     }
-    memset( buffer, 0, buffersize );
-    //delete buffer;
 }

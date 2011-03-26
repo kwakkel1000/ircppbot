@@ -267,11 +267,9 @@ void IrcData::Recv()
         std::string buf;
         if (S)
         {
-        	buf = "";
             S->Recv(buf);
             std::cout << "<< " << buf << std::endl;
             AddRecvQueue(buf);
-        	buf = "";
         }
     }
 }
