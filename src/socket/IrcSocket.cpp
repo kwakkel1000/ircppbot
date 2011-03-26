@@ -160,6 +160,6 @@ void IrcSocket::Recv(std::string& data)
     {
         data += std::string(buffer);
     }
-    memset( buffer, '\0', buffersize );
+    memset( buffer, '0', buffersize );
     //delete buffer;
 }
