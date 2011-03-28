@@ -1,5 +1,7 @@
-include MODULES
 include MAKECONFIG
+include MODULES
+
+MAKEFLAGS		= $(FLAGS)
 
 TOPDIR			=
 LIBDIR			= $(TOPDIR).libs/

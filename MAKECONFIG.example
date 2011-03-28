@@ -2,7 +2,7 @@
 
 #debug
 #CFLAGS			= -pipe -g
-#CXXFLAGS		= $(CFLAGS) -fPIC -g -Wall
+#CXXFLAGS		= $(CFLAGS) -fPIC -Wall
 
 #release
 #CFLAGS			= -march=native -pipe -O2
@@ -10,18 +10,20 @@
 
 #linux
 #MYSQLFLAGS		= -L/usr/include/mysql -lmysqlclient -I/usr/include/mysql
+#BOOSTINCLUDE		= 
 #BOOSTLIB		= -lboost_thread
 #LIBS			= -ldl $(BOOSTLIB)
 
 #centos
 #MYSQLFLAGS		= -L/usr/include/mysql -lmysqlclient -I/usr/include/mysql
+#BOOSTINCLUDE		= -I/usr/local/boost_1_46_1/
 #BOOSTLIB		= /usr/local/boost_1_46_1/stage/lib/libboost_thread.a
 #LIBS			= -ldl -I/usr/local/boost_1_46_1/ $(BOOSTLIB)
 
 #wine
 #MYSQLFLAGS		= -L/usr/include/mysql -lmysqlclient -I/usr/include/mysql -L/usr/local/lib/mysql -lz
+#BOOSTINCLUDE		= 
 #BOOSTLIB		= -lboost_thread-mt
 #LIBS			= -ldl $(BOOSTLIB)
 
-#MAKEFLAGS               = -j9
-
+#FLAGS			= -j5

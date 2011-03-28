@@ -1,10 +1,11 @@
+include ../../../MAKECONFIG
 #========================================
 # USER RESERVED -- The following are reserved for users to set on the
 # command line.  Makefiles should not set these.  These variables are
 # for C/C++ compilation, and linking.
-CFLAGS		=
-JFLAGS		=
-LDFLAGS		=
+#CFLAGS		=
+#JFLAGS		=
+#LDFLAGS		=
 
 # OPTIMIZE with the -O option.  Override from the command line for
 # building debug versions.
@@ -13,7 +14,7 @@ MAKEFLAGS 	=
 
 
 CXX			= g++
-CXX_COMPILE	= $(CXX) -c $(OPTFLAGS) $(CFLAGS) $(CXX_CFLAGS) $(CXX_SYSCFLAGS)
+CXX_COMPILE	= $(CXX) -c $(OPTFLAGS) $(CXX_CFLAGS) $(CXX_SYSCFLAGS)
 CXX_LINK	= $(CXX) $(LDFLAGS) $(CXX_LDFLAGS) $(CXX_SYSLDFLAGS)
 CXX_CFLAGS 	=
 CXX_LDFLAGS	=
@@ -27,8 +28,8 @@ CXX_FORCE	=
 # System Flags -- Things for static linking or making sure that the
 # compiler understands that a file is a C++ file or whatever.  These
 # usually change from platform to platform.
-CXX_SYSCFLAGS 	= -march=native -pipe -Wall -fPIC -I$(MODULE_INCLUDE) -g
-CXX_SYSLDFLAGS 	= -shared -g
+CXX_SYSCFLAGS 	= $(CXXFLAGS) $(BOOSTINCLUDE) -I$(MODULE_INCLUDE)
+CXX_SYSLDFLAGS 	= -shared $(BOOSTLIB)
 CXX_SYSLIBS		=
 
 .cpp.o:	; $(CXX_COMPILE) $<
@@ -38,4 +39,3 @@ TOP_DIR			= ../../../
 SRC_DIR			= src/
 LIB_DIR			= $(TOP_DIR).libs/
 MODULE_INCLUDE	= $(TOP_DIR)src/include
-
