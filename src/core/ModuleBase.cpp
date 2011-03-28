@@ -43,9 +43,10 @@ void ModuleBase::PRIVMSG(std::vector< std::string > data, std::string trigger)
 	//cout << "PRIVMSG" << endl;
     std::vector< std::string > args;
     std::string data3;
-    size_t chanpos1;
-    size_t chanpos2;
-    size_t triggerpos;
+    size_t chanpos1 = std::string::npos;
+    size_t chanpos2 = std::string::npos;
+    size_t chanpos3 = std::string::npos;
+    size_t triggerpos = std::string::npos;
     chanpos1 = data[2].find("#");
     chanpos2 = data[3].find("#");
     triggerpos = data[3].find(trigger);
@@ -60,21 +61,24 @@ void ModuleBase::PRIVMSG(std::vector< std::string > data, std::string trigger)
         data3 = data[3];
         boost::erase_all(data3, ":");
     }
+    if (data.size() >= 5)
+    {
+		chanpos3 = data[4].find("#");
+    }
     if (triggerpos != std::string::npos)
     {
         triggertype = 1; //PRIVMSG ... :!;
         if (data3 != "")
         {
-            if (chanpos1 != std::string::npos && chanpos2 != std::string::npos)
+            if (chanpos2 != std::string::npos && chanpos3 == std::string::npos)		//chanpos1 yes/no both valid
             {
-                chantrigger = 1;    //PRIVMSG nick #channel :!#chan command
+                chantrigger = 1;   //PRIVMSG nick #chan :!#chan command   ||   PRIVMSG nick bot :!#chan command
                 if (data.size() >= 5)
                 {
                     chan = data3;
                     boost::erase_all(chan, trigger);
                     if (chan != "")
                     {
-                        //triggered = 1;
                         command = data[4];
                         for (unsigned int i = 5 ; i < data.size() ; i++)
                         {
@@ -84,7 +88,7 @@ void ModuleBase::PRIVMSG(std::vector< std::string > data, std::string trigger)
                     }
                 }
             }
-            else if (chanpos1 != std::string::npos && chanpos2 == std::string::npos)
+            else if (chanpos1 != std::string::npos && chanpos2 == std::string::npos && chanpos3 == std::string::npos)
             {
                 chantrigger = 0;    //PRIVMSG nick #chan :!command
                 //cout << "channel: triggercommand" << endl;
@@ -95,7 +99,6 @@ void ModuleBase::PRIVMSG(std::vector< std::string > data, std::string trigger)
                     if (command != "")
                     {
                         chan = data[2];
-                        //triggered = 1;
                         for (unsigned int i = 4 ; i < data.size() ; i++)
                         {
                             args.push_back(data[i]);
@@ -104,9 +107,9 @@ void ModuleBase::PRIVMSG(std::vector< std::string > data, std::string trigger)
                     }
                 }
             }
-            else if (chanpos1 == std::string::npos && chanpos2 == std::string::npos)
+            else if (chanpos1 == std::string::npos && chanpos2 == std::string::npos && chanpos3 == std::string::npos)
             {
-                chantrigger = -1;   //PRIVMSG nick user :!command
+                chantrigger = -1;   //PRIVMSG nick bot :!command
                 if (data.size() >= 4)
                 {
                     command = data3;
@@ -114,7 +117,6 @@ void ModuleBase::PRIVMSG(std::vector< std::string > data, std::string trigger)
                     boost::erase_all(command, trigger);
                     if (command != "")
                     {
-                        //triggered = 1;
                         for (unsigned int i = 4 ; i < data.size() ; i++)
                         {
                             args.push_back(data[i]);
@@ -123,18 +125,17 @@ void ModuleBase::PRIVMSG(std::vector< std::string > data, std::string trigger)
                     }
                 }
             }
-            else if (chanpos1 == std::string::npos && chanpos2 != std::string::npos)
+            else if (chanpos2 == std::string::npos && chanpos3 != std::string::npos)	//chanpos1 yes/no both valid
             {
-                chantrigger = 1;   //PRIVMSG nick user :!#chan command
+                chantrigger = 0;    //PRIVMSG nick #chan :!command #chan	||		PRIVMSG nick bot :!command #chan
                 if (data.size() >= 5)
                 {
-                    chan = data3;
-                    boost::erase_all(chan, trigger);
-                    if (chan != "")
+                    command = data3;
+                    boost::erase_all(command, trigger);
+                    if (command != "")
                     {
-                        //triggered = 1;
-                        command = data[4];
-                        for (unsigned int i = 5 ; i < data.size() ; i++)
+						chan = data[4];
+                        for (unsigned int i = 5; i < data.size() ; i++)
                         {
                             args.push_back(data[i]);
                         }
@@ -148,12 +149,11 @@ void ModuleBase::PRIVMSG(std::vector< std::string > data, std::string trigger)
     {
         if (data3 != "")
         {
-            if (chanpos1 == std::string::npos && chanpos2 != std::string::npos)
+            if (chanpos1 == std::string::npos && chanpos2 != std::string::npos && chanpos3 == std::string::npos)
             {
-                chantrigger = 1;   //PRIVMSG nick user :#chan command
+                chantrigger = 1;   //PRIVMSG nick bot :#chan command
                 if (data.size() >= 5)
                 {
-                    //triggered = 1;
                     chan = data3;
                     command = data[4];
                     for (unsigned int i = 5 ; i < data.size() ; i++)
@@ -163,15 +163,28 @@ void ModuleBase::PRIVMSG(std::vector< std::string > data, std::string trigger)
                     ParsePrivmsg(nick, command, chan, args, chantrigger);
                 }
             }
-            if (chanpos1 == std::string::npos && chanpos2 == std::string::npos)
+            else if (chanpos1 == std::string::npos && chanpos2 == std::string::npos && chanpos3 != std::string::npos)
             {
-                chantrigger = 1;   //PRIVMSG nick user :command
+                chantrigger = 0;   //PRIVMSG nick bot :command #chan
                 if (data.size() >= 5)
                 {
-                    chan == "NULL";
-                    //triggered = 1;
+                    chan = data[4];
                     command = data3;
-                    for (unsigned int i = 5 ; i < data.size() ; i++)
+                    for (unsigned int i = 5; i < data.size() ; i++)
+                    {
+                        args.push_back(data[i]);
+                    }
+                    ParsePrivmsg(nick, command, chan, args, chantrigger);
+                }
+            }
+            else if (chanpos1 == std::string::npos && chanpos2 == std::string::npos && chanpos3 == std::string::npos)
+            {
+                chantrigger = -1;   //PRIVMSG nick bot :command
+                if (data.size() >= 4)
+                {
+                    chan == "NULL";
+                    command = data3;
+                    for (unsigned int i = 4 ; i < data.size() ; i++)
                     {
                         args.push_back(data[i]);
                     }
