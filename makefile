@@ -1,13 +1,5 @@
 include MODULES
-CC				= g++
-CFLAGS			= -march=native -pipe #-O#n for nondebug
-CXXFLAGS		= $(CFLAGS) -fPIC -Wall -g #-g << debugging
-MYSQLFLAGS		= -L/usr/include/mysql -lmysqlclient -I/usr/include/mysql #depends on arch 	linux
-#MYSQLFLAGS		= -L/usr/include/mysql -lmysqlclient -I/usr/include/mysql -L/usr/local/lib/mysql -lz #depends on arch 	wine
-BOOSTLIB		= -lboost_thread #depends on arch	linux
-#BOOSTLIB		= -lboost_thread-mt #depends on arch	wine
-LIBS			= -ldl $(BOOSTLIB)
-MAKEFLAGS		= -j5 #-j#n for threaded compiling
+include MAKECONFIG
 
 TOPDIR			=
 LIBDIR			= $(TOPDIR).libs/

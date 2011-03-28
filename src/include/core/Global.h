@@ -30,6 +30,9 @@ class Global
         virtual void set_BotNick(std::string _BotNick);
         virtual std::string get_BotNick();
 
+        virtual void set_ConfigFile(std::string _ConfigFile);
+        virtual std::string get_ConfigFile();
+
         virtual void set_Users(UsersInterface* _Users);
         virtual UsersInterface& get_Users();
 
@@ -52,6 +55,7 @@ class Global
         bool m_Run;
 
         std::string m_BotNick;
+		std::string m_ConfigFile;
         UsersInterface* m_Users;
         ChannelsInterface* m_Channels;
         IrcDataInterface* m_IrcData;

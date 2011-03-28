@@ -441,6 +441,23 @@ void Parse::PRIVMSG(std::vector< std::string > data)
         std::string auth = Global::Instance().get_Users().GetAuth(nick);
         if (args.size() == 0)
         {
+            if (boost::iequals(command,"rehash"))
+            {
+                std::string returnstring = "PRIVMSG " + chan + " :reading config file now\r\n";
+                Send(returnstring);
+				if (Global::Instance().get_ConfigReader().ReadFile(Global::Instance().get_ConfigFile()))
+				{
+					std::cout << "W00p config is gelezen \\o/" << std::endl;
+					std::string returnstring = "PRIVMSG " + chan + " :new info read\r\n";
+					Send(returnstring);
+				}
+				else
+				{
+					std::cout << "Kon niet lezen :/" << std::endl;
+					std::string returnstring = "PRIVMSG " + chan + " :couldnt read file\r\n";
+					Send(returnstring);
+				}
+            }
             if (boost::iequals(command,"stop"))
             {
                 std::string returnstring = "PRIVMSG " + chan + " :stopping now\r\n";

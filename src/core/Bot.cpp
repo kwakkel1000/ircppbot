@@ -35,6 +35,7 @@ Bot::~Bot()
 void Bot::Init(std::string configfile)
 {
     Global::Instance().set_ConfigReader(new ConfigReader());
+    Global::Instance().set_ConfigFile(configfile);
     if (Global::Instance().get_ConfigReader().ReadFile(configfile))
     {
         std::cout << "W00p config is gelezen \\o/" << std::endl;

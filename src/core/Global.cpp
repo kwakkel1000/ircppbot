@@ -37,6 +37,15 @@ std::string Global::get_BotNick()
     return m_BotNick;
 }
 
+void Global::set_ConfigFile(std::string _ConfigFile)
+{
+    m_ConfigFile = _ConfigFile;
+}
+std::string Global::get_ConfigFile()
+{
+    return m_ConfigFile;
+}
+
 void Global::set_Users(UsersInterface* _Users)
 {
     m_Users = _Users;

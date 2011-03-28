@@ -21,6 +21,9 @@ class GlobalInterface {
         virtual void set_BotNick(std::string _BotNick)=0;
         virtual std::string get_BotNick()=0;
 
+        virtual void set_ConfigFile(std::string _ConfigFile)=0;
+        virtual std::string get_ConfigFile()=0;
+
         virtual void set_Users(UsersInterface* _Users)=0;
         virtual UsersInterface& get_Users()=0;
 

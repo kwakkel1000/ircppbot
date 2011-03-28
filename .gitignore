@@ -8,6 +8,7 @@ bot
 .svn*
 *_build_log.html
 *.layout
+MAKECONFIG
 MODULES
 src/modules/*
 !src/modules/MODULE_CONFIG
