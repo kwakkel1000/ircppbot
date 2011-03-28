@@ -135,7 +135,8 @@ void IrcSocket::Recv(std::string& data)
     char c = '\0';
     while((c != '\n') && (length < buffersize))
     {
-        if (!recv(m_socket, &c, sizeof(char), 0))
+    	int num_of_bytes = recv(m_socket, &c, sizeof(char), 0);
+        if (!num_of_bytes)
         {
             Disconnect();
             throw Exception("Connection lost", errno);

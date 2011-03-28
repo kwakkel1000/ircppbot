@@ -11,6 +11,7 @@
 
 #include <boost/algorithm/string.hpp>
 #include <dlfcn.h>
+#include <sstream>
 
 
 Parse::Parse()
