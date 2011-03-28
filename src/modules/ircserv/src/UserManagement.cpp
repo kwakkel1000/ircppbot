@@ -51,14 +51,18 @@ UserManagement::UserManagement()
 
 UserManagement::~UserManagement()
 {
+    stop();
+	Global::Instance().get_IrcData().DelConsumer(mpDataInterface);
+    delete mpDataInterface;
 }
 
 void UserManagement::stop()
 {
-    Run = false;
-	Global::Instance().get_IrcData().DelConsumer(mpDataInterface);
-    delete mpDataInterface;
+	Run = false;
+    mpDataInterface->stop();
+    std::cout << "UserManagement::stop" << std::endl;
     raw_parse_thread->join();
+    std::cout << "raw_parse_thread stopped" << std::endl;
 }
 
 void UserManagement::Init(DataInterface* pData)

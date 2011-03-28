@@ -492,9 +492,9 @@ void Parse::PRIVMSG(std::vector< std::string > data)
                 for (unsigned int i = 0; i < tmpmodulelist.size(); i++)
                 {
                     std::string modname = tmpmodulelist[i];
-                    UnLoadModule(modname);
                     std::string returnstring = "NOTICE " + nick + " :[" + convertInt(i) + "] " + modname + " unloading\r\n";
                     Send(returnstring);
+                    UnLoadModule(modname);
                 }
                 //ReloadAll();
                 for (unsigned int i = 0; i < tmpmodulelist.size(); i++)

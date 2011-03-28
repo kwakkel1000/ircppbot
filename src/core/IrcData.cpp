@@ -124,32 +124,44 @@ void IrcData::DelConsumer(DataInterface *d)
             Consumers.erase(Consumers.begin() + consumer_iterator);
         }
     }*/
-    for (consumer_iterator = (RawConsumers.size() - 1); consumer_iterator >= 0; consumer_iterator--)
+    std::cout << "RawConsumers.size() " << RawConsumers.size() << std::endl;
+    for (consumer_iterator = RawConsumers.size(); consumer_iterator > 0; consumer_iterator--)
     {
-        if (RawConsumers[consumer_iterator] == d)
+		std::cout << "consumer_iterator " << consumer_iterator-1 << std::endl;
+        if (RawConsumers[consumer_iterator-1] == d)
         {
-            RawConsumers.erase(RawConsumers.begin() + consumer_iterator);
+        	std::cout << "consumer removed" << std::endl;
+            RawConsumers.erase(RawConsumers.begin() + consumer_iterator-1);
         }
     }
-    for (consumer_iterator = (ModeConsumers.size() - 1); consumer_iterator >= 0; consumer_iterator--)
+    std::cout << "ModeConsumers.size() " << ModeConsumers.size() << std::endl;
+    for (consumer_iterator = ModeConsumers.size(); consumer_iterator > 0; consumer_iterator--)
     {
-        if (ModeConsumers[consumer_iterator] == d)
+		std::cout << "consumer_iterator " << consumer_iterator-1 << std::endl;
+        if (ModeConsumers[consumer_iterator-1] == d)
         {
-            ModeConsumers.erase(ModeConsumers.begin() + consumer_iterator);
+        	std::cout << "consumer removed" << std::endl;
+            ModeConsumers.erase(ModeConsumers.begin() + consumer_iterator-1);
         }
     }
-    for (consumer_iterator = (WhoisConsumers.size() - 1); consumer_iterator >= 0; consumer_iterator--)
+    std::cout << "WhoisConsumers.size() " << WhoisConsumers.size() << std::endl;
+    for (consumer_iterator = WhoisConsumers.size(); consumer_iterator > 0; consumer_iterator--)
     {
-        if (WhoisConsumers[consumer_iterator] == d)
+		std::cout << "consumer_iterator " << consumer_iterator-1 << std::endl;
+        if (WhoisConsumers[consumer_iterator-1] == d)
         {
-            WhoisConsumers.erase(WhoisConsumers.begin() + consumer_iterator);
+        	std::cout << "consumer removed" << std::endl;
+            WhoisConsumers.erase(WhoisConsumers.begin() + consumer_iterator-1);
         }
     }
-    for (consumer_iterator = (PrivmsgConsumers.size() - 1); consumer_iterator >= 0; consumer_iterator--)
+    std::cout << "PrivmsgConsumers.size() " << PrivmsgConsumers.size() << std::endl;
+    for (consumer_iterator = PrivmsgConsumers.size(); consumer_iterator > 0; consumer_iterator--)
     {
-        if (PrivmsgConsumers[consumer_iterator] == d)
+		std::cout << "consumer_iterator " << consumer_iterator-1 << std::endl;
+        if (PrivmsgConsumers[consumer_iterator-1] == d)
         {
-            PrivmsgConsumers.erase(PrivmsgConsumers.begin() + consumer_iterator);
+        	std::cout << "consumer removed" << std::endl;
+            PrivmsgConsumers.erase(PrivmsgConsumers.begin() + consumer_iterator-1);
         }
     }
 }
