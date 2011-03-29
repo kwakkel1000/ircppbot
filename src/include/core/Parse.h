@@ -24,9 +24,11 @@ public:
     void ReloadAll();
     void ModuleParse(int, std::vector< std::string >);
 
+    friend class AdminInterface;
+    friend class SslAdmin;
+
 private:
     //vars
-    std::string configfile;
     bool run;
 
     //classes

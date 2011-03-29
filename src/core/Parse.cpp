@@ -445,7 +445,9 @@ void Parse::PRIVMSG(std::vector< std::string > data)
             {
                 std::string returnstring = "PRIVMSG " + chan + " :reading config file now\r\n";
                 Send(returnstring);
-				if (Global::Instance().get_ConfigReader().ReadFile(Global::Instance().get_ConfigFile()))
+				Global::Instance().get_ConfigReader().ClearSettings();
+				std::string configfile = Global::Instance().get_ConfigFile();
+				if (Global::Instance().get_ConfigReader().ReadFile(configfile))
 				{
 					std::cout << "W00p config is gelezen \\o/" << std::endl;
 					std::string returnstring = "PRIVMSG " + chan + " :new info read\r\n";

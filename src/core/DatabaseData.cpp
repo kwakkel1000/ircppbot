@@ -82,23 +82,23 @@ void DatabaseData::AddChannel(std::string mChannelUuid, std::string mChannel)
 
 void DatabaseData::DeleteChannel(std::string mChannelUuid)
 {
-    for ( unsigned int i = users_vector.size()-1; i >= 0; i-- )
+    for ( unsigned int i = users_vector.size(); i > 0; i-- )
     {
-		if (users_vector[i].size() >= 1)
+		if (users_vector[i-1].size() >= 1)
 		{
-			if (boost::iequals(users_vector[i][0], mChannelUuid))
+			if (boost::iequals(users_vector[i-1][0], mChannelUuid))
 			{
-				users_vector.erase(users_vector.begin()+i);
+				users_vector.erase(users_vector.begin()+(i-1));
 			}
 		}
     }
-    for ( unsigned int i = channels_vector.size()-1; i >= 0; i-- )
+    for ( unsigned int i = channels_vector.size(); i > 0; i-- )
     {
-		if (channels_vector[i].size() >= 2)
+		if (channels_vector[i-1].size() >= 2)
 		{
-			if (boost::iequals(channels_vector[i][0], mChannelUuid))
+			if (boost::iequals(channels_vector[i-1][0], mChannelUuid))
 			{
-				channels_vector.erase(channels_vector.begin()+i);
+				channels_vector.erase(channels_vector.begin()+(i-1));
 			}
 		}
     }
@@ -136,13 +136,13 @@ void DatabaseData::AddUserToChannel(std::string mChannelUuid, std::string mUserU
 
 void DatabaseData::DeleteUserFromChannel(std::string mChannelUuid, std::string mUserUuid)
 {
-    for ( unsigned int i = 0 ; i < users_vector.size(); i++ )
+    for ( unsigned int i = users_vector.size() ; i > 0 ; i-- )
     {
-		if (users_vector[i].size() >= 2)
+		if (users_vector[i-1].size() >= 2)
 		{
-			if (boost::iequals(users_vector[i][0], mChannelUuid) && boost::iequals(users_vector[i][1], mUserUuid))
+			if (boost::iequals(users_vector[i-1][0], mChannelUuid) && boost::iequals(users_vector[i-1][1], mUserUuid))
 			{
-				users_vector.erase(users_vector.begin()+i);
+				users_vector.erase(users_vector.begin()+(i-1));
 			}
 		}
     }

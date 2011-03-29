@@ -1,4 +1,5 @@
-conf/*.ini
+conf/*
+!conf/conf.ini.example
 bot
 *.cbp
 *.o

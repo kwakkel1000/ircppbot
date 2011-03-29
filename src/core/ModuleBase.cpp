@@ -52,7 +52,6 @@ void ModuleBase::PRIVMSG(std::vector< std::string > data, std::string trigger)
     triggerpos = data[3].find(trigger);
     std::string chan = "NULL";
     std::string command = "NULL";
-    //int triggered = 0;
     int triggertype = -1;
     int chantrigger = -1;
     std::string nick = HostmaskToNick(data);

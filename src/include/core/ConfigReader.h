@@ -12,6 +12,8 @@ public:
     ConfigReader();
     ~ConfigReader();
 
+    void ClearSettings();
+
     bool ReadFile( std::string filename );
     std::string GetString( std::string varname );
 

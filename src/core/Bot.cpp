@@ -36,6 +36,7 @@ void Bot::Init(std::string configfile)
 {
     Global::Instance().set_ConfigReader(new ConfigReader());
     Global::Instance().set_ConfigFile(configfile);
+    Global::Instance().get_ConfigReader().ClearSettings();
     if (Global::Instance().get_ConfigReader().ReadFile(configfile))
     {
         std::cout << "W00p config is gelezen \\o/" << std::endl;
@@ -47,26 +48,25 @@ void Bot::Init(std::string configfile)
         std::cout << "Kon niet lezen :/" << std::endl;
     }
     parseinit();
-//    LoadAdmin();
-//    admininit();
+    LoadAdmin();
+    admininit();
 }
-/*
+
 void Bot::admininit()
 {
-    cout << "admininit" << endl;
-    // Create the socket
-    ServerSocket *server = new ServerSocket( 3344 );
-    ai->Init(P, server);
+    std::cout << "admininit" << std::endl;
+    ai->Init(P, 2345);
     assert(!admin_thread);
     admin_thread = boost::shared_ptr<boost::thread>(new boost::thread(boost::bind(&Bot::adminrun, this)));
 }
 
 void Bot::adminrun()
 {
-    cout << "adminrun" << endl;
+    std::cout << "adminrun" << std::endl;
     ai->Run();
 }
-*/
+
+
 void Bot::parseinit()
 {
     Global& G = Global::Instance();
@@ -76,9 +76,6 @@ void Bot::parseinit()
     std::string nickserv = G.get_ConfigReader().GetString("nickserv");
     std::string ircserver = G.get_ConfigReader().GetString("ircserver");
     std::string ircport = G.get_ConfigReader().GetString("ircport");
-    //floodprotect = reader->GetString("floodprotect");
-    //floodbuffer = reader->GetString("floodbuffer");
-    //floodtime = reader->GetString("floodtime");
     try
     {
         parse_sock = new IrcSocket();
@@ -126,17 +123,18 @@ void Bot::parserun()
 void Bot::Run()
 {
     std::cout << "void Bot::Run()" << std::endl;
-    //admin_thread->join();
+    admin_thread->join();
     parse_thread->join();
     std::cout << "parse_thread stopped" << std::endl;
 }
-/*
+
 void Bot::LoadAdmin()
 {
     // load the admin library
-    admin = dlopen("./Admin.so", RTLD_LAZY);
+    admin = dlopen(".libs/SslAdmin.so", RTLD_LAZY);
     if (!admin) {
-        cerr << "Cannot load library: " << dlerror() << '\n';
+        std::cerr << "Cannot load library: " << dlerror() << '\n';
+        exit(1);
         //return 1;
     }
 
@@ -144,10 +142,11 @@ void Bot::LoadAdmin()
     create_admin = (create_tai*) dlsym(admin, "create");
     destroy_admin = (destroy_tai*) dlsym(admin, "destroy");
     if (!create_admin || !destroy_admin) {
-        cerr << "Cannot load symbols: " << dlerror() << '\n';
+        std::cerr << "Cannot load symbols: " << dlerror() << '\n';
+        exit(1);
         //return 1;
     }
-    cout << "admin Loaded" << endl;
+    std::cout << "admin Loaded" << std::endl;
     // create an instance of the class
     ai = create_admin();
 }
@@ -160,6 +159,6 @@ void Bot::UnLoadAdmin()
 
     // unload the channelbot library
     dlclose(admin);
-    cout << "admin UnLoaded" << endl;
+    std::cout << "admin UnLoaded" << std::endl;
 
-}*/
+}

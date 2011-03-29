@@ -22,7 +22,7 @@ public:
 
 private:
 	bool NickServ;
-	bool WhoExtra;
+	//bool WhoExtra;
 	bool Run;
     DataInterface* mpDataInterface;
 

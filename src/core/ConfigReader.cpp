@@ -3,10 +3,11 @@
 #include <fstream>
 #include <boost/algorithm/string.hpp>
 
-using namespace std;
+//using namespace std;
 
 ConfigReader::ConfigReader()
 {
+	ClearSettings();
 }
 
 
@@ -14,17 +15,19 @@ ConfigReader::~ConfigReader()
 {
 }
 
-
-bool ConfigReader::ReadFile( string filename )
+void ConfigReader::ClearSettings()
 {
-    cout << "readfile: " << filename << endl;
-    string line;
-    string section("global"); // default value
-    ifstream configfile;
-    int linenr = 0;
-
-    // Start fresh :)
     settings.clear();
+}
+
+
+bool ConfigReader::ReadFile( std::string filename )
+{
+    std::cout << "readfile: " << filename << std::endl;
+    std::string line;
+    std::string section("global"); // default value
+    std::ifstream configfile;
+    int linenr = 0;
 
     configfile.open(filename.c_str());
     if (configfile.is_open())
@@ -50,43 +53,52 @@ bool ConfigReader::ReadFile( string filename )
                     {
                         // Changing section...
                         section = line.substr( 1, line.length()-2 );
-                        //cout << "* Changed section to '" << section << "'" << endl;
+                        std::cout << "* Changed section to '" << section << "'" << std::endl;
                     }
                     else
                     {
-                        cout << "Invalid section on line " << linenr << ": " << line << endl;
+                        std::cout << "Invalid section on line " << linenr << ": " << line << std::endl;
                     }
                 }
                 else
                 {
-                    uint pos = line.find("=");
-                    if (pos!=string::npos)
-                    {
-                        string var = line.substr( 0, pos );
-                        string value = line.substr( pos+1, line.length()-pos-1);
-                        boost::trim(var);
-                        boost::trim(value);
+                	if (boost::iequals(section, "config"))
+                	{
+						std::string var = line;
+						boost::trim(var);
+                		ReadFile(var);
+                	}
+                	else
+                	{
+						uint pos = line.find("=");
+						if (pos!=std::string::npos)
+						{
+							std::string var = line.substr( 0, pos );
+							std::string value = line.substr( pos+1, line.length()-pos-1);
+							boost::trim(var);
+							boost::trim(value);
 
-                        //cout << "* The variable '" << var << "' has value '" << value << "'" << endl;
-                        settings[var] = value;
-                    }
+							//cout << "* The variable '" << var << "' has value '" << value << "'" << endl;
+							settings[var] = value;
+						}
+                	}
                 }
             }
-
         }
         configfile.close();
+		std::cout << "done reading: " << filename << std::endl;
         return true;
     }
     else
     {
-        cout << "Could not open file '" << filename << "'" << endl;
+        std::cout << "Could not open file '" << filename << "'" << std::endl;
     }
 
     return false;
 }
 
 
-string ConfigReader::GetString( string varname )
+std::string ConfigReader::GetString( std::string varname )
 {
     return settings[varname];
 }

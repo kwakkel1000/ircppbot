@@ -72,7 +72,6 @@ void UserManagement::Init(DataInterface* pData)
 	mpDataInterface->Init(true, false, false, false);
     Global::Instance().get_IrcData().AddConsumer(mpDataInterface);
     NickServ = (Global::Instance().get_ConfigReader().GetString("nickserv") == "true");
-    WhoExtra = (Global::Instance().get_ConfigReader().GetString("whoextra") == "true");
 }
 
 void UserManagement::read()
@@ -146,7 +145,7 @@ void UserManagement::ParseData(std::vector< std::string > data)
         }
         if (data[1] == "354")       //WHO (extra)
         {
-        	if (WhoExtra)
+        	if (Global::Instance().get_ConfigReader().GetString("whoextra") == "true")
         	{
 				WHOEXTRA(data);
         	}
@@ -183,6 +182,7 @@ void UserManagement::WHO(std::vector< std::string > data)
     C.AddNick(chan, nick);
     bool added = U.AddUser(nick);
     U.AddChannel(nick, chan);
+	GetChannelInfo(chan);
 
 	size_t Gonepos = modes.find(gonechar);
     if (Gonepos != std::string::npos)
@@ -269,6 +269,7 @@ void UserManagement::WHOEXTRA(std::vector< std::string > data)
 			U.AddUser(nick);
 			U.AddChannel(nick, chan);
 			UserAuth(nick, auth);
+			GetChannelInfo(chan);
 
 			size_t Gonepos = modes.find(gonechar);
 			if (Gonepos != std::string::npos)
@@ -345,7 +346,7 @@ void UserManagement::JOIN(std::vector< std::string > data)
     {
         C.AddChannel(chan);
         std::string whostring;
-		if (WhoExtra)
+		if (Global::Instance().get_ConfigReader().GetString("whoextra") == "true")
 		{
 			 whostring = "WHO " + chan + " %ncaf\r\n";
 		}
