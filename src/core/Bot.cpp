@@ -65,12 +65,12 @@ void Bot::Init(std::string configfile)
 	DatabaseData::Instance().init();
 	DatabaseData::Instance().DatabaseInit();
     IrcInit();
-    IrcRun();
     if (Global::Instance().get_ConfigReader().GetString("admin_enable") == "true")
     {
 		LoadAdmin();
     }
     ModuleInit();
+    IrcRun();
 }
 
 void Bot::ModuleInit()
