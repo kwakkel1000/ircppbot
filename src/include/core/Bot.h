@@ -5,10 +5,10 @@
 #include <boost/shared_ptr.hpp>
 #include <boost/thread/thread.hpp>
 #include "../interfaces/AdminInterface.h"
+#include "../interfaces/ModuleInterface.h"
 
 // Predefinitions
 class IrcSocket;
-class Parse;
 class AdminInterface;
 class Bot
 {
@@ -17,28 +17,53 @@ public:
     ~Bot();
 
     void Init (std::string);
-    void parseinit();
-    void admininit();
-    void parserun();
-    void adminrun();
+    void IrcInit();
+    void ModuleInit();
     void Run();
 
+	void LoadAdmin();
+	void UnLoadAdmin();
+    bool LoadModule(std::string);
+    bool UnLoadModule(std::string);
+    bool UnLoadModuleId(unsigned int);
+
+    friend class SslAdmin;
+
 private:
-	virtual void LoadAdmin();
-	virtual void UnLoadAdmin();
+    void IrcRun();
+    void AdminRun();
+    void ModuleRun(int i);
+    void TimerRun();
+
+	//classes
+    IrcSocket *mpIrcSocket;
+
+    //modules
+    //admin module
     AdminInterface* ai;
     void* admin;
     create_tai* create_admin;
     destroy_tai* destroy_admin;
 
+	//other modules
+    std::vector< std::string > modulelist;
+    std::vector< void* > modulevector;
+    std::vector< ModuleInterface* > moduleinterfacevector;
+    std::vector< create_tmi* > createvector;
+    std::vector< destroy_tmi* > destroyvector;
 
-    IrcSocket *parse_sock;
-    Parse *P;
+    //functions
+    void AdminCommands(std::string command, std::vector< std::string > args);
+    int convertString(std::string data);
 
-    bool read;
+    //config vars
+    std::string moduledir;
+    bool timeron;
 
-    boost::shared_ptr<boost::thread> parse_thread;
-    boost::shared_ptr<boost::thread> admin_thread;
+    //thread vars
+    boost::shared_ptr< boost::thread > timer_thread;
+    boost::shared_ptr< boost::thread > admin_thread;
+    std::vector< boost::shared_ptr< boost::thread > > module_thread_vector;
 };
 
 

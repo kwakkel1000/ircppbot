@@ -17,9 +17,9 @@ EXECUTABLE		= bot
 allfunctions 	= bot modules
 
 core_objects 		= \
-	$(COREDIR)main.o $(COREDIR)Bot.o $(COREDIR)Parse.o \
+	$(COREDIR)main.o $(COREDIR)Bot.o \
 	$(COREDIR)Data.o $(COREDIR)IrcData.o \
-	$(COREDIR)Database.o $(COREDIR)DatabaseData.o $(COREDIR)Auth.o \
+	$(COREDIR)Database.o $(COREDIR)DatabaseData.o \
 	$(COREDIR)ConfigReader.o $(COREDIR)Global.o $(COREDIR)Reply.o $(COREDIR)ModuleBase.o
 management_objects 	= \
 	$(MANAGEMENTDIR)ChannelAuth.o \

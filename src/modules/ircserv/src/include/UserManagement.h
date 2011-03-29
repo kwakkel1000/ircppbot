@@ -1,7 +1,7 @@
 #ifndef UserManagement_h
 #define UserManagement_h
 
-#include <interfaces/UserManagementInterface.h>
+#include <interfaces/ModuleInterface.h>
 #include <interfaces/DataInterface.h>
 #include <string>
 #include <vector>
@@ -9,18 +9,20 @@
 #include <boost/shared_ptr.hpp>
 
 class DataInterface;
-class UserManagement : public UserManagementInterface
+class UserManagement : public ModuleInterface
 {
 public:
 	UserManagement();
 	~UserManagement();
-    void ParseData(std::vector< std::string > data);
     void read();
     void stop();
     void Init(DataInterface* pData);
+	void timerrun(){}
 
 
 private:
+    void ParseData(std::vector< std::string > data);
+
 	bool NickServ;
 	//bool WhoExtra;
 	bool Run;

@@ -117,13 +117,6 @@ void IrcData::AddConsumer(DataInterface *d)
 void IrcData::DelConsumer(DataInterface *d)
 {
     unsigned int consumer_iterator;
-    /*for (consumer_iterator = (Consumers.size() - 1); consumer_iterator >= 0; consumer_iterator--)
-    {
-        if (Consumers[consumer_iterator] == d)
-        {
-            Consumers.erase(Consumers.begin() + consumer_iterator);
-        }
-    }*/
     std::cout << "RawConsumers.size() " << RawConsumers.size() << std::endl;
     for (consumer_iterator = RawConsumers.size(); consumer_iterator > 0; consumer_iterator--)
     {
@@ -350,6 +343,14 @@ void IrcData::Parse()
         data = GetRecvQueue();
         boost::algorithm::trim(data);
         boost::split( result, data, boost::is_any_of(" "), boost::token_compress_on );
+		if (result.size() == 2)
+		{
+			if (result[0] == "PING")      //PING
+			{
+				std::string returnstr = "PONG " + result[1] + "\r\n";
+				AddHighPrioritySendQueue(returnstr);
+			}
+		}
         unsigned int consumer_iterator;
         for (consumer_iterator = 0; consumer_iterator < RawConsumers.size(); consumer_iterator++)
         {

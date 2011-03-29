@@ -1,12 +1,13 @@
 #ifndef AdminInterface_H
 #define AdminInterface_H
-#include "../core/Parse.h"
+#include "../core/Bot.h"
 
+class Bot;
 class AdminInterface {
 
 public:
 	AdminInterface() { }
-	virtual void Init(Parse *p, int port)=0;
+	virtual void Init(Bot *bot, int port)=0;
 	virtual void Run()=0;
 
 };
