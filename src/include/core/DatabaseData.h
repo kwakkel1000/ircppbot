@@ -4,6 +4,7 @@
 #include <string>
 #include <vector>
 #include <queue>
+#include <map>
 
 #include <boost/bind.hpp>
 #include <boost/thread/condition.hpp>
@@ -22,6 +23,8 @@ public:
     void init();
     void DatabaseInit();
 
+	void AddBinds(std::string mBindName);
+
     void AddAuth(std::string mUserUuid, std::string mAuth);
 
 	void AddChannel(std::string mChannelUuid, std::string mChannel);
@@ -29,6 +32,10 @@ public:
 
 	void AddUserToChannel(std::string mChannelUuid, std::string mUserUuid, int mAccess);
 	void DeleteUserFromChannel(std::string mChannelUuid, std::string mUserUuid);
+
+	std::vector< std::string > GetBindVectorByBindName(std::string mBindName);
+	std::string GetCommandByBindNameAndBind(std::string mBindName, std::string mBind);
+	int GetAccessByBindNameAndBind(std::string mBindName, std::string mBind);
 
 	std::string GetUserUuidByAuth(std::string auth);
 	std::string GetAuthByUserUuid(std::string UserUuid);
@@ -56,6 +63,9 @@ private:
     std::vector< std::vector< std::string > > auth_vector;
 	std::vector< std::vector< std::string > > channels_vector;
 	std::vector< std::vector< std::string > > users_vector;
+    std::map< std::string, std::vector< std::vector< std::string > > > binds_map;
+	std::map< std::string, std::map < std::string, std::string > > binds_command_map;
+	std::map< std::string, std::map < std::string, int > > binds_access_map;
 
     //config vars
     std::string mHostName;
@@ -69,6 +79,7 @@ private:
     boost::mutex SqlMutex;
 
     //functions
+    void AddSqlQueue(std::string mSqlString);
     std::vector< std::vector< std::string > > RawSqlSelect(std::string data);
     std::string convertInt(int);
     int convertString(std::string);

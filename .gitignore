@@ -1,6 +1,7 @@
 conf/*
 !conf/conf.ini.example
 bot
+*.sh
 *.cbp
 *.o
 *.so

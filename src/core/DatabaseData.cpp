@@ -46,6 +46,23 @@ void DatabaseData::DatabaseInit()
     mRun = true;
 }
 
+void DatabaseData::AddBinds(std::string mBindName)
+{
+	std::vector< std::vector< std::string > > tmp_bind_vector;
+    std::string sql_string = "select command, bind, access from " + mBindName + ";";
+    tmp_bind_vector = RawSqlSelect(sql_string);
+	binds_map[mBindName] = tmp_bind_vector;
+	std::vector< std::string > tmp_command;
+	std::vector< std::string > tmp_bind;
+	std::vector< int > tmp_access;
+    unsigned int i;
+    for (i = 0 ; i < tmp_bind_vector.size() ; i++)
+    {
+		binds_command_map[mBindName][tmp_bind_vector[i][1]] = tmp_bind_vector[i][0];
+		binds_access_map[mBindName][tmp_bind_vector[i][1]] = convertString(tmp_bind_vector[i][2]);
+    }
+}
+
 
 void DatabaseData::AddAuth(std::string mUserUuid, std::string mAuth)
 {
@@ -57,10 +74,7 @@ void DatabaseData::AddAuth(std::string mUserUuid, std::string mAuth)
 	tmp_auth.push_back("-1");
 	auth_vector.push_back(tmp_auth);
 	std::string sqlstring = "INSERT into auth (UserUuid, auth) VALUES ( '" + mUserUuid + "', '" + mAuth + "' );";
-	//std::cout << sqlstring << std::endl;
-    //boost::mutex::scoped_lock lock(SqlMutex);
-    sql_queue.push(sqlstring);
-    SqlAvailable.notify_one();
+	AddSqlQueue(sqlstring);
 }
 
 void DatabaseData::AddChannel(std::string mChannelUuid, std::string mChannel)
@@ -74,10 +88,7 @@ void DatabaseData::AddChannel(std::string mChannelUuid, std::string mChannel)
 	channels_vector.push_back(tmp_channel);
 
 	std::string sqlstring = "INSERT into channels ( ChannelUuid, channel ) VALUES ( '" + mChannelUuid + "', '" + mChannel + "' );";
-	//std::cout << sqlstring << std::endl;
-    //boost::mutex::scoped_lock lock(SqlMutex);
-    sql_queue.push(sqlstring);
-    SqlAvailable.notify_one();
+	AddSqlQueue(sqlstring);
 }
 
 void DatabaseData::DeleteChannel(std::string mChannelUuid)
@@ -106,16 +117,10 @@ void DatabaseData::DeleteChannel(std::string mChannelUuid)
 	std::string sqlstring;
 
 	sqlstring = "DELETE from users where ChannelUuid = '" + mChannelUuid + "';";
-	//std::cout << sqlstring << std::endl;
-    //boost::mutex::scoped_lock lock(SqlMutex);
-    sql_queue.push(sqlstring);
-    SqlAvailable.notify_one();
+	AddSqlQueue(sqlstring);
 
 	sqlstring = "DELETE from channels where ChannelUuid = '" + mChannelUuid + "';";
-	//std::cout << sqlstring << std::endl;
-    //boost::mutex::scoped_lock lock(SqlMutex);
-    sql_queue.push(sqlstring);
-    SqlAvailable.notify_one();
+	AddSqlQueue(sqlstring);
 }
 
 void DatabaseData::AddUserToChannel(std::string mChannelUuid, std::string mUserUuid, int mAccess)
@@ -128,10 +133,7 @@ void DatabaseData::AddUserToChannel(std::string mChannelUuid, std::string mUserU
 	users_vector.push_back(tmp_user);
 
 	std::string sqlstring = "INSERT into users ( UserUuid, ChannelUuid, access) VALUES ( '" + mUserUuid + "', '" + mChannelUuid + "', '" + convertInt(mAccess) + "' );";
-	//std::cout << sqlstring << std::endl;
-    //boost::mutex::scoped_lock lock(SqlMutex);
-    sql_queue.push(sqlstring);
-    SqlAvailable.notify_one();
+	AddSqlQueue(sqlstring);
 }
 
 void DatabaseData::DeleteUserFromChannel(std::string mChannelUuid, std::string mUserUuid)
@@ -148,10 +150,28 @@ void DatabaseData::DeleteUserFromChannel(std::string mChannelUuid, std::string m
     }
 
 	std::string sqlstring = "DELETE from users where UserUuid = '" + mUserUuid + "' AND ChannelUuid = '" + mChannelUuid + "';";
-	//std::cout << sqlstring << std::endl;
-    //boost::mutex::scoped_lock lock(SqlMutex);
-    sql_queue.push(sqlstring);
-    SqlAvailable.notify_one();
+	AddSqlQueue(sqlstring);
+}
+
+std::vector< std::string > DatabaseData::GetBindVectorByBindName(std::string mBindName)
+{
+	std::map < std::string, std::string >::iterator binds_command_map_it;
+	std::vector<  std::string > binds_vector;
+	for ( binds_command_map_it = binds_command_map[mBindName].begin(); binds_command_map_it != binds_command_map[mBindName].end(); binds_command_map_it++)
+	{
+		binds_vector.push_back((*binds_command_map_it).first);
+	}
+	return binds_vector;
+}
+
+std::string DatabaseData::GetCommandByBindNameAndBind(std::string mBindName, std::string mBind)
+{
+	return binds_command_map[mBindName][mBind];
+}
+
+int DatabaseData::GetAccessByBindNameAndBind(std::string mBindName, std::string mBind)
+{
+	return binds_access_map[mBindName][mBind];
 }
 
 std::string DatabaseData::GetUserUuidByAuth(std::string auth)
@@ -319,6 +339,14 @@ std::vector< std::string > DatabaseData::GetAuths()
     	}
     }
     return return_vector;
+}
+
+void DatabaseData::AddSqlQueue(std::string mSqlString)
+{
+	//std::cout << sqlstring << std::endl;
+    boost::mutex::scoped_lock lock(SqlMutex);
+    sql_queue.push(mSqlString);
+    SqlAvailable.notify_one();
 }
 
 void DatabaseData::QueryRun()
