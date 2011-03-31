@@ -49,7 +49,6 @@ void ModuleBase::PRIVMSG(std::vector< std::string > data, std::string trigger)
     size_t triggerpos = std::string::npos;
     chanpos1 = data[2].find("#");
     chanpos2 = data[3].find("#");
-    triggerpos = data[3].find(trigger);
     std::string chan = "NULL";
     std::string command = "NULL";
     int triggertype = -1;
@@ -60,6 +59,11 @@ void ModuleBase::PRIVMSG(std::vector< std::string > data, std::string trigger)
         data3 = data[3];
         boost::erase_all(data3, ":");
     }
+    triggerpos = data3.substr(0, trigger.length()).find(trigger);
+	if (data3.substr(0, trigger.length()) == trigger)
+	{
+		data3 = data3.substr(trigger.length(), data3.length()-1);
+	}
     if (data.size() >= 5)
     {
 		chanpos3 = data[4].find("#");
@@ -75,7 +79,7 @@ void ModuleBase::PRIVMSG(std::vector< std::string > data, std::string trigger)
                 if (data.size() >= 5)
                 {
                     chan = data3;
-                    boost::erase_all(chan, trigger);
+                    //boost::erase_all(chan, trigger);
                     if (chan != "")
                     {
                         command = data[4];
@@ -94,7 +98,7 @@ void ModuleBase::PRIVMSG(std::vector< std::string > data, std::string trigger)
                 if (data.size() >= 4)
                 {
                     command = data3;
-                    boost::erase_all(command, trigger);
+                    //boost::erase_all(command, trigger);
                     if (command != "")
                     {
                         chan = data[2];
@@ -113,7 +117,7 @@ void ModuleBase::PRIVMSG(std::vector< std::string > data, std::string trigger)
                 {
                     command = data3;
                     chan = "NULL";
-                    boost::erase_all(command, trigger);
+                    //boost::erase_all(command, trigger);
                     if (command != "")
                     {
                         for (unsigned int i = 4 ; i < data.size() ; i++)
@@ -130,7 +134,7 @@ void ModuleBase::PRIVMSG(std::vector< std::string > data, std::string trigger)
                 if (data.size() >= 5)
                 {
                     command = data3;
-                    boost::erase_all(command, trigger);
+                    //boost::erase_all(command, trigger);
                     if (command != "")
                     {
 						chan = data[4];
