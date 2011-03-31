@@ -344,7 +344,7 @@ std::vector< std::string > DatabaseData::GetAuths()
 void DatabaseData::AddSqlQueue(std::string mSqlString)
 {
 	//std::cout << sqlstring << std::endl;
-    boost::mutex::scoped_lock lock(SqlMutex);
+    //boost::mutex::scoped_lock lock(SqlMutex);
     sql_queue.push(mSqlString);
     SqlAvailable.notify_one();
 }
