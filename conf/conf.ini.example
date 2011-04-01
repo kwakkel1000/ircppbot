@@ -20,10 +20,14 @@ ocommandstrigger=?
 ircserver=irc.server.tld
 ircport=6667
 ircpass=passwd
-nickserv=true
-floodprotect=false
+floodprotect=true
 floodbuffer=20
 floodtime=1500
+
+[ircserv]
+ircserv=UserManagement
+nickserv=false
+whoextra=true
 
 [database]
 hostname=localhost
