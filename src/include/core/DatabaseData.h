@@ -64,6 +64,7 @@ private:
 	std::vector< std::vector< std::string > > channels_vector;
 	std::vector< std::vector< std::string > > users_vector;
     std::map< std::string, std::vector< std::vector< std::string > > > binds_map;
+	std::map< std::string, std::vector < std::string > > binds_vector;
 	std::map< std::string, std::map < std::string, std::string > > binds_command_map;
 	std::map< std::string, std::map < std::string, int > > binds_access_map;
 

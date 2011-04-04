@@ -324,6 +324,7 @@ void Bot::AdminCommands(std::string command, std::vector< std::string > args)
 			{
 				std::string modname = modulelist[i];
 				std::cout << "[" << i << "]" << modname << std::endl;
+				ai->AddSendQueue(modname);
 				/*std::string returnstring = "PRIVMSG " + chan + " :[" + convertInt(i) + "] " + modname + "\r\n";
 				Send(returnstring);*/
 			}

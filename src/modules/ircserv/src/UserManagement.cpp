@@ -569,7 +569,7 @@ void UserManagement::UserAuth(std::string mNick, std::string mAuth)
 		std::stringstream ss;
 		ss << uuid;
 		std::string UserUuid = ss.str();
-		std::cout << "UserUuid: " << UserUuid<< std::endl;
+		std::cout << "UserUuid: " << UserUuid << std::endl;
         DatabaseData::Instance().AddAuth(UserUuid, mAuth);
     }
     std::vector< std::string > userchannels = U.GetChannels(mNick);

@@ -9,6 +9,7 @@ public:
 	AdminInterface() { }
 	virtual void Init(Bot *bot, int port)=0;
 	virtual void Run()=0;
+    virtual void AddSendQueue(std::string mSendData)=0;
 
 };
 

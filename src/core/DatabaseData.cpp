@@ -52,15 +52,15 @@ void DatabaseData::AddBinds(std::string mBindName)
     std::string sql_string = "select command, bind, access from " + mBindName + ";";
     tmp_bind_vector = RawSqlSelect(sql_string);
 	binds_map[mBindName] = tmp_bind_vector;
-	std::vector< std::string > tmp_command;
-	std::vector< std::string > tmp_bind;
-	std::vector< int > tmp_access;
+	std::vector<  std::string > tmp_binds_vector;
     unsigned int i;
     for (i = 0 ; i < tmp_bind_vector.size() ; i++)
     {
+    	tmp_binds_vector.push_back(tmp_bind_vector[i][1]);
 		binds_command_map[mBindName][tmp_bind_vector[i][1]] = tmp_bind_vector[i][0];
 		binds_access_map[mBindName][tmp_bind_vector[i][1]] = convertString(tmp_bind_vector[i][2]);
     }
+    binds_vector[mBindName] = tmp_binds_vector;
 }
 
 
@@ -155,13 +155,7 @@ void DatabaseData::DeleteUserFromChannel(std::string mChannelUuid, std::string m
 
 std::vector< std::string > DatabaseData::GetBindVectorByBindName(std::string mBindName)
 {
-	std::map < std::string, std::string >::iterator binds_command_map_it;
-	std::vector<  std::string > binds_vector;
-	for ( binds_command_map_it = binds_command_map[mBindName].begin(); binds_command_map_it != binds_command_map[mBindName].end(); binds_command_map_it++)
-	{
-		binds_vector.push_back((*binds_command_map_it).first);
-	}
-	return binds_vector;
+	return binds_vector[mBindName];
 }
 
 std::string DatabaseData::GetCommandByBindNameAndBind(std::string mBindName, std::string mBind)
