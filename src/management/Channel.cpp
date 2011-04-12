@@ -95,6 +95,7 @@ int Channel::GetAccess(string data)
 
 bool Channel::SetOp(string data, bool set)
 {
+	boost::mutex::scoped_lock  lock(Channel_mutex);
 	int i = GetNicksIndex(data);
 	if (i >= 0)
 	{
@@ -106,6 +107,7 @@ bool Channel::SetOp(string data, bool set)
 
 bool Channel::GetOp(string data)
 {
+	boost::mutex::scoped_lock  lock(Channel_mutex);
 	int i = GetNicksIndex(data);
 	if (i >= 0)
 	{
@@ -116,6 +118,7 @@ bool Channel::GetOp(string data)
 
 bool Channel::SetVoice(string data, bool set)
 {
+	boost::mutex::scoped_lock  lock(Channel_mutex);
 	int i = GetNicksIndex(data);
 	if (i >= 0)
 	{
@@ -127,6 +130,7 @@ bool Channel::SetVoice(string data, bool set)
 
 bool Channel::GetVoice(string data)
 {
+	boost::mutex::scoped_lock  lock(Channel_mutex);
 	int i = GetNicksIndex(data);
 	if (i >= 0)
 	{
@@ -148,23 +152,27 @@ vector<string> Channel::GetAuths()
 
 bool Channel::SetGiveops(int data)
 {
+	boost::mutex::scoped_lock  lock(Channel_mutex);
 	giveops = data;
 	return true;
 }
 
 int Channel::GetGiveops()
 {
+	boost::mutex::scoped_lock  lock(Channel_mutex);
 	return giveops;
 }
 
 bool Channel::SetGivevoice(int data)
 {
+	boost::mutex::scoped_lock  lock(Channel_mutex);
 	givevoice = data;
 	return true;
 }
 
 int Channel::GetGivevoice()
 {
+	boost::mutex::scoped_lock  lock(Channel_mutex);
 	return givevoice;
 }
 
