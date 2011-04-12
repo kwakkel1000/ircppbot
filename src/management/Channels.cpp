@@ -1,6 +1,6 @@
 #include "../include/management/Channels.h"
-#include <boost/algorithm/string.hpp>
 #include "../include/core/DatabaseData.h"
+#include <boost/algorithm/string.hpp>
 
 Channels::Channels() { }
 

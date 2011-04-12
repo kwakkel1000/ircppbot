@@ -7,6 +7,8 @@
 #include <algorithm>
 #include "ChannelAuth.h"
 
+#include <boost/thread/mutex.hpp>
+
 using namespace std;
 
 class Channel
@@ -47,7 +49,14 @@ private:
 	std::string cid;
 	int GetChannelAuthIndex(string data);
 	int GetNicksIndex(string data);
-	bool caseInsensitiveStringCompare( const std::string& str1, const std::string& str2 );
+
+
+	boost::mutex Channel_mutex;
+    /*boost::mutex User_mutex;
+    boost::mutex UsersGetNicks_mutex;
+    boost::mutex UsersGetAuths_mutex;
+    boost::mutex UsersGetChannels_mutex;
+    boost::mutex UsersWhois_mutex;*/
 };
 
 
