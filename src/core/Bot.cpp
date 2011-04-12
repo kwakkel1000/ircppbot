@@ -323,10 +323,8 @@ void Bot::AdminCommands(std::string command, std::vector< std::string > args)
 			for (unsigned int i = 0; i < modulelist.size(); i++)
 			{
 				std::string modname = modulelist[i];
-				std::cout << "[" << i << "]" << modname << std::endl;
+				/*std::cout << "[" << i << "]" << modname << std::endl;*/
 				ai->AddSendQueue(modname);
-				/*std::string returnstring = "PRIVMSG " + chan + " :[" + convertInt(i) + "] " + modname + "\r\n";
-				Send(returnstring);*/
 			}
 		}
 		if (boost::iequals(command,"reloadall"))
@@ -388,7 +386,7 @@ void Bot::Run()
     //need a mainthread loop;
     while(1)
     {
-    	usleep(10000);
+    	usleep(1000000);
     }
     //admin_thread->join();
 }
@@ -434,9 +432,6 @@ void Bot::TimerRun()
         }
     }
 }
-
-
-
 
 
 int Bot::convertString(std::string data)
