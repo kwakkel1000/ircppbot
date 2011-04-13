@@ -444,8 +444,6 @@ int Users::GetWidth(string nick)
     return 20;
 }
 
-
-
 int Users::GetWidthLength(string nick)
 {
     return 5;
@@ -453,7 +451,7 @@ int Users::GetWidthLength(string nick)
 
 vector<string> Users::GetChannels(string data)
 {
-    //boost::mutex::scoped_lock  lock(UsersGetChannels_mutex);
+    boost::mutex::scoped_lock  lock(UsersGetChannels_mutex);
     //cout << "vector<string> Users::GetChannels(string data)    data: " << data << endl;
     int i = GetNickIndex(data);
     if (i >= 0)
@@ -465,6 +463,7 @@ vector<string> Users::GetChannels(string data)
 
 int Users::GetNickIndex(string data)
 {
+	boost::mutex::scoped_lock  lock(UsersNickIndexMutex);
     for ( unsigned int i = 0 ; i < nick.size(); i++ )
     {
         if (boost::iequals(nick[i],data))

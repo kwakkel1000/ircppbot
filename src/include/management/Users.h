@@ -71,11 +71,11 @@ private:
     std::vector< std::string > NULLvector;
     std::vector< std::string > authlist;
 
-    /*boost::mutex User_mutex;
+    boost::mutex User_mutex;
     boost::mutex UsersGetNicks_mutex;
     boost::mutex UsersGetAuths_mutex;
     boost::mutex UsersGetChannels_mutex;
-    boost::mutex UsersWhois_mutex;*/
+    boost::mutex UsersNickIndexMutex;
 
     int GetNickIndex(std::string data);
     int GetWhoisIndex(std::string data);

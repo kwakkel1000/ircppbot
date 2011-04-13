@@ -5,6 +5,8 @@
 #include <iostream>
 #include <algorithm>
 
+#include <boost/thread/mutex.hpp>
+
 using namespace std;
 
 class User
@@ -65,6 +67,8 @@ private:
     int GetChannelIndex(string data);
     int oaccess;
     int god;
+
+	boost::mutex User_mutex;
 };
 
 #endif // User_h

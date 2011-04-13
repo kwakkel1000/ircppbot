@@ -246,7 +246,7 @@ void UserManagement::WHO(std::vector< std::string > data)
 
 	if (added)
     {
-        std::string whoisstring = "WHOIS " + nick + " " + nick + "\r\n";
+        std::string whoisstring = "WHOIS " + nick + "\r\n";
         Send(whoisstring);
     }
 }
@@ -365,7 +365,7 @@ void UserManagement::JOIN(std::vector< std::string > data)
         U.AddChannel(nick, chan);
         if (added)
         {
-            std::string whoisstring = "WHOIS " + nick + " " + nick + "\r\n";
+            std::string whoisstring = "WHOIS " + nick + "\r\n";
             Send(whoisstring);
         }
     }
