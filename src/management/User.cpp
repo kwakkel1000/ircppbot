@@ -3,7 +3,7 @@
 
 User::User()
 {
-	boost::mutex::scoped_lock  lock(User_mutex);
+	//boost::mutex::scoped_lock  lock(User_mutex);
 	oaccess = -1;
 	god = 0;
 	NULLvector.push_back("NULL");
@@ -176,7 +176,7 @@ std::string User::GetLanguage()
 
 int User::GetChannelIndex(string data)
 {
-	boost::mutex::scoped_lock  lock(User_mutex);
+	//boost::mutex::scoped_lock  lock(User_mutex);
     for ( unsigned int i = 0 ; i < channels.size(); i++ )
     {
         if (boost::iequals(channels[i],data))

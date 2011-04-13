@@ -451,7 +451,7 @@ int Users::GetWidthLength(string nick)
 
 vector<string> Users::GetChannels(string data)
 {
-    boost::mutex::scoped_lock  lock(UsersGetChannels_mutex);
+    //boost::mutex::scoped_lock  lock(UsersGetChannels_mutex);
     //cout << "vector<string> Users::GetChannels(string data)    data: " << data << endl;
     int i = GetNickIndex(data);
     if (i >= 0)
