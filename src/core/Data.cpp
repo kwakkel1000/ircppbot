@@ -1,5 +1,32 @@
+//
+//
+//  @ Project : ircppbot
+//  @ File Name : Data.cpp
+//  @ Date : 4/18/2011
+//  @ Author : Gijs Kwakkel
+//
+//
+// Copyright (c) 2011 Gijs Kwakkel
+//
+// This program is free software; you can redistribute it and/or
+// modify it under the terms of the GNU General Public License
+// as published by the Free Software Foundation; either version 2
+// of the License, or (at your option) any later version.
+// This program is distributed in the hope that it will be useful,
+// but WITHOUT ANY WARRANTY; without even the implied warranty of
+// MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
+// GNU General Public License for more details.
+//
+// You should have received a copy of the GNU General Public License
+// along with this program; if not, write to the Free Software
+// Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301, USA.
+//
+
 #include "../include/core/Data.h"
 #include <iostream>
+#include <string>
+#include <vector>
+
 Data::Data()
 {
 }
@@ -27,25 +54,25 @@ void Data::stop()
 }
 bool Data::GetRaw()
 {
-	return mGetRaw;
+    return mGetRaw;
 }
 
 bool Data::GetMode()
 {
-	return mGetMode;
+    return mGetMode;
 }
 
 bool Data::GetWhois()
 {
-	return mGetWhois;
+    return mGetWhois;
 }
 
 bool Data::GetPrivmsg()
 {
-	return mGetPrivmsg;
+    return mGetPrivmsg;
 }
 
-//producers
+// producers
 void Data::AddRawQueue(std::vector<std::string> data)
 {
     boost::mutex::scoped_lock lock(RawMutex);
@@ -74,12 +101,12 @@ void Data::AddPrivmsgQueue(std::vector<std::string> data)
     PrivmsgAvailable.notify_one();
 }
 
-//consumers
+// consumers
 std::vector< std::string > Data::GetRawQueue()
 {
     boost::mutex::scoped_lock lock(RawMutex);
-    //std::cout << "GetRawQueue before lock " << std::endl;
-    while(RawQueue.empty() && mRun)
+    // std::cout << "GetRawQueue before lock " << std::endl;
+    while (RawQueue.empty() && mRun)
     {
         RawAvailable.wait(lock);
     }
@@ -95,7 +122,7 @@ std::vector< std::string > Data::GetRawQueue()
 std::vector< std::string > Data::GetModeQueue()
 {
     boost::mutex::scoped_lock lock(ModeMutex);
-    while(ModeQueue.empty() && mRun)
+    while (ModeQueue.empty() && mRun)
     {
         ModeAvailable.wait(lock);
     }
@@ -111,7 +138,7 @@ std::vector< std::string > Data::GetModeQueue()
 std::vector< std::string > Data::GetWhoisQueue()
 {
     boost::mutex::scoped_lock lock(WhoisMutex);
-    while(WhoisQueue.empty() && mRun)
+    while (WhoisQueue.empty() && mRun)
     {
         WhoisAvailable.wait(lock);
     }
@@ -127,7 +154,7 @@ std::vector< std::string > Data::GetWhoisQueue()
 std::vector< std::string > Data::GetPrivmsgQueue()
 {
     boost::mutex::scoped_lock lock(PrivmsgMutex);
-    while(PrivmsgQueue.empty() && mRun)
+    while (PrivmsgQueue.empty() && mRun)
     {
         PrivmsgAvailable.wait(lock);
     }

@@ -1,21 +1,49 @@
+//
+//
+//  @ Project : ircppbot
+//  @ File Name : ModuleBase.cpp
+//  @ Date : 4/18/2011
+//  @ Author : Gijs Kwakkel
+//
+//
+// Copyright (c) 2011 Gijs Kwakkel
+//
+// This program is free software; you can redistribute it and/or
+// modify it under the terms of the GNU General Public License
+// as published by the Free Software Foundation; either version 2
+// of the License, or (at your option) any later version.
+// This program is distributed in the hope that it will be useful,
+// but WITHOUT ANY WARRANTY; without even the implied warranty of
+// MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
+// GNU General Public License for more details.
+//
+// You should have received a copy of the GNU General Public License
+// along with this program; if not, write to the Free Software
+// Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301, USA.
+//
+
 #include "../include/core/ModuleBase.h"
+
+#include <boost/algorithm/string.hpp>
+
+#include <iostream>
+#include <sstream>
+#include <cstring>
+#include <string>
+#include <vector>
 
 #include "../include/core/Global.h"
 #include "../include/core/Database.h"
-#include <iostream>
-#include <boost/algorithm/string.hpp>
-#include <sstream>
-#include <cstring>
 
 
-//public
+// public
 ModuleBase::ModuleBase()
 {
 }
 
 
-//protected
-//irc
+// protected
+// irc
 
 void ModuleBase::overwatch(std::string bind, std::string command, std::string chan, std::string nick, std::string auth, std::vector< std::string > args)
 {
@@ -40,7 +68,7 @@ void ModuleBase::overwatch(std::string bind, std::string command, std::string ch
 
 void ModuleBase::PRIVMSG(std::vector< std::string > data, std::string trigger)
 {
-	//cout << "PRIVMSG" << endl;
+    // cout << "PRIVMSG" << endl;
     std::vector< std::string > args;
     std::string data3;
     size_t chanpos1 = std::string::npos;
@@ -60,26 +88,26 @@ void ModuleBase::PRIVMSG(std::vector< std::string > data, std::string trigger)
         boost::erase_all(data3, ":");
     }
     triggerpos = data3.substr(0, trigger.length()).find(trigger);
-	if (data3.substr(0, trigger.length()) == trigger)
-	{
-		data3 = data3.substr(trigger.length(), data3.length()-1);
-	}
+    if (data3.substr(0, trigger.length()) == trigger)
+    {
+        data3 = data3.substr(trigger.length(), data3.length()-1);
+    }
     if (data.size() >= 5)
     {
-		chanpos3 = data[4].find("#");
+        chanpos3 = data[4].find("#");
     }
     if (triggerpos != std::string::npos)
     {
-        triggertype = 1; //PRIVMSG ... :!;
+        triggertype = 1;    // PRIVMSG ... :!;
         if (data3 != "")
         {
-            if (chanpos2 != std::string::npos && chanpos3 == std::string::npos)		//chanpos1 yes/no both valid
+            if (chanpos2 != std::string::npos && chanpos3 == std::string::npos)    // chanpos1 yes/no both valid
             {
-                chantrigger = 1;   //PRIVMSG nick #chan :!#chan command   ||   PRIVMSG nick bot :!#chan command
+                chantrigger = 1;    // PRIVMSG nick #chan :!#chan command   ||   PRIVMSG nick bot :!#chan command
                 if (data.size() >= 5)
                 {
                     chan = data3;
-                    //boost::erase_all(chan, trigger);
+                    // boost::erase_all(chan, trigger);
                     if (chan != "")
                     {
                         command = data[4];
@@ -93,12 +121,12 @@ void ModuleBase::PRIVMSG(std::vector< std::string > data, std::string trigger)
             }
             else if (chanpos1 != std::string::npos && chanpos2 == std::string::npos && chanpos3 == std::string::npos)
             {
-                chantrigger = 0;    //PRIVMSG nick #chan :!command
-                //cout << "channel: triggercommand" << endl;
+                chantrigger = 0;    // PRIVMSG nick #chan :!command
+                // cout << "channel: triggercommand" << endl;
                 if (data.size() >= 4)
                 {
                     command = data3;
-                    //boost::erase_all(command, trigger);
+                    // boost::erase_all(command, trigger);
                     if (command != "")
                     {
                         chan = data[2];
@@ -112,12 +140,12 @@ void ModuleBase::PRIVMSG(std::vector< std::string > data, std::string trigger)
             }
             else if (chanpos1 == std::string::npos && chanpos2 == std::string::npos && chanpos3 == std::string::npos)
             {
-                chantrigger = -1;   //PRIVMSG nick bot :!command
+                chantrigger = -1;   // PRIVMSG nick bot :!command
                 if (data.size() >= 4)
                 {
                     command = data3;
                     chan = "NULL";
-                    //boost::erase_all(command, trigger);
+                    // boost::erase_all(command, trigger);
                     if (command != "")
                     {
                         for (unsigned int i = 4 ; i < data.size() ; i++)
@@ -128,16 +156,16 @@ void ModuleBase::PRIVMSG(std::vector< std::string > data, std::string trigger)
                     }
                 }
             }
-            else if (chanpos2 == std::string::npos && chanpos3 != std::string::npos)	//chanpos1 yes/no both valid
+            else if (chanpos2 == std::string::npos && chanpos3 != std::string::npos)    // chanpos1 yes/no both valid
             {
-                chantrigger = 0;    //PRIVMSG nick #chan :!command #chan	||		PRIVMSG nick bot :!command #chan
+                chantrigger = 0;    // PRIVMSG nick #chan :!command #chan    ||      PRIVMSG nick bot :!command #chan
                 if (data.size() >= 5)
                 {
                     command = data3;
-                    //boost::erase_all(command, trigger);
+                    // boost::erase_all(command, trigger);
                     if (command != "")
                     {
-						chan = data[4];
+                        chan = data[4];
                         for (unsigned int i = 5; i < data.size() ; i++)
                         {
                             args.push_back(data[i]);
@@ -154,7 +182,7 @@ void ModuleBase::PRIVMSG(std::vector< std::string > data, std::string trigger)
         {
             if (chanpos1 == std::string::npos && chanpos2 != std::string::npos && chanpos3 == std::string::npos)
             {
-                chantrigger = 1;   //PRIVMSG nick bot :#chan command
+                chantrigger = 1;   // PRIVMSG nick bot :#chan command
                 if (data.size() >= 5)
                 {
                     chan = data3;
@@ -168,7 +196,7 @@ void ModuleBase::PRIVMSG(std::vector< std::string > data, std::string trigger)
             }
             else if (chanpos1 == std::string::npos && chanpos2 == std::string::npos && chanpos3 != std::string::npos)
             {
-                chantrigger = 0;   //PRIVMSG nick bot :command #chan
+                chantrigger = 0;   // PRIVMSG nick bot :command #chan
                 if (data.size() >= 5)
                 {
                     chan = data[4];
@@ -182,7 +210,7 @@ void ModuleBase::PRIVMSG(std::vector< std::string > data, std::string trigger)
             }
             else if (chanpos1 == std::string::npos && chanpos2 == std::string::npos && chanpos3 == std::string::npos)
             {
-                chantrigger = -1;   //PRIVMSG nick bot :command
+                chantrigger = -1;   // PRIVMSG nick bot :command
                 if (data.size() >= 4)
                 {
                     chan == "NULL";
@@ -209,7 +237,7 @@ void ModuleBase::simulate(std::string nick, std::string auth, std::string chan, 
     {
         returnstring = "NOTICE " + nick + " :" + irc_reply("simulate_done", U.GetLanguage(nick)) + "\r\n";
         Send(returnstring);
-    	ParsePrivmsg(simulate_nick, simulate_command, chan, args, 1);
+        ParsePrivmsg(simulate_nick, simulate_command, chan, args, 1);
     }
     else
     {
@@ -236,7 +264,7 @@ bool ModuleBase::SendLowPriority(std::string data)
     return true;
 }
 
-//mysql
+// mysql
 std::vector< std::vector<std::string> > ModuleBase::RawSqlSelect(std::string data)
 {
     ConfigReaderInterface& CR = Global::Instance().get_ConfigReader();
@@ -251,7 +279,7 @@ std::vector< std::vector<std::string> > ModuleBase::RawSqlSelect(std::string dat
     int state = db->openConnection(hostname_str.c_str(), databasename_str.c_str(), username_str.c_str(), pass_str.c_str());
     if (state == 200)
     {
-        sql_result = db->sql_query( data.c_str() );
+        sql_result = db->sql_query(data.c_str());
     }
     else
     {
@@ -279,7 +307,7 @@ bool ModuleBase::RawSql(std::string data)
     int state = db->openConnection(hostname_str.c_str(), databasename_str.c_str(), username_str.c_str(), pass_str.c_str());
     if (state == 200)
     {
-        db->updateQuery( data.c_str() );
+        db->updateQuery(data.c_str());
     }
     else
     {
@@ -294,7 +322,7 @@ bool ModuleBase::RawSql(std::string data)
     return true;
 }
 
-//reply
+// reply
 std::string ModuleBase::irc_reply(std::string reply_name, std::string reply_language)
 {
     ReplyInterface& R = Global::Instance().get_Reply();
@@ -313,11 +341,11 @@ void ModuleBase::replyReload()
     R.Reload();
 }
 
-//other
+// other
 std::string ModuleBase::HostmaskToNick(std::vector<std::string> data)
 {
     std::vector< std::string > who;
-    boost::split( who, data[0], boost::is_any_of("!"), boost::token_compress_on );
+    boost::split(who, data[0], boost::is_any_of("!"), boost::token_compress_on);
     std::string nick = who[0];
     boost::erase_all(nick, ":");
     return nick;
@@ -325,7 +353,7 @@ std::string ModuleBase::HostmaskToNick(std::vector<std::string> data)
 
 std::string ModuleBase::centre(int cmdsize, unsigned int rowamount, unsigned int length)
 {
-	std::string returnstring = "";
+    std::string returnstring = "";
     for (unsigned int l = 0; l < (((length * rowamount) / 2) - cmdsize/2); l++)
     {
         returnstring = returnstring + " ";
@@ -335,11 +363,11 @@ std::string ModuleBase::centre(int cmdsize, unsigned int rowamount, unsigned int
 
 std::string ModuleBase::fillspace(std::string data, unsigned int length)
 {
-	std::string tmpstr = data;
-	for (unsigned int l = data.size(); l < length; l++)
-	{
-		tmpstr = tmpstr + " ";
-	}
+    std::string tmpstr = data;
+    for (unsigned int l = data.size(); l < length; l++)
+    {
+        tmpstr = tmpstr + " ";
+    }
     return tmpstr;
 }
 
@@ -371,15 +399,15 @@ std::vector<std::string> ModuleBase::lineout(std::vector<std::string> data, unsi
 
 std::string ModuleBase::convertInt(int number)
 {
-    std::stringstream ss;//create a stringstream
-    ss << number;//add number to the stream
-    return ss.str();//return a string with the contents of the stream
+    std::stringstream ss;
+    ss << number;
+    return ss.str();
 }
 
 int ModuleBase::convertString(std::string data)
 {
     int i;
-    std::stringstream ss(data);//create a stringstream
-    ss >> i;//add number to the stream
-    return i;//return a string with the contents of the stream
+    std::stringstream ss(data);
+    ss >> i;
+    return i;
 }
