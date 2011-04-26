@@ -1,10 +1,39 @@
+//
+//
+//  @ Project : ircppbot
+//  @ File Name : IcrData.cpp
+//  @ Date : 4/18/2011
+//  @ Author : Gijs Kwakkel
+//
+//
+// Copyright (c) 2011 Gijs Kwakkel
+//
+// This program is free software; you can redistribute it and/or
+// modify it under the terms of the GNU General Public License
+// as published by the Free Software Foundation; either version 2
+// of the License, or (at your option) any later version.
+// This program is distributed in the hope that it will be useful,
+// but WITHOUT ANY WARRANTY; without even the implied warranty of
+// MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
+// GNU General Public License for more details.
+//
+// You should have received a copy of the GNU General Public License
+// along with this program; if not, write to the Free Software
+// Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301, USA.
+//
+
 #include "../include/core/IrcData.h"
-#include "../include/core/Global.h"
+
+#include <boost/algorithm/string.hpp>
+#include <boost/algorithm/string/trim.hpp>
 
 #include <iostream>
 #include <sstream>
-#include <boost/algorithm/string.hpp>
-#include <boost/algorithm/string/trim.hpp>
+#include <vector>
+#include <string>
+
+#include "../include/core/Global.h"
+
 
 IrcData::IrcData()
 {
@@ -55,8 +84,8 @@ void IrcData::stop()
 
 void IrcData::init(IrcSocketInterface *s)
 {
-    //delete S;
-    S=s;
+    // delete S;
+    S = s;
     while (!HighPrioritySendQueue.empty())
     {
         HighPrioritySendQueue.pop();
@@ -95,7 +124,7 @@ void IrcData::init(IrcSocketInterface *s)
 
 void IrcData::AddConsumer(DataInterface *d)
 {
-    //Consumers.push_back(d);
+    // Consumers.push_back(d);
     if (d->GetRaw() == true)
     {
         RawConsumers.push_back(d);
@@ -120,40 +149,40 @@ void IrcData::DelConsumer(DataInterface *d)
     std::cout << "RawConsumers.size() " << RawConsumers.size() << std::endl;
     for (consumer_iterator = RawConsumers.size(); consumer_iterator > 0; consumer_iterator--)
     {
-		std::cout << "consumer_iterator " << consumer_iterator-1 << std::endl;
+        std::cout << "consumer_iterator " << consumer_iterator-1 << std::endl;
         if (RawConsumers[consumer_iterator-1] == d)
         {
-        	std::cout << "consumer removed" << std::endl;
+            std::cout << "consumer removed" << std::endl;
             RawConsumers.erase(RawConsumers.begin() + consumer_iterator-1);
         }
     }
     std::cout << "ModeConsumers.size() " << ModeConsumers.size() << std::endl;
     for (consumer_iterator = ModeConsumers.size(); consumer_iterator > 0; consumer_iterator--)
     {
-		std::cout << "consumer_iterator " << consumer_iterator-1 << std::endl;
+        std::cout << "consumer_iterator " << consumer_iterator-1 << std::endl;
         if (ModeConsumers[consumer_iterator-1] == d)
         {
-        	std::cout << "consumer removed" << std::endl;
+            std::cout << "consumer removed" << std::endl;
             ModeConsumers.erase(ModeConsumers.begin() + consumer_iterator-1);
         }
     }
     std::cout << "WhoisConsumers.size() " << WhoisConsumers.size() << std::endl;
     for (consumer_iterator = WhoisConsumers.size(); consumer_iterator > 0; consumer_iterator--)
     {
-		std::cout << "consumer_iterator " << consumer_iterator-1 << std::endl;
+        std::cout << "consumer_iterator " << consumer_iterator-1 << std::endl;
         if (WhoisConsumers[consumer_iterator-1] == d)
         {
-        	std::cout << "consumer removed" << std::endl;
+            std::cout << "consumer removed" << std::endl;
             WhoisConsumers.erase(WhoisConsumers.begin() + consumer_iterator-1);
         }
     }
     std::cout << "PrivmsgConsumers.size() " << PrivmsgConsumers.size() << std::endl;
     for (consumer_iterator = PrivmsgConsumers.size(); consumer_iterator > 0; consumer_iterator--)
     {
-		std::cout << "consumer_iterator " << consumer_iterator-1 << std::endl;
+        std::cout << "consumer_iterator " << consumer_iterator-1 << std::endl;
         if (PrivmsgConsumers[consumer_iterator-1] == d)
         {
-        	std::cout << "consumer removed" << std::endl;
+            std::cout << "consumer removed" << std::endl;
             PrivmsgConsumers.erase(PrivmsgConsumers.begin() + consumer_iterator-1);
         }
     }
@@ -190,10 +219,10 @@ void IrcData::AddLowPrioritySendQueue(std::string data)
     SendAvailable.notify_one();
 }
 
-//private
+// private
 void IrcData::sendloop()
 {
-    while(send==true)
+    while (send == true)
     {
         Send();
     }
@@ -202,7 +231,7 @@ void IrcData::sendloop()
 
 void IrcData::recvloop()
 {
-    while(recv==true)
+    while (recv == true)
     {
         Recv();
     }
@@ -217,22 +246,22 @@ void IrcData::Send()
         if (floodprotect)
         {
             boost::mutex::scoped_lock lock(floodmutex);
-            while(buffer <= 0)
+            while (buffer <= 0)
             {
                 floodcondition.wait(lock);
             }
             data = GetSendQueue();
             std::cout << ">> " << data;
-            //try
+            // try
             {
                 if (send)
                 {
-					if (boost::iequals(Global::Instance().get_ConfigReader().GetString("chandebug"), "true"))
-					{
-						std::string tmpdata = "PRIVMSG " + Global::Instance().get_ConfigReader().GetString("debugchannel") + " :" + data;
-						S->Send(tmpdata);
-					}
-					buffer--;
+                    if (boost::iequals(Global::Instance().get_ConfigReader().GetString("chandebug"), "true"))
+                    {
+                        std::string tmpdata = "PRIVMSG " + Global::Instance().get_ConfigReader().GetString("debugchannel") + " :" + data;
+                        S->Send(tmpdata);
+                    }
+                    buffer--;
                     S->Send(data);
                 }
             }
@@ -245,15 +274,15 @@ void IrcData::Send()
         {
             data = GetSendQueue();
             std::cout << ">> " << data;
-            //try
+            // try
             {
                 if (send)
                 {
-					if (boost::iequals(Global::Instance().get_ConfigReader().GetString("chandebug"), "true"))
-					{
-						std::string tmpdata = "PRIVMSG " + Global::Instance().get_ConfigReader().GetString("debugchannel") + " :" + data;
-						S->Send(tmpdata);
-					}
+                    if (boost::iequals(Global::Instance().get_ConfigReader().GetString("chandebug"), "true"))
+                    {
+                        std::string tmpdata = "PRIVMSG " + Global::Instance().get_ConfigReader().GetString("debugchannel") + " :" + data;
+                        S->Send(tmpdata);
+                    }
                     S->Send(data);
                 }
             }
@@ -283,7 +312,7 @@ std::string IrcData::GetSendQueue()
 {
     boost::mutex::scoped_lock lock(SendMutex);
     std::string temp = "";
-    while(HighPrioritySendQueue.empty() && SendQueue.empty() && LowPrioritySendQueue.empty() && send == true)
+    while (HighPrioritySendQueue.empty() && SendQueue.empty() && LowPrioritySendQueue.empty() && send == true)
     {
         SendAvailable.wait(lock);
     }
@@ -315,7 +344,7 @@ std::string IrcData::GetRecvQueue()
 {
     boost::mutex::scoped_lock lock(RecvMutex);
     std::string temp = "";
-    while(RecvQueue.empty() && recv == true)
+    while (RecvQueue.empty() && recv == true)
     {
         RecvAvailable.wait(lock);
     }
@@ -336,21 +365,21 @@ void IrcData::AddRecvQueue(std::string data)
 
 void IrcData::Parse()
 {
-    while(parse)
+    while (parse)
     {
         std::string data;
         std::vector< std::string > result;
         data = GetRecvQueue();
         boost::algorithm::trim(data);
-        boost::split( result, data, boost::is_any_of(" "), boost::token_compress_on );
-		if (result.size() == 2)
-		{
-			if (result[0] == "PING")      //PING
-			{
-				std::string returnstr = "PONG " + result[1] + "\r\n";
-				AddHighPrioritySendQueue(returnstr);
-			}
-		}
+        boost::split(result, data, boost::is_any_of(" "), boost::token_compress_on);
+        if (result.size() == 2)
+        {
+            if (result[0] == "PING")      // PING
+            {
+                std::string returnstr = "PONG " + result[1] + "\r\n";
+                AddHighPrioritySendQueue(returnstr);
+            }
+        }
         unsigned int consumer_iterator;
         for (consumer_iterator = 0; consumer_iterator < RawConsumers.size(); consumer_iterator++)
         {
@@ -358,15 +387,15 @@ void IrcData::Parse()
         }
         for (consumer_iterator = 0; consumer_iterator < ModeConsumers.size(); consumer_iterator++)
         {
-            //ModeConsumers[consumer_iterator]->AddModeQueue(result);
+            // ModeConsumers[consumer_iterator]->AddModeQueue(result);
         }
         for (consumer_iterator = 0; consumer_iterator < WhoisConsumers.size(); consumer_iterator++)
         {
-            //WhoisConsumers[consumer_iterator]->AddWhoisQueue(result);
+            // WhoisConsumers[consumer_iterator]->AddWhoisQueue(result);
         }
         if (result.size() >= 4)
         {
-            if (result[1] == "PRIVMSG")   //PRIVMSG
+            if (result[1] == "PRIVMSG")   // PRIVMSG
             {
                 for (consumer_iterator = 0; consumer_iterator < PrivmsgConsumers.size(); consumer_iterator++)
                 {
@@ -379,7 +408,7 @@ void IrcData::Parse()
 
 void IrcData::flood_timer()
 {
-    while(send)
+    while (send)
     {
         if (buffer < floodbuffer)
         {

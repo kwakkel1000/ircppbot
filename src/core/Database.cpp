@@ -1,7 +1,33 @@
+//
+//
+//  @ Project : ircppbot
+//  @ File Name : Database.cpp
+//  @ Date : 4/18/2011
+//  @ Author : Gijs Kwakkel
+//
+//
+// Copyright (c) 2011 Gijs Kwakkel
+//
+// This program is free software; you can redistribute it and/or
+// modify it under the terms of the GNU General Public License
+// as published by the Free Software Foundation; either version 2
+// of the License, or (at your option) any later version.
+// This program is distributed in the hope that it will be useful,
+// but WITHOUT ANY WARRANTY; without even the implied warranty of
+// MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
+// GNU General Public License for more details.
+//
+// You should have received a copy of the GNU General Public License
+// along with this program; if not, write to the Free Software
+// Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301, USA.
+//
+
 #include <iostream>
 #include <cstddef>
 #include <cstring>
 #include <sstream>
+#include <string>
+#include <vector>
 /**************
 * File Name: database.cpp
 * Author: Jade@design1online.com
@@ -15,7 +41,7 @@
 **************/
 database::database()
 {
-    //initilize the mysql fields
+    // initilize the mysql fields
     sock = NULL;
     row = NULL;
     result = NULL;
@@ -29,21 +55,21 @@ database::database()
 **************/
 int database::openConnection(const char *host, const char *db, const char *user, const char *pass)
 {
-    if (sock) //already connected to another database
-        disconnect(); //disconnect from that one
+    if (sock)  // already connected to another database
+        disconnect();  // disconnect from that one
 
-    //initilize the socket
+    // initilize the socket
     sock = mysql_init(0);
 
-    //something went wrong with the socket
+    // something went wrong with the socket
     if (!sock)
         return ERR201;
 
-    //try connecting to the database
+    // try connecting to the database
     if (!mysql_real_connect(sock, host, user, pass, db, 0, NULL, 0))
         return ERR202;
 
-    //successfully connected to the database
+    // successfully connected to the database
     return SUCCESS;
 }
 
@@ -54,15 +80,15 @@ int database::openConnection(const char *host, const char *db, const char *user,
 **************/
 bool database::disconnect()
 {
-    if (sock) //they have a socket open
+    if (sock)  // they have a socket open
         mysql_close(sock);
 
-	sock = NULL;
+    sock = NULL;
 
-    //release result data
+    // release result data
     free();
 
-    //database disconnected
+    // database disconnected
     return true;
 }
 
@@ -71,11 +97,11 @@ bool database::disconnect()
 ************/
 bool database::connected()
 {
-	if(sock)
-	{
-		return true;
-	}
-	return false;
+    if (sock)
+    {
+        return true;
+    }
+    return false;
 }
 
 
@@ -106,8 +132,8 @@ static std::string e202_str = "202 CONNECTION ERROR: CANNOT ACCESS THE SERVER";
 static std::string e203_str = "203 DATABASE ERROR: QUERY FAILED";
 const char *dberror(int errorcode)
 {
-    //display the appropriate error message for this error
-    switch(errorcode)
+    // display the appropriate error message for this error
+    switch (errorcode)
     {
         case SUCCESS: return suc_str.c_str();
         break;
@@ -122,7 +148,7 @@ const char *dberror(int errorcode)
         break;
     }
 
-    return NULL; //no error, return null char
+    return NULL;  // no error, return null char
 }
 
 /**************
@@ -132,10 +158,10 @@ const char *dberror(int errorcode)
 **************/
 MYSQL_RES *database::query(const char *query)
 {
-    //query the database
+    // query the database
     mysql_query(sock, query);
 
-    //store the results
+    // store the results
     result = mysql_store_result(sock);
 
     return result;
@@ -144,7 +170,7 @@ MYSQL_RES *database::query(const char *query)
 std::vector< std::vector< std::string > > database::sql_query(const char* sql_string)
 {
     std::vector< std::vector< std::string > > sql_result;
-    int query_state = mysql_query(sock, sql_string );
+    int query_state = mysql_query(sock, sql_string);
     if (!query_state)
     {
         result = mysql_store_result(sock);
@@ -154,7 +180,7 @@ std::vector< std::vector< std::string > > database::sql_query(const char* sql_st
         while ( ( row = mysql_fetch_row(result)) != NULL )
         {
             std::vector< std::string > tmp;
-            for (i=0; i < num_fields; i++)
+            for (i = 0; i < num_fields; i++)
             {
                 if (row[i] != NULL)
                 {
@@ -187,9 +213,9 @@ std::vector< std::vector< std::string > > database::sql_query(const char* sql_st
 bool database::updateQuery(const char *query)
 {
     if (!mysql_query(sock, query))
-        return 0; //failed query
+        return 0;  // failed query
     else
-        return 1; //successful query
+        return 1;  // successful query
 }
 
 /**************
@@ -200,25 +226,25 @@ bool database::updateQuery(const char *query)
 **************/
 char *database::stringQuery(const char *query)
 {
-    //if old results exist, free them
-    //free();
+    // if old results exist, free them
+    // free();
 
-    //query the database
-    mysql_query(sock,query);
+    // query the database
+    mysql_query(sock, query);
 
-    //store the results
+    // store the results
     result = mysql_store_result(sock);
 
     if (!result)
-        return NULL; //no results
+        return NULL;  // no results
 
-    //fetch the row
+    // fetch the row
     row = mysql_fetch_row(result);
 
-    //store the result & convert it to a number
+    // store the result & convert it to a number
     char *stringResult = row[0];
 
-    //free the results
+    // free the results
     free();
 
     return stringResult;
@@ -232,26 +258,26 @@ char *database::stringQuery(const char *query)
 **************/
 int database::intQuery(const char *query)
 {
-    //query the database
-    mysql_query(sock,query);
+    // query the database
+    mysql_query(sock, query);
 
-    //store the results
+    // store the results
     result = mysql_store_result(sock);
 
     if (!result)
-        return -1; //no results
+        return -1;  // no results
 
-    //fetch the row
+    // fetch the row
     row = mysql_fetch_row(result);
 
-    //store the result & convert it to a number
-    //int id = atoi(row[0]);
+    // store the result & convert it to a number
+    // int id = atoi(row[0]);
     int id = convertString(row[0]);
 
-    //free the results
+    // free the results
     free();
 
-    return id; //return the id number
+    return id;  // return the id number
 }
 
 /**************
@@ -262,10 +288,10 @@ int database::intQuery(const char *query)
 **************/
 bool database::boolQuery(const char *query)
 {
-    //query the database
+    // query the database
     mysql_query(sock, query);
 
-    //store the results
+    // store the results
     result = mysql_store_result(sock);
 
     return (bool)row[0];
@@ -274,7 +300,7 @@ bool database::boolQuery(const char *query)
 int database::convertString(std::string data)
 {
     int i;
-    std::stringstream ss(data);//create a stringstream
-    ss >> i;//add number to the stream
-    return i;//return a string with the contents of the stream
+    std::stringstream ss(data);
+    ss >> i;
+    return i;
 }

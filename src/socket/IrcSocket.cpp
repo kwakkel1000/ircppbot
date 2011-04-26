@@ -1,3 +1,28 @@
+//
+//
+//  @ Project : ircppbot
+//  @ File Name : IrcSocket.cpp
+//  @ Date : 4/18/2011
+//  @ Author : Gijs Kwakkel
+//
+//
+// Copyright (c) 2011 Gijs Kwakkel
+//
+// This program is free software; you can redistribute it and/or
+// modify it under the terms of the GNU General Public License
+// as published by the Free Software Foundation; either version 2
+// of the License, or (at your option) any later version.
+// This program is distributed in the hope that it will be useful,
+// but WITHOUT ANY WARRANTY; without even the implied warranty of
+// MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
+// GNU General Public License for more details.
+//
+// You should have received a copy of the GNU General Public License
+// along with this program; if not, write to the Free Software
+// Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301, USA.
+//
+
+
 #include "../include/socket/IrcSocket.h"
 
 #include <unistd.h>
@@ -8,8 +33,9 @@
 #include <sys/types.h>
 #include <errno.h>
 #include <fcntl.h>
+#include <string.h>  // for memset and bzero
 
-#include <string.h> // for memset and bzero
+#include <string>
 
 IrcSocket::IrcSocket()
 {
@@ -24,14 +50,14 @@ IrcSocket::~IrcSocket()
 // Note: pass connection data here. not in constructor :+
 void IrcSocket::Connect(std::string host, std::string service)
 {
-    if(m_socket)
+    if (m_socket)
     {
         Disconnect();
     }
 
     struct addrinfo *res, *aip;
     struct addrinfo hints;
-    //int sock = -1;
+    // int sock = -1;
     int error;
 
     // Get host address. Any type of address will do
@@ -88,7 +114,7 @@ void IrcSocket::Connect(std::string host, std::string service)
             m_port = port;
             */
 
-            break; // break out of for loop, because we managed to connect!
+            break;  // break out of for loop, because we managed to connect!
         }
     }
 
@@ -103,7 +129,7 @@ void IrcSocket::Connect(std::string host, std::string service)
 
 void IrcSocket::Disconnect()
 {
-    if(m_socket)
+    if (m_socket)
     {
         close(m_socket);
         m_socket = 0;
@@ -125,24 +151,24 @@ void IrcSocket::Send(const std::string data)
 
 void IrcSocket::Recv(std::string& data)
 {
-    static const int buffersize( 64 );
+    static const int buffersize(64);
     static char buffer[buffersize];
     static int length;
-    memset( buffer, '\0', buffersize );
+    memset(buffer, '\0', buffersize);
     length = 0;
     data = "";
 
     char c = '\0';
-    while((c != '\n') && (length < buffersize))
+    while ((c != '\n') && (length < buffersize))
     {
-    	int num_of_bytes = recv(m_socket, &c, sizeof(char), 0);
+        int num_of_bytes = recv(m_socket, &c, sizeof(char), 0);
         if (!num_of_bytes)
         {
             Disconnect();
             throw Exception("Connection lost", errno);
         }
 
-        if (c != '\r' && c != '\n') // This will not work when sending non-ascii data
+        if (c != '\r' && c != '\n')  // This will not work when sending non-ascii data
         {
             buffer[length] = c;
             length++;
@@ -151,7 +177,7 @@ void IrcSocket::Recv(std::string& data)
             if (length == buffersize-1)
             {
                 data += std::string(buffer);
-                memset( buffer, '\0', buffersize );
+                memset(buffer, '\0', buffersize);
                 length = 0;
             }
         }
@@ -164,25 +190,23 @@ void IrcSocket::Recv(std::string& data)
 }
 
 
-void IrcSocket::set_non_blocking ( const bool b )
+void IrcSocket::set_non_blocking(const bool b)
 {
+    int opts;
 
-  int opts;
+    opts = fcntl(m_socket, F_GETFL);
 
-  opts = fcntl ( m_socket,
-		 F_GETFL );
-
-  if ( opts < 0 )
+    if (opts < 0)
     {
-      return;
+        return;
     }
-
-  if ( b )
-    opts = ( opts | O_NONBLOCK );
-  else
-    opts = ( opts & ~O_NONBLOCK );
-
-  fcntl ( m_socket,
-	  F_SETFL,opts );
-
+    if (b )
+    {
+        opts = (opts | O_NONBLOCK);
+    }
+    else
+    {
+        opts = (opts & ~O_NONBLOCK);
+    }
+    fcntl(m_socket, F_SETFL, opts);
 }

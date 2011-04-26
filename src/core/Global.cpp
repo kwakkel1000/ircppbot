@@ -1,18 +1,44 @@
+//
+//
+//  @ Project : ircppbot
+//  @ File Name : Global.cpp
+//  @ Date : 4/18/2011
+//  @ Author : Gijs Kwakkel
+//
+//
+// Copyright (c) 2011 Gijs Kwakkel
+//
+// This program is free software; you can redistribute it and/or
+// modify it under the terms of the GNU General Public License
+// as published by the Free Software Foundation; either version 2
+// of the License, or (at your option) any later version.
+// This program is distributed in the hope that it will be useful,
+// but WITHOUT ANY WARRANTY; without even the implied warranty of
+// MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
+// GNU General Public License for more details.
+//
+// You should have received a copy of the GNU General Public License
+// along with this program; if not, write to the Free Software
+// Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301, USA.
+//
+
+
 #include "../include/core/Global.h"
 #include <iostream>
+#include <string>
 
 
 void Global::delete_all()
 {
     std::cout << "void Global::delete_all()" << std::endl;
-    //m_IrcData->stop();
-    //std::cout << "m_IrcData->stop();" << std::endl;
+    // m_IrcData->stop();
+    // std::cout << "m_IrcData->stop();" << std::endl;
     delete m_Users;
     std::cout << "m_Users deleted" << std::endl;
     delete m_Channels;
     std::cout << "m_Channels deleted" << std::endl;
-    //delete m_IrcData;
-    //std::cout << "m_IrcData deleted" << std::endl;
+    // delete m_IrcData;
+    // std::cout << "m_IrcData deleted" << std::endl;
     delete m_Reply;
     std::cout << "m_Reply deleted" << std::endl;
     delete m_ConfigReader;
