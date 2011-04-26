@@ -76,7 +76,6 @@ void DatabaseData::DatabaseInit()
 
 void DatabaseData::AddBinds(std::string mBindName)
 {
-    boost::to_lower(mBindName);
     std::vector< std::vector< std::string > > tmp_bind_vector;
     std::string sql_string = "select command, bind, access from " + mBindName + ";";
     tmp_bind_vector = RawSqlSelect(sql_string);
@@ -84,6 +83,7 @@ void DatabaseData::AddBinds(std::string mBindName)
     std::vector<  std::string > tmp_binds_vector;
     std::string tmp_bind_bind;
     std::string tmp_bind_command;
+    boost::to_lower(mBindName);
     unsigned int i;
     for (i = 0 ; i < tmp_bind_vector.size() ; i++)
     {
