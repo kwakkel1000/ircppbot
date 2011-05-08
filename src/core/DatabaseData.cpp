@@ -74,6 +74,8 @@ void DatabaseData::DatabaseInit()
     mRun = true;
 }
 
+// deprecated becomes LoadBinds()
+// command will be base.command split on first .
 void DatabaseData::AddBinds(std::string mBindName)
 {
     std::vector< std::vector< std::string > > tmp_bind_vector;

@@ -67,6 +67,7 @@ class ModuleBase : public ModuleInterface
         std::vector< std::string > lineout(std::vector<std::string> data, unsigned int rowamount, unsigned int length);
         std::string convertInt(int number);
         int convertString(std::string data);
+        std::vector< int > VectorTimeFromSecondsTime(int _time);
 };
 
 #endif  // SRC_INCLUDE_CORE_MODULEBASE_H_
