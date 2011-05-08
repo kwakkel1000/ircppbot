@@ -54,6 +54,15 @@ bool Global::get_Run()
     return m_Run;
 }
 
+void Global::set_StartTime(int _Time)
+{
+    m_Time = _Time;
+}
+int Global::get_StartTime()
+{
+    return m_Time;
+}
+
 void Global::set_BotNick(std::string _BotNick)
 {
     m_BotNick = _BotNick;

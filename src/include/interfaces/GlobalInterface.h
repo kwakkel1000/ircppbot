@@ -18,6 +18,9 @@ class GlobalInterface {
         virtual void set_Run(bool _Run)=0;
         virtual bool get_Run()=0;
 
+        virtual void set_StartTime(int _Time)=0;
+        virtual int get_StartTime()=0;
+
         virtual void set_BotNick(std::string _BotNick)=0;
         virtual std::string get_BotNick()=0;
 

@@ -73,6 +73,8 @@ Bot::~Bot()
 
 void Bot::Init(std::string configfile)
 {
+    time_t t= time(0);
+    Global::Instance().set_StartTime(t);
     Global::Instance().set_ConfigReader(new ConfigReader());
     Global::Instance().set_ConfigFile(configfile);
     Global::Instance().get_ConfigReader().ClearSettings();

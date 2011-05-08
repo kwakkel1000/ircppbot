@@ -53,6 +53,9 @@ class Global
         virtual void set_Run(bool _Run);
         virtual bool get_Run();
 
+        virtual void set_StartTime(int _Time);
+        virtual int get_StartTime();
+
         virtual void set_BotNick(std::string _BotNick);
         virtual std::string get_BotNick();
 
@@ -80,6 +83,7 @@ class Global
 
         bool m_Run;
 
+		int m_Time;
         std::string m_BotNick;
         std::string m_ConfigFile;
         UsersInterface* m_Users;
