@@ -351,7 +351,7 @@ void Bot::ConsoleRun()
     while (true)
     {
         std::string input_string;
-        std::cin.get() >> input_string;
+        std::cin >> input_string;
         std::vector< std::string > split_data;
         std::vector< std::string > args;
         std::string command;
