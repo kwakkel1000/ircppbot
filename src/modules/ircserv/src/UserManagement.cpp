@@ -5,6 +5,7 @@
 #include <interfaces/ConfigReaderInterface.h>
 #include <core/DatabaseData.h>
 #include <core/Global.h>
+#include <core/Output.h>
 #include <core/Data.h>
 
 #include <boost/algorithm/string.hpp>
@@ -15,7 +16,7 @@
 #include <algorithm>
 #include <sstream>
 #include <cstring>
-
+#include <map>
 
 const char addchar    = '+';
 const char remchar    = '-';
@@ -367,6 +368,15 @@ void UserManagement::JOIN(std::vector< std::string > data)
         {
             std::string whoisstring = "WHOIS " + nick + "\r\n";
             Send(whoisstring);
+			std::string outputString = "NoWhoisUsers insert:  nick " + nick + " channel " + chan;
+			Output::Instance().addOutput(outputString, 4);
+			NoWhoisUsers.insert( std::pair< std::string, std::string >(nick, chan) );
+        }
+        else
+        {
+			std::string outputString = "WhoisUsers insert:  nick " + nick + " channel " + chan;
+			Output::Instance().addOutput(outputString, 4);
+			WhoisUsers.insert( std::pair< std::string, std::string >(nick, chan) );
         }
     }
 }
@@ -388,7 +398,8 @@ void UserManagement::PART(std::vector< std::string > data)
             C.DelNick(chan, chanusers[i]);
             if (U.GetChannels(chanusers[i])[0] == "NULL")
             {
-                std::cout << "no channels left " << chanusers[i] << std::endl;
+            	std::string outputString = "no channels left " + chanusers[i];
+            	Output::Instance().addOutput(outputString, 4);
                 U.DelUser(chanusers[i]);
             }
         }
@@ -400,7 +411,8 @@ void UserManagement::PART(std::vector< std::string > data)
         U.DelChannel(nick, chan);
         if (U.GetChannels(nick)[0] == "NULL")
         {
-            std::cout << "no channels left" << std::endl;
+			std::string outputString = "no channels left";
+			Output::Instance().addOutput(outputString, 4);
             U.DelUser(nick);
         }
         //cout << "PART" << endl;
@@ -569,13 +581,26 @@ void UserManagement::UserAuth(std::string mNick, std::string mAuth)
 		std::stringstream ss;
 		ss << uuid;
 		std::string UserUuid = ss.str();
-		std::cout << "UserUuid: " << UserUuid << std::endl;
+		std::string outputString;
+		outputString = "UserUuid " + UserUuid;
+		Output::Instance().addOutput(outputString, 4);
+		// std::cout << "UserUuid: " << UserUuid << std::endl;
         DatabaseData::Instance().AddAuth(UserUuid, mAuth);
     }
     std::vector< std::string > userchannels = U.GetChannels(mNick);
     if (boost::iequals(userchannels[0], "NULL") == false)
     {
         GetUserInfo(mNick);
+
+		std::multimap< std::string, std::string>::iterator it;
+		for ( it=NoWhoisUsers.begin() ; it != NoWhoisUsers.end(); it++ )
+		{
+			WhoisUsers.insert( std::pair< std::string, std::string >((*it).first, (*it).second) );
+			std::string outputString;
+			outputString = "user " + (*it).first + " channel " + (*it).second;
+			Output::Instance().addOutput(outputString, 4);
+		}
+		NoWhoisUsers.erase (mNick);
     }
     else
     {

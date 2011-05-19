@@ -27,3 +27,7 @@
 #include <iostream>
 #include <string>
 
+void Output::addOutput(std::string output, int level)
+{
+	std::cout << output << std::endl;
+}

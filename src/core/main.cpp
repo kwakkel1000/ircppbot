@@ -104,7 +104,7 @@ int main(int argc, char *argv[])
     SetupSIGSEGVSignal();
     SetupSIGTERMSignal();
     std::string inifile = "NULL";
-    inifile = "conf/trantweak.ini";
+    inifile = "conf/tree.ini";
     bool ineedroot = false;
 
     std::vector< std::string > args;

@@ -5,6 +5,7 @@
 #include <interfaces/DataInterface.h>
 #include <string>
 #include <vector>
+#include <map>
 #include <boost/thread/thread.hpp>
 #include <boost/shared_ptr.hpp>
 
@@ -50,6 +51,9 @@ private:
 
     void parse_raw();
     boost::shared_ptr<boost::thread> raw_parse_thread;
+
+	std::multimap< std::string, std::string > NoWhoisUsers;
+	std::multimap< std::string, std::string > WhoisUsers;
 };
 
 

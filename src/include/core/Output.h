@@ -37,8 +37,7 @@ class Output
             return obj;
         }
 
-        virtual void set_Run(bool _Run);
-        virtual bool get_Run();
+        virtual void addOutput(std::string output, int level);
 
     private:
         Output() {}
