@@ -52,8 +52,9 @@ class WhoisDataContainer : public WhoisDataContainerInterface
         // vars
         bool mRun;
 
-        // irc data queues
-        std::multimap< std::string, std::string > WhoisQueue;
+        // data queues
+        // std::multimap< std::string, std::string > WhoisQueue;
+        std::queue< std::pair< std::string, std::string > > WhoisQueue;
 
         // threadvars
         boost::condition WhoisAvailable;
