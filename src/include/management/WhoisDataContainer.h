@@ -30,12 +30,13 @@
 #include <boost/thread/thread.hpp>
 #include <boost/thread/mutex.hpp>
 #include <boost/shared_ptr.hpp>
+#include "../interfaces/WhoisDataContainerInterface.h"
 
 #include <queue>
 #include <string>
 #include <map>
 
-class WhoisDataContainer
+class WhoisDataContainer : public WhoisDataContainerInterface
 {
     public:
         // functions
