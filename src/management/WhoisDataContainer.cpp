@@ -57,8 +57,8 @@ void WhoisDataContainer::stop()
 void WhoisDataContainer::AddWhoisQueue(std::pair< std::string, std::string > data)
 {
     boost::mutex::scoped_lock lock(WhoisMutex);
-    //WhoisQueue.insert(data);
     WhoisQueue.push(data);
+    std::cout << "AddWhoisQueue nick " << data.first << " channel " << data.second << std::endl;
     WhoisAvailable.notify_one();
 }
 
@@ -70,8 +70,7 @@ std::pair< std::string, std::string > WhoisDataContainer::GetWhoisQueue()
     while (WhoisQueue.empty() && mRun)
     {
     	std::cout << "WhoisDataContainer lock" << std::endl;
-    	usleep(1000000);
-        //WhoisAvailable.wait(lock);
+        WhoisAvailable.wait(lock);
     }
     std::cout << "WhoisDataContainer unlock" << std::endl;
     if (!WhoisQueue.empty())
@@ -80,10 +79,6 @@ std::pair< std::string, std::string > WhoisDataContainer::GetWhoisQueue()
 		std::pair< std::string, std::string > temp;
 		temp = WhoisQueue.front();
         WhoisQueue.pop();
-		/*std::multimap< std::string, std::string>::iterator it;
-		it=WhoisQueue.begin();
-        temp = std::pair< std::string, std::string >((*it).first, (*it).second);
-        WhoisQueue.erase(it);*/
         return temp;
     }
     return std::pair< std::string, std::string >("", "");
