@@ -70,7 +70,8 @@ std::pair< std::string, std::string > WhoisDataContainer::GetWhoisQueue()
     while (WhoisQueue.empty() && mRun)
     {
     	std::cout << "WhoisDataContainer lock" << std::endl;
-        WhoisAvailable.wait(lock);
+    	usleep(1000000);
+        //WhoisAvailable.wait(lock);
     }
     std::cout << "WhoisDataContainer unlock" << std::endl;
     if (!WhoisQueue.empty())
