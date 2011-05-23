@@ -369,16 +369,19 @@ void UserManagement::JOIN(std::vector< std::string > data)
         {
             std::string whoisstring = "WHOIS " + nick + "\r\n";
             Send(whoisstring);
-			std::string outputString = "NoWhoisUsers insert:  nick " + nick + " channel " + chan;
-			Output::Instance().addOutput(outputString, 4);
-			NoWhoisUsers.insert( std::pair< std::string, std::string >(nick, chan) );
         }
-        else
+        if (U.GetAuth(nick) != "NULL")
         {
 			std::string outputString = "WhoisUsers insert:  nick " + nick + " channel " + chan;
 			Output::Instance().addOutput(outputString, 4);
 			//WhoisUsers.insert( std::pair< std::string, std::string >(nick, chan) );
 			Whois::Instance().AddQueue(std::pair< std::string, std::string >(nick, chan));
+        }
+        else
+        {
+			std::string outputString = "NoWhoisUsers insert:  nick " + nick + " channel " + chan;
+			Output::Instance().addOutput(outputString, 4);
+			NoWhoisUsers.insert( std::pair< std::string, std::string >(nick, chan) );
         }
     }
 }

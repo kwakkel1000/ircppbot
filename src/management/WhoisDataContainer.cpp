@@ -56,7 +56,7 @@ void WhoisDataContainer::stop()
 
 void WhoisDataContainer::AddWhoisQueue(std::pair< std::string, std::string > data)
 {
-    //boost::mutex::scoped_lock lock(WhoisMutex);
+    boost::mutex::scoped_lock lock(WhoisMutex);
     //WhoisQueue.insert(data);
     WhoisQueue.push(data);
     WhoisAvailable.notify_one();
