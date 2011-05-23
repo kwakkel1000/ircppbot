@@ -22,6 +22,7 @@ core_objects 		= \
 	$(COREDIR)Database.o $(COREDIR)DatabaseData.o \
 	$(COREDIR)ConfigReader.o $(COREDIR)Global.o $(COREDIR)Reply.o $(COREDIR)ModuleBase.o
 management_objects 	= \
+	$(MANAGEMENTDIR)Whois.o $(MANAGEMENTDIR)WhoisDataContainer.o \
 	$(MANAGEMENTDIR)ChannelAuth.o \
 	$(MANAGEMENTDIR)Channels.o $(MANAGEMENTDIR)Channel.o \
 	$(MANAGEMENTDIR)Users.o $(MANAGEMENTDIR)User.o

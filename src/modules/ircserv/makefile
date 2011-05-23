@@ -14,7 +14,7 @@ Release: all
 all: default
 
 
-$(OUTPUT): $(SRC_DIR)$(OBJECTS)
+$(OUTPUT): $(SRC_DIR)$(MODULE_NAME).o
 	$(CXX_LINK) -o $(LIB_DIR)$@ $(OBJECTS) $(LIBRARIES)
 
 cleanDebug: clean

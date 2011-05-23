@@ -35,6 +35,7 @@
 #include "../include/core/ConfigReader.h"
 #include "../include/core/IrcData.h"
 #include "../include/core/Global.h"
+#include "../include/core/Output.h"
 #include "../include/core/DatabaseData.h"
 #include "../include/core/Reply.h"
 #include "../include/core/Data.h"

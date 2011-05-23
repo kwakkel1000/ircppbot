@@ -7,6 +7,7 @@
 #include <core/Global.h>
 #include <core/Output.h>
 #include <core/Data.h>
+#include <management/Whois.h>
 
 #include <boost/algorithm/string.hpp>
 #include <boost/uuid/uuid.hpp>            // uuid class
@@ -376,7 +377,8 @@ void UserManagement::JOIN(std::vector< std::string > data)
         {
 			std::string outputString = "WhoisUsers insert:  nick " + nick + " channel " + chan;
 			Output::Instance().addOutput(outputString, 4);
-			WhoisUsers.insert( std::pair< std::string, std::string >(nick, chan) );
+			//WhoisUsers.insert( std::pair< std::string, std::string >(nick, chan) );
+			Whois::Instance().AddQueue(std::pair< std::string, std::string >(nick, chan));
         }
     }
 }
@@ -595,7 +597,8 @@ void UserManagement::UserAuth(std::string mNick, std::string mAuth)
 		std::multimap< std::string, std::string>::iterator it;
 		for ( it=NoWhoisUsers.begin() ; it != NoWhoisUsers.end(); it++ )
 		{
-			WhoisUsers.insert( std::pair< std::string, std::string >((*it).first, (*it).second) );
+			//WhoisUsers.insert( std::pair< std::string, std::string >((*it).first, (*it).second) );
+			Whois::Instance().AddQueue(std::pair< std::string, std::string >((*it).first, (*it).second));
 			std::string outputString;
 			outputString = "user " + (*it).first + " channel " + (*it).second;
 			Output::Instance().addOutput(outputString, 4);

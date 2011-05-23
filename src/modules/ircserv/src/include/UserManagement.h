@@ -20,7 +20,6 @@ public:
     void Init(DataInterface* pData);
 	void timerrun(){}
 
-
 private:
     void ParseData(std::vector< std::string > data);
 
@@ -53,7 +52,6 @@ private:
     boost::shared_ptr<boost::thread> raw_parse_thread;
 
 	std::multimap< std::string, std::string > NoWhoisUsers;
-	std::multimap< std::string, std::string > WhoisUsers;
 };
 
 
