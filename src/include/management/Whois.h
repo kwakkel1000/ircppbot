@@ -41,9 +41,6 @@ class Whois
             return obj;
         }
 
-        void init();
-        void stop();
-
         // consumer
         void AddConsumer(WhoisDataContainerInterface *d);
         void DelConsumer(WhoisDataContainerInterface *d);
@@ -54,7 +51,6 @@ class Whois
     private:
 		Whois() {}
 		~Whois() {};
-        int buffer;
 
         // consumer lists
         std::vector< WhoisDataContainerInterface * > Consumers;

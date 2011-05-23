@@ -24,9 +24,6 @@
 
 #include "../include/management/Whois.h"
 
-#include <boost/algorithm/string.hpp>
-#include <boost/algorithm/string/trim.hpp>
-
 #include <iostream>
 #include <sstream>
 #include <vector>
@@ -37,7 +34,10 @@
 
 void Whois::AddConsumer(WhoisDataContainerInterface *d)
 {
+	std::string sOutput;
     Consumers.push_back(d);
+	sOutput = "whois consumer added";
+	Output::Instance().addOutput(sOutput, 3);
 }
 
 void Whois::DelConsumer(WhoisDataContainerInterface *d)
@@ -58,6 +58,7 @@ void Whois::DelConsumer(WhoisDataContainerInterface *d)
 
 void Whois::AddQueue(std::pair< std::string, std::string > data)
 {
+	std::cout << "Consumers.size() " << Consumers.size() << std::endl;
     unsigned int consumer_iterator;
 	for (consumer_iterator = 0; consumer_iterator < Consumers.size(); consumer_iterator++)
 	{
