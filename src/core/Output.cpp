@@ -25,9 +25,18 @@
 
 #include "../include/core/Output.h"
 #include <iostream>
+#include <sstream>
+#include <cstring>
 #include <string>
 
 void Output::addOutput(std::string output, int level)
 {
 	std::cout << output << std::endl;
+}
+
+std::string Output::StringFromInt(int number)
+{
+    std::stringstream ss;
+    ss << number;
+    return ss.str();
 }

@@ -39,6 +39,8 @@ class Output
 
         virtual void addOutput(std::string output, int level);
 
+        std::string StringFromInt(int number);
+
     private:
         Output() {}
         ~Output() {}

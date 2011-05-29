@@ -38,6 +38,9 @@ void Whois::AddConsumer(WhoisDataContainerInterface *d)
     Consumers.push_back(d);
 	sOutput = "whois consumer added";
 	Output::Instance().addOutput(sOutput, 3);
+	std::string sConsumersSize = Output::Instance().StringFromInt(Consumers.size());
+	sOutput = "Consumers.size() " + sConsumersSize;
+	Output::Instance().addOutput(sOutput, 3);
 }
 
 void Whois::DelConsumer(WhoisDataContainerInterface *d)
@@ -52,13 +55,18 @@ void Whois::DelConsumer(WhoisDataContainerInterface *d)
 			sOutput = "whois consumer removed";
 			Output::Instance().addOutput(sOutput, 3);
             Consumers.erase(Consumers.begin() + consumer_iterator-1);
+			std::string sConsumersSize = Output::Instance().StringFromInt(Consumers.size());
+			std::string sOutput = "Consumers.size() " + sConsumersSize;
+			Output::Instance().addOutput(sOutput, 3);
         }
     }
 }
 
 void Whois::AddQueue(std::pair< std::string, std::string > data)
 {
-	std::cout << "Consumers.size() " << Consumers.size() << std::endl;
+	std::string sConsumersSize = Output::Instance().StringFromInt(Consumers.size());
+	std::string sOutput = "Consumers.size() " + sConsumersSize;
+	Output::Instance().addOutput(sOutput, 3);
     unsigned int consumer_iterator;
 	for (consumer_iterator = 0; consumer_iterator < Consumers.size(); consumer_iterator++)
 	{
