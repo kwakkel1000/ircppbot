@@ -26,10 +26,13 @@
 #include <signal.h>
 #include <fstream>
 #include <string>
+#include <sstream>
+#include <cstring>
 #include <iostream>
 #include <vector>
 #include "../include/core/Bot.h"
 #include "../include/core/Global.h"
+#include "../include/core/Output.h"
 
 void SegFaultAction(int i_num, siginfo_t * i_info, void * i_val)
 {
@@ -114,11 +117,21 @@ int main(int argc, char *argv[])
     }
     for (uint nArg = 0; nArg < args.size(); nArg++)
     {
-        if (args[nArg] == "-c")
+        if (args[nArg] == "-config" || args[nArg] == "-c")
         {
             if ((nArg+1) <= args.size())
             {
                 inifile = args[nArg+1];
+            }
+        }
+        if (args[nArg] == "-debug" || args[nArg] == "-d")
+        {
+            if ((nArg+1) <= args.size())
+            {
+            	int i;
+            	std::stringstream ss(args[nArg+1]);
+            	ss >> i;
+            	Output::Instance().setDebugLevel(i);
             }
         }
         if (args[nArg] == "-INeedRootPowerz")

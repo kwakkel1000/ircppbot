@@ -37,13 +37,17 @@ class Output
             return obj;
         }
 
+        void setDebugLevel(int level);
+
         virtual void addOutput(std::string output, int level);
 
         std::string StringFromInt(int number);
 
     private:
-        Output() {}
+        Output() {iLevel = 5;}
         ~Output() {}
+
+        int iLevel;
 };
 
 #endif  // SRC_INCLUDE_CORE_OUTPUT_H_

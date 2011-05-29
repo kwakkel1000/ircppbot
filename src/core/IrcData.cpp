@@ -33,6 +33,7 @@
 #include <string>
 
 #include "../include/core/Global.h"
+#include "../include/core/Output.h"
 
 
 IrcData::IrcData()
@@ -226,7 +227,8 @@ void IrcData::sendloop()
     {
         Send();
     }
-    std::cout << "void IrcData::sendloop() after while()" << std::endl;
+	std::string sOutput = "void IrcData::sendloop() after while()";
+	Output::Instance().addOutput(sOutput, 2);
 }
 
 void IrcData::recvloop()
@@ -235,7 +237,8 @@ void IrcData::recvloop()
     {
         Recv();
     }
-    std::cout << "void IrcData::sendloop() after while()" << std::endl;
+	std::string sOutput = "void IrcData::sendloop() after while()";
+	Output::Instance().addOutput(sOutput, 2);
 }
 
 void IrcData::Send()
@@ -243,6 +246,7 @@ void IrcData::Send()
     if (send == true)
     {
         std::string data;
+        std::string sOutput;
         if (floodprotect)
         {
             boost::mutex::scoped_lock lock(floodmutex);
@@ -251,7 +255,8 @@ void IrcData::Send()
                 floodcondition.wait(lock);
             }
             data = GetSendQueue();
-            std::cout << ">> " << data;
+            sOutput = ">> " + data;
+            Output::Instance().addOutput(sOutput, 5);
             // try
             {
                 if (send)
@@ -273,7 +278,8 @@ void IrcData::Send()
         else
         {
             data = GetSendQueue();
-            std::cout << ">> " << data;
+            sOutput = ">> " + data;
+            Output::Instance().addOutput(sOutput, 5);
             // try
             {
                 if (send)
@@ -299,10 +305,12 @@ void IrcData::Recv()
     if (recv == true)
     {
         std::string buf;
+        std::string sOutput;
         if (S)
         {
             S->Recv(buf);
-            std::cout << "<< " << buf << std::endl;
+            sOutput = "<< " + buf;
+            Output::Instance().addOutput(sOutput, 5);
             AddRecvQueue(buf);
         }
     }

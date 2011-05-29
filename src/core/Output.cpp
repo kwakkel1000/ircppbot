@@ -29,9 +29,18 @@
 #include <cstring>
 #include <string>
 
+void Output::setDebugLevel(int level)
+{
+	iLevel = level;
+}
+
 void Output::addOutput(std::string output, int level)
 {
-	std::cout << output << std::endl;
+	if (level <= iLevel)
+	{
+		std::cout << output << std::endl;
+	}
+
 }
 
 std::string Output::StringFromInt(int number)

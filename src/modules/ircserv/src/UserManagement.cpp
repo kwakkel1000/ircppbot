@@ -671,7 +671,7 @@ void UserManagement::GetChannelInfo(std::string data)
     for (i = 0 ; i < channels_vector.size() ; i++)
     {
     	std::string auth = DatabaseData::Instance().GetAuthByUserUuid(channels_vector[i][0]);
-    	std::cout << data << " " << auth << " " << channels_vector[i][1] << std::endl;
+    	//std::cout << data << " " << auth << " " << channels_vector[i][1] << std::endl;
     	C.AddAuth(data, auth);
         C.SetAccess(data, auth, convertString(channels_vector[i][1]));
     }
