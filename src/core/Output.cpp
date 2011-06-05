@@ -90,9 +90,11 @@ Output::Output()
 	iLogLevel = 10;
 	iOutputLevel = 5;
 	fLogFile.open("bot.log", std::ios::app);
+	fLogFile << "\r\n\r\n\r\n\r\nopen logfile\r\n";
 }
 
 Output::~Output()
 {
+	fLogFile << "closing logfile \r\n\r\n\r\n\r\n";
 	fLogFile.close();
 }

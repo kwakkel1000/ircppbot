@@ -33,6 +33,7 @@
 #include <vector>
 
 #include "../include/core/Global.h"
+#include "../include/core/Output.h"
 #include "../include/core/Database.h"
 
 
@@ -51,7 +52,7 @@ void ModuleBase::overwatch(std::string bind, std::string command, std::string ch
     UsersInterface& U = Global::Instance().get_Users();
     ConfigReaderInterface& CR = Global::Instance().get_ConfigReader();
     std::string overwatchchannel = CR.GetString("overwatchchannel");
-    std::string debugstring = "PRIVMSG " + overwatchchannel + " :[" + nick + ":" + auth + "] [" + chan + ":" + convertInt(C.GetAccess(chan, auth)) + "] ";
+    std::string debugstring = Output::Instance().sFormatTime("%d-%m-%Y %H:%M:%S") + " [" + nick + ":" + auth + "] [" + chan + ":" + convertInt(C.GetAccess(chan, auth)) + "] ";
     if (U.GetGod(nick) == 1)
     {
         debugstring = debugstring + "[G] ";
@@ -61,8 +62,7 @@ void ModuleBase::overwatch(std::string bind, std::string command, std::string ch
     {
         debugstring = debugstring + " " + args[i];
     }
-    debugstring = debugstring + "\r\n";
-    SendLowPriority(debugstring);
+    SendLowPriority(Global::Instance().get_Reply().irc_privmsg(overwatchchannel, debugstring));
 }
 
 

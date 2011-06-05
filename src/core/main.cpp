@@ -128,10 +128,10 @@ int main(int argc, char *argv[])
         {
             if ((nArg+1) <= args.size())
             {
-            	int i;
-            	std::stringstream ss(args[nArg+1]);
-            	ss >> i;
-            	Output::Instance().setDebugLevel(i);
+                int i;
+                std::stringstream ss(args[nArg+1]);
+                ss >> i;
+                Output::Instance().setDebugLevel(i);
             }
         }
         if (args[nArg] == "-INeedRootPowerz")
@@ -154,6 +154,9 @@ int main(int argc, char *argv[])
         else
         {
             std::cout << "start first time" << std::endl;
+            Output::Instance().addOutput("++++++++++++++++++++++++++++++++++++", 2);
+            Output::Instance().addOutput("+ Start bot on " + Output::Instance().sFormatTime("%d-%m-%Y %H:%M:%S") + " +", 2);
+            Output::Instance().addOutput("++++++++++++++++++++++++++++++++++++", 2);
             usleep(2000000);
             Global::Instance().set_Run(true);
             while (Global::Instance().get_Run() == true)
