@@ -28,6 +28,8 @@
 
 #include <string>
 
+#include <fstream>
+
 class Output
 {
     public:
@@ -39,15 +41,22 @@ class Output
 
         void setDebugLevel(int level);
 
+        virtual void addOutput(std::string output);
         virtual void addOutput(std::string output, int level);
+        virtual void appendLog(std::string output);
+        virtual void appendLog(std::string output, int level);
 
         std::string StringFromInt(int number);
+        std::string sFormatTime(std::string format);
 
     private:
-        Output() {iLevel = 5;}
-        ~Output() {}
+        Output();
+        ~Output();
 
-        int iLevel;
+        int iLogLevel;
+        int iOutputLevel;
+
+        std::ofstream fLogFile;
 };
 
 #endif  // SRC_INCLUDE_CORE_OUTPUT_H_

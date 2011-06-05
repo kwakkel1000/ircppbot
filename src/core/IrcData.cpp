@@ -256,6 +256,7 @@ void IrcData::Send()
             }
             data = GetSendQueue();
             sOutput = ">> " + data;
+            data = data + "\r\n";
             Output::Instance().addOutput(sOutput, 5);
             // try
             {
@@ -279,6 +280,7 @@ void IrcData::Send()
         {
             data = GetSendQueue();
             sOutput = ">> " + data;
+            data = data + "\r\n";
             Output::Instance().addOutput(sOutput, 5);
             // try
             {

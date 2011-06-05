@@ -686,6 +686,6 @@ void UserManagement::GetAuths()
 	for (i = 0; i < auth_vector.size(); i++)
 	{
 		U.AddAuth(auth_vector[i]);
-		std::cout << auth_vector[i] << std::endl;
+		//std::cout << auth_vector[i] << std::endl;
 	}
 }

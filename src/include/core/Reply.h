@@ -43,6 +43,14 @@ class Reply : public ReplyInterface
         std::string irc_reply(std::string reply_name, std::string reply_language);
         std::string irc_reply_replace(std::string source_string, std::string search_string, std::string replace_string);
 
+        std::string irc_privmsg(std::string target, std::string text);
+		std::string irc_notice(std::string target, std::string text);
+		std::string irc_mode(std::string target, std::string mode);
+		std::string irc_join(std::string channel);
+		std::string irc_part(std::string channel, std::string reason);
+		std::string irc_kick(std::string channel, std::string target, std::string reason);
+		std::string irc_invite(std::string channel, std::string target);
+
         // reload
         void Reload();
 

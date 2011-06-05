@@ -111,7 +111,7 @@ std::vector< std::vector< std::string > > Reply::RawSqlSelect(std::string data)
     return sql_result;
 }
 
-// reply
+// irc_reply_replace
 std::string Reply::irc_reply_replace(std::string source_string, std::string search_string, std::string replace_string)
 {
     size_t search_pos;
@@ -121,4 +121,46 @@ std::string Reply::irc_reply_replace(std::string source_string, std::string sear
         source_string.replace(search_pos, search_string.length(), replace_string);
     }
     return source_string;
+}
+
+// irc_privmsg
+std::string Reply::irc_privmsg(std::string target, std::string text)
+{
+	return "PRIVMSG " + target + " :" + text;
+}
+
+// irc_notice
+std::string Reply::irc_notice(std::string target, std::string text)
+{
+	return "NOTICE " + target + " :" + text;
+}
+
+// irc_mode
+std::string Reply::irc_mode(std::string target, std::string mode)
+{
+	return "MODE " + target + " " + mode;
+}
+
+// irc_join
+std::string Reply::irc_join(std::string channel)
+{
+	return "JOIN " + channel;
+}
+
+// irc_part
+std::string Reply::irc_part(std::string channel, std::string reason)
+{
+	return "PART " + channel + " :" + reason;
+}
+
+// irc_kick
+std::string Reply::irc_kick(std::string channel, std::string target, std::string reason)
+{
+	return "KICK " + channel + " " + target + " :" + reason;
+}
+
+// irc_invite
+std::string Reply::irc_invite(std::string channel, std::string target)
+{
+	return "INVITE " + channel + " " + target;
 }

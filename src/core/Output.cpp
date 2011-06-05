@@ -29,18 +29,38 @@
 #include <cstring>
 #include <string>
 
+#include <fstream>
+
 void Output::setDebugLevel(int level)
 {
-	iLevel = level;
+	iOutputLevel = level;
+}
+
+void Output::addOutput(std::string output)
+{
+	addOutput(output, 5);
 }
 
 void Output::addOutput(std::string output, int level)
 {
-	if (level <= iLevel)
+	if (level <= iOutputLevel)
 	{
-		std::cout << output << std::endl;
+		std::cout << sFormatTime("%d-%m-%Y %H:%M:%S") << " [" << StringFromInt(level) << "] " << output << std::endl;
 	}
+	appendLog(output, level);
+}
 
+void Output::appendLog(std::string output)
+{
+	appendLog(output, 5);
+}
+
+void Output::appendLog(std::string output, int level)
+{
+	if (level <= iLogLevel)
+	{
+		fLogFile << sFormatTime("%d-%m-%Y %H:%M:%S") << " [" << StringFromInt(level) << "] " << output << std::endl;
+	}
 }
 
 std::string Output::StringFromInt(int number)
@@ -48,4 +68,31 @@ std::string Output::StringFromInt(int number)
     std::stringstream ss;
     ss << number;
     return ss.str();
+}
+
+
+std::string Output::sFormatTime(std::string format)
+{
+	time_t rawtime;
+	struct tm * timeinfo;
+	char buffer [80];
+
+	time ( &rawtime );
+	timeinfo = localtime ( &rawtime );
+	strftime(buffer, 80, format.c_str(), timeinfo);
+	return buffer;
+}
+
+
+
+Output::Output()
+{
+	iLogLevel = 10;
+	iOutputLevel = 5;
+	fLogFile.open("bot.log", std::ios::app);
+}
+
+Output::~Output()
+{
+	fLogFile.close();
 }
