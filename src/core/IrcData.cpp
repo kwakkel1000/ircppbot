@@ -227,8 +227,8 @@ void IrcData::sendloop()
     {
         Send();
     }
-	std::string sOutput = "void IrcData::sendloop() after while()";
-	Output::Instance().addOutput(sOutput, 2);
+    std::string sOutput = "void IrcData::sendloop() after while()";
+    Output::Instance().addOutput(sOutput, 2);
 }
 
 void IrcData::recvloop()
@@ -237,8 +237,8 @@ void IrcData::recvloop()
     {
         Recv();
     }
-	std::string sOutput = "void IrcData::sendloop() after while()";
-	Output::Instance().addOutput(sOutput, 2);
+    std::string sOutput = "void IrcData::sendloop() after while()";
+    Output::Instance().addOutput(sOutput, 2);
 }
 
 void IrcData::Send()
@@ -264,7 +264,7 @@ void IrcData::Send()
                 {
                     if (boost::iequals(Global::Instance().get_ConfigReader().GetString("chandebug"), "true"))
                     {
-                    	S->Send(Global::Instance().get_Reply().irc_privmsg(Global::Instance().get_ConfigReader().GetString("debugchannel"), Output::Instance().sFormatTime("%d-%m-%Y %H:%M:%S") + " " + data));
+                        S->Send(Global::Instance().get_Reply().irc_privmsg(Global::Instance().get_ConfigReader().GetString("debugchannel"), "[" + Output::Instance().sFormatTime("%d-%m-%Y %H:%M:%S") + "] " + data));
                         //std::string tmpdata = "PRIVMSG " + Global::Instance().get_ConfigReader().GetString("debugchannel") + " :" + data;
                         //S->Send(tmpdata);
                     }
@@ -289,7 +289,7 @@ void IrcData::Send()
                 {
                     if (boost::iequals(Global::Instance().get_ConfigReader().GetString("chandebug"), "true"))
                     {
-                    	S->Send(Global::Instance().get_Reply().irc_privmsg(Global::Instance().get_ConfigReader().GetString("debugchannel"), Output::Instance().sFormatTime("%d-%m-%Y %H:%M:%S") + " " + data));
+                        S->Send(Global::Instance().get_Reply().irc_privmsg(Global::Instance().get_ConfigReader().GetString("debugchannel"), "[" + Output::Instance().sFormatTime("%d-%m-%Y %H:%M:%S") + "] " + data));
                         //std::string tmpdata = "PRIVMSG " + Global::Instance().get_ConfigReader().GetString("debugchannel") + " :" + data;
                         //S->Send(tmpdata);
                     }
