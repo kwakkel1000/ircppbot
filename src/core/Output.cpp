@@ -33,34 +33,34 @@
 
 void Output::setDebugLevel(int level)
 {
-	iOutputLevel = level;
+    iOutputLevel = level;
 }
 
 void Output::addOutput(std::string output)
 {
-	addOutput(output, 5);
+    addOutput(output, 5);
 }
 
 void Output::addOutput(std::string output, int level)
 {
-	if (level <= iOutputLevel)
-	{
-		std::cout << sFormatTime("%d-%m-%Y %H:%M:%S") << " [" << StringFromInt(level) << "] " << output << std::endl;
-	}
-	appendLog(output, level);
+    if (level <= iOutputLevel)
+    {
+        std::cout << "[" << sFormatTime("%d-%m-%Y %H:%M:%S") << "] [" << StringFromInt(level) << "] " << output << std::endl;
+    }
+    appendLog(output, level);
 }
 
 void Output::appendLog(std::string output)
 {
-	appendLog(output, 5);
+    appendLog(output, 5);
 }
 
 void Output::appendLog(std::string output, int level)
 {
-	if (level <= iLogLevel)
-	{
-		fLogFile << sFormatTime("%d-%m-%Y %H:%M:%S") << " [" << StringFromInt(level) << "] " << output << std::endl;
-	}
+    if (level <= iLogLevel)
+    {
+        fLogFile << "[" << sFormatTime("%d-%m-%Y %H:%M:%S") << "] [" << StringFromInt(level) << "] " << output << std::endl;
+    }
 }
 
 std::string Output::StringFromInt(int number)
@@ -73,28 +73,28 @@ std::string Output::StringFromInt(int number)
 
 std::string Output::sFormatTime(std::string format)
 {
-	time_t rawtime;
-	struct tm * timeinfo;
-	char buffer [80];
+    time_t rawtime;
+    struct tm * timeinfo;
+    char buffer [80];
 
-	time ( &rawtime );
-	timeinfo = localtime ( &rawtime );
-	strftime(buffer, 80, format.c_str(), timeinfo);
-	return buffer;
+    time ( &rawtime );
+    timeinfo = localtime ( &rawtime );
+    strftime(buffer, 80, format.c_str(), timeinfo);
+    return buffer;
 }
 
 
 
 Output::Output()
 {
-	iLogLevel = 10;
-	iOutputLevel = 5;
-	fLogFile.open("bot.log", std::ios::app);
-	fLogFile << "\r\n\r\n\r\n\r\nopen logfile\r\n";
+    iLogLevel = 10;
+    iOutputLevel = 5;
+    fLogFile.open("bot.log", std::ios::app);
+    fLogFile << "\r\n\r\n\r\n\r\nopen logfile\r\n";
 }
 
 Output::~Output()
 {
-	fLogFile << "closing logfile \r\n\r\n\r\n\r\n";
-	fLogFile.close();
+    fLogFile << "closing logfile \r\n\r\n\r\n\r\n";
+    fLogFile.close();
 }
