@@ -5,14 +5,14 @@ class ChannelAuth {
 
 public:
 
-	ChannelAuth();
-	~ChannelAuth();
+    ChannelAuth();
+    ~ChannelAuth();
 
-	void SetAccess(int);
-	int GetAccess();
+    void SetAccess(int);
+    int GetAccess();
 
 private:
-		int access;
+        int access;
 };
 
 

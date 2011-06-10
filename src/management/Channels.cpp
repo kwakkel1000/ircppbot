@@ -1,3 +1,28 @@
+//
+//
+//  @ Project : ircppbot
+//  @ File Name : Channels.cpp
+//  @ Date : 4/18/2011
+//  @ Author : Gijs Kwakkel
+//
+//
+// Copyright (c) 2011 Gijs Kwakkel
+//
+// This program is free software; you can redistribute it and/or
+// modify it under the terms of the GNU General Public License
+// as published by the Free Software Foundation; either version 2
+// of the License, or (at your option) any later version.
+// This program is distributed in the hope that it will be useful,
+// but WITHOUT ANY WARRANTY; without even the implied warranty of
+// MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
+// GNU General Public License for more details.
+//
+// You should have received a copy of the GNU General Public License
+// along with this program; if not, write to the Free Software
+// Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301, USA.
+//
+
+
 #include "../include/management/Channels.h"
 #include "../include/core/DatabaseData.h"
 #include <boost/algorithm/string.hpp>
@@ -18,30 +43,30 @@ Channels::~Channels()
 
 void Channels::RegistrateChannel(std::string mChannelUuid, std::string mChannel)
 {
-	DatabaseData::Instance().AddChannel(mChannelUuid, mChannel);
+    DatabaseData::Instance().AddChannel(mChannelUuid, mChannel);
 }
 
 void Channels::UnregistrateChannel(std::string mChannelUuid)
 {
-	DatabaseData::Instance().DeleteChannel(mChannelUuid);
-	std::vector< std::string > _auths = GetAuths(DatabaseData::Instance().GetChannelByChannelUuid(mChannelUuid));
-	for (unsigned int i = 0; i < _auths.size(); i++)
-	{
-		DelAuth(DatabaseData::Instance().GetChannelByChannelUuid(mChannelUuid), _auths[0]);
-	}
-	DelChannel(DatabaseData::Instance().GetChannelByChannelUuid(mChannelUuid));
+    DatabaseData::Instance().DeleteChannel(mChannelUuid);
+    std::vector< std::string > _auths = GetAuths(DatabaseData::Instance().GetChannelByChannelUuid(mChannelUuid));
+    for (unsigned int i = 0; i < _auths.size(); i++)
+    {
+        DelAuth(DatabaseData::Instance().GetChannelByChannelUuid(mChannelUuid), _auths[0]);
+    }
+    DelChannel(DatabaseData::Instance().GetChannelByChannelUuid(mChannelUuid));
 }
 
 void Channels::AddUserToChannel(std::string mChannelUuid, std::string mUserUuid, int mAccess)
 {
-	DatabaseData::Instance().AddUserToChannel(mChannelUuid, mUserUuid, mAccess);
-	SetAccess(DatabaseData::Instance().GetChannelByChannelUuid(mChannelUuid), DatabaseData::Instance().GetAuthByUserUuid(mUserUuid), mAccess);
+    DatabaseData::Instance().AddUserToChannel(mChannelUuid, mUserUuid, mAccess);
+    SetAccess(DatabaseData::Instance().GetChannelByChannelUuid(mChannelUuid), DatabaseData::Instance().GetAuthByUserUuid(mUserUuid), mAccess);
 }
 
 void Channels::DeleteUserFromChannel(std::string mChannelUuid, std::string mUserUuid)
 {
-	DatabaseData::Instance().DeleteUserFromChannel(mChannelUuid, mUserUuid);
-	DelAuth(DatabaseData::Instance().GetChannelByChannelUuid(mChannelUuid), DatabaseData::Instance().GetAuthByUserUuid(mUserUuid));
+    DatabaseData::Instance().DeleteUserFromChannel(mChannelUuid, mUserUuid);
+    DelAuth(DatabaseData::Instance().GetChannelByChannelUuid(mChannelUuid), DatabaseData::Instance().GetAuthByUserUuid(mUserUuid));
 }
 
 bool Channels::AddChannel(string data)
@@ -176,14 +201,14 @@ bool Channels::SetGivevoice(string data, int givevoice)
     return true;
 }
 
-vector<string> Channels::GetChannels()
+std::vector< std::string > Channels::GetChannels()
 {
     return channellist;
 }
 
-vector<string> Channels::GetNicks(string data)
+std::vector< std::string > Channels::GetNicks(string data)
 {
-    vector<string> tmp;
+    std::vector< std::string > tmp;
     unsigned int i = GetChannelIndex(data);
     if ((i >= 0) && (i < channellist.size()))
     {
@@ -192,10 +217,10 @@ vector<string> Channels::GetNicks(string data)
     return tmp;
 }
 
-vector<string> Channels::GetAuths(string data)
+std::vector< std::string > Channels::GetAuths(std::string sChannel)
 {
-    vector<string> tmp;
-    unsigned int i = GetChannelIndex(data);
+    std::vector< std::string > tmp;
+    unsigned int i = GetChannelIndex(sChannel);
     if ((i >= 0) && (i < channellist.size()))
     {
         tmp = c[i]->GetAuths();

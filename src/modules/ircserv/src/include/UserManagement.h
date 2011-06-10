@@ -1,3 +1,27 @@
+//
+//
+//  @ Project : ircppbot
+//  @ File Name : UserManagement.h
+//  @ Date : 4/18/2011
+//  @ Author : Gijs Kwakkel
+//
+//
+// Copyright (c) 2011 Gijs Kwakkel
+//
+// This program is free software; you can redistribute it and/or
+// modify it under the terms of the GNU General Public License
+// as published by the Free Software Foundation; either version 2
+// of the License, or (at your option) any later version.
+// This program is distributed in the hope that it will be useful,
+// but WITHOUT ANY WARRANTY; without even the implied warranty of
+// MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
+// GNU General Public License for more details.
+//
+// You should have received a copy of the GNU General Public License
+// along with this program; if not, write to the Free Software
+// Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301, USA.
+//
+
 #ifndef UserManagement_h
 #define UserManagement_h
 
@@ -13,19 +37,20 @@ class DataInterface;
 class UserManagement : public ModuleInterface
 {
 public:
-	UserManagement();
-	~UserManagement();
+    UserManagement();
+    ~UserManagement();
     void read();
     void stop();
     void Init(DataInterface* pData);
-	void timerrun(){}
+    void timerrun(){}
 
 private:
     void ParseData(std::vector< std::string > data);
+    void RefreshChannel(std::string sChannel);
 
-	bool NickServ;
-	//bool WhoExtra;
-	bool Run;
+    bool NickServ;
+    //bool WhoExtra;
+    bool Run;
     DataInterface* mpDataInterface;
 
     void WHO(std::vector< std::string > data);
@@ -38,7 +63,7 @@ private:
     void QUIT(std::vector< std::string > data);
 
     std::string HostmaskToNick(std::vector< std::string > data);
-	void UserAuth(std::string mNick, std::string mAuth);
+    void UserAuth(std::string mNick, std::string mAuth);
     bool Send(std::string data);
 
     std::string convertInt(int);
@@ -51,7 +76,7 @@ private:
     void parse_raw();
     boost::shared_ptr<boost::thread> raw_parse_thread;
 
-	std::multimap< std::string, std::string > NoWhoisUsers;
+    std::multimap< std::string, std::string > NoWhoisUsers;
 };
 
 

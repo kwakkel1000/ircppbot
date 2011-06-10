@@ -68,7 +68,7 @@ private:
     int oaccess;
     int god;
 
-	boost::mutex User_mutex;
+    boost::mutex User_mutex;
 };
 
 #endif // User_h

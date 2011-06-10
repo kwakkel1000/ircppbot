@@ -265,8 +265,6 @@ void IrcData::Send()
                     if (boost::iequals(Global::Instance().get_ConfigReader().GetString("chandebug"), "true"))
                     {
                         S->Send(Global::Instance().get_Reply().irc_privmsg(Global::Instance().get_ConfigReader().GetString("debugchannel"), "[" + Output::Instance().sFormatTime("%d-%m-%Y %H:%M:%S") + "] " + data));
-                        //std::string tmpdata = "PRIVMSG " + Global::Instance().get_ConfigReader().GetString("debugchannel") + " :" + data;
-                        //S->Send(tmpdata);
                     }
                     buffer--;
                     S->Send(data);
@@ -290,8 +288,6 @@ void IrcData::Send()
                     if (boost::iequals(Global::Instance().get_ConfigReader().GetString("chandebug"), "true"))
                     {
                         S->Send(Global::Instance().get_Reply().irc_privmsg(Global::Instance().get_ConfigReader().GetString("debugchannel"), "[" + Output::Instance().sFormatTime("%d-%m-%Y %H:%M:%S") + "] " + data));
-                        //std::string tmpdata = "PRIVMSG " + Global::Instance().get_ConfigReader().GetString("debugchannel") + " :" + data;
-                        //S->Send(tmpdata);
                     }
                     S->Send(data);
                 }
@@ -316,6 +312,10 @@ void IrcData::Recv()
             sOutput = "<< " + buf;
             Output::Instance().addOutput(sOutput, 5);
             AddRecvQueue(buf);
+            /*if (boost::iequals(Global::Instance().get_ConfigReader().GetString("chandebug"), "true"))
+            {
+                S->Send(Global::Instance().get_Reply().irc_privmsg(Global::Instance().get_ConfigReader().GetString("debugchannel"), "[" + Output::Instance().sFormatTime("%d-%m-%Y %H:%M:%S") + "] " + buf + "\r\n"));
+            }*/
         }
     }
 }
