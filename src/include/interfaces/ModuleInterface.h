@@ -4,11 +4,11 @@
 class ModuleInterface
 {
 public:
-	ModuleInterface() { }
-	virtual void read()=0;
-	virtual void stop()=0;
-	virtual void Init(DataInterface* pData)=0;
-	virtual void timerrun()=0;
+    ModuleInterface() { }
+    virtual void read()=0;
+    virtual void stop()=0;
+    virtual void Init(DataInterface* pData)=0;
+    virtual void timerrun()=0;
 };
 
 typedef ModuleInterface* create_tmi();

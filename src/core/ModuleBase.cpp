@@ -414,32 +414,32 @@ int ModuleBase::convertString(std::string data)
 
 std::vector< int > ModuleBase::VectorTimeFromSecondsTime(int _time)
 {
-	// Year, Week, Day, Hour, Minutes, Seconds;
-	// year (day * 365)
-	// week (day * 7)
-	// day (hour * 24)
-	// hour (minutes * 60)
-	// minutes (seconds * 60)
-	// seconds (left)
+    // Year, Week, Day, Hour, Minutes, Seconds;
+    // year (day * 365)
+    // week (day * 7)
+    // day (hour * 24)
+    // hour (minutes * 60)
+    // minutes (seconds * 60)
+    // seconds (left)
 
-	std::vector< int > _vectortime;
-	int _year = (_time - (_time % (365 * 24 * 60 * 60))) / (365 * 24 * 60 * 60);
-	_time = _time - (_year * 365 * 24 * 60 * 60);
-	int _week = (_time - (_time % (7 * 24 * 60 * 60))) / (7 * 24 * 60 * 60);
-	_time = _time - (_week * 7 * 24 * 60 * 60);
-	int _day = (_time - (_time % (24 * 60 * 60))) / (24 * 60 * 60);
-	_time = _time - (_day * 24 * 60 * 60);
-	int _hour = (_time - (_time % (60 * 60))) / (60 * 60);
-	_time = _time - (_hour * 60 * 60);
-	int _minutes = (_time - (_time % 60)) / 60;
-	_time = _time - (_minutes * 60);
-	int _seconds = _time;
-	std::cout << "year " << _year << " week " << _week << " day " << _day << " hour " << _hour << " minutes " << _minutes << " seconds " << _seconds << std::endl;
-	_vectortime.push_back(_year);
-	_vectortime.push_back(_week);
-	_vectortime.push_back(_day);
-	_vectortime.push_back(_hour);
-	_vectortime.push_back(_minutes);
-	_vectortime.push_back(_seconds);
-	return _vectortime;
+    std::vector< int > _vectortime;
+    int _year = (_time - (_time % (365 * 24 * 60 * 60))) / (365 * 24 * 60 * 60);
+    _time = _time - (_year * 365 * 24 * 60 * 60);
+    int _week = (_time - (_time % (7 * 24 * 60 * 60))) / (7 * 24 * 60 * 60);
+    _time = _time - (_week * 7 * 24 * 60 * 60);
+    int _day = (_time - (_time % (24 * 60 * 60))) / (24 * 60 * 60);
+    _time = _time - (_day * 24 * 60 * 60);
+    int _hour = (_time - (_time % (60 * 60))) / (60 * 60);
+    _time = _time - (_hour * 60 * 60);
+    int _minutes = (_time - (_time % 60)) / 60;
+    _time = _time - (_minutes * 60);
+    int _seconds = _time;
+    std::cout << "year " << _year << " week " << _week << " day " << _day << " hour " << _hour << " minutes " << _minutes << " seconds " << _seconds << std::endl;
+    _vectortime.push_back(_year);
+    _vectortime.push_back(_week);
+    _vectortime.push_back(_day);
+    _vectortime.push_back(_hour);
+    _vectortime.push_back(_minutes);
+    _vectortime.push_back(_seconds);
+    return _vectortime;
 }

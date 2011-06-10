@@ -119,12 +119,12 @@ bool Users::SetAuth(string tmpnick, string auth)
     //boost::mutex::scoped_lock  lock(User_mutex);
     if (auth != "0")
     {
-		int i = GetNickIndex(tmpnick);
-		if (i >= 0)
-		{
-			u[i]->SetAuth(auth);
-			return true;
-		}
+        int i = GetNickIndex(tmpnick);
+        if (i >= 0)
+        {
+            u[i]->SetAuth(auth);
+            return true;
+        }
     }
     return false;
 }
@@ -262,21 +262,21 @@ std::string Users::GetUid(string data)
     std::string auth = "NULL";
     if (authstar != string::npos)
     {
-		data.replace(authstar, 1, "");
-		auth = data;
+        data.replace(authstar, 1, "");
+        auth = data;
     }
     else
     {
-		int i = GetNickIndex(data);
-		if (i >= 0)
-		{
-			auth = u[i]->GetAuth();
-		}
+        int i = GetNickIndex(data);
+        if (i >= 0)
+        {
+            auth = u[i]->GetAuth();
+        }
     }
     std::cout << auth << std::endl;
     if (auth != "NULL")
     {
-    	return DatabaseData::Instance().GetUserUuidByAuth(auth);
+        return DatabaseData::Instance().GetUserUuidByAuth(auth);
     }
     return "NULL";
     /*//boost::mutex::scoped_lock  lock(User_mutex);
@@ -284,24 +284,24 @@ std::string Users::GetUid(string data)
     authstar = data.find("*");
     if (authstar != string::npos)
     {
-		data.replace(authstar, 1, "");
-		for ( unsigned int i = 0 ; i < u.size(); i++ )
-		{
-			std::string auth = u[i]->GetAuth();
-			if (boost::iequals(auth,data))
-			{
-				std::cout << u[i]->GetUid() << std::endl;
-				return u[i]->GetUid();
-			}
-		}
+        data.replace(authstar, 1, "");
+        for ( unsigned int i = 0 ; i < u.size(); i++ )
+        {
+            std::string auth = u[i]->GetAuth();
+            if (boost::iequals(auth,data))
+            {
+                std::cout << u[i]->GetUid() << std::endl;
+                return u[i]->GetUid();
+            }
+        }
     }
     else
     {
-		int i = GetNickIndex(data);
-		if (i >= 0)
-		{
-			return u[i]->GetUid();
-		}
+        int i = GetNickIndex(data);
+        if (i >= 0)
+        {
+            return u[i]->GetUid();
+        }
     }
     return "NULL";*/
 }
@@ -463,10 +463,10 @@ vector<string> Users::GetChannels(string data)
 
 int Users::GetNickIndex(string data)
 {
-	boost::mutex::scoped_lock  lock(UsersNickIndexMutex);
+    boost::mutex::scoped_lock  lock(UsersNickIndexMutex);
     for ( unsigned int i = 0 ; i < nick.size(); i++ )
     {
-        if (boost::iequals(nick[i],data))
+        if (boost::iequals(nick[i], data))
         {
             return i;
         }
@@ -478,7 +478,7 @@ int Users::GetWhoisIndex(string data)
 {
     for ( unsigned int i = 0 ; i < whoislist.size(); i++ )
     {
-        if (boost::iequals(whoislist[i],data))
+        if (boost::iequals(whoislist[i], data))
         {
             return i;
         }
