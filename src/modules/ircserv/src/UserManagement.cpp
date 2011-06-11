@@ -116,14 +116,14 @@ void UserManagement::read()
     while (Run)
     {
         iRefreshTime++;
-        if (iRefreshTime >= 300)
+        if (iRefreshTime >= 3600)
         {
             iRefreshTime = 0;
             std::vector< std::string > vChannels = C.GetChannels();
             for (unsigned int iChannelsIndex = 0; iChannelsIndex < vChannels.size(); iChannelsIndex++)
             {
                 RefreshChannel(vChannels[iChannelsIndex]);
-                usleep(5 * 1000000); // 5 * 1000000 5 seconds between each channel
+                usleep(5 * 100000); // 5 * 1000000 5 seconds between each channel
             }
         }
         usleep(1000000);
