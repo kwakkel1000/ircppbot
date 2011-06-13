@@ -120,7 +120,7 @@ CREATE TABLE IF NOT EXISTS `OCommandsCommands` (
   `bind` varchar(128) NOT NULL,
   `access` int(5) NOT NULL default '1001',
   PRIMARY KEY  (`id`)
-) ENGINE=MyISAM  DEFAULT CHARSET=latin1 AUTO_INCREMENT=22 ;
+) ENGINE=MyISAM  DEFAULT CHARSET=latin1 AUTO_INCREMENT=23 ;
 
 --
 -- Dumping data for table `OCommandsCommands`
@@ -145,6 +145,7 @@ INSERT INTO `OCommandsCommands` (`id`, `command`, `bind`, `access`) VALUES
 (19, 'action', 'action', 300),
 (20, 'action', 'emote', 300),
 (21, 'broadcast', 'broadcast', 999);
+(22, 'listchannels', 'listchannels', 200);
 
 -- --------------------------------------------------------
 
