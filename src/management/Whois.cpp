@@ -40,11 +40,12 @@ void Whois::AddConsumer(WhoisDataContainerInterface *d)
         return;
     }
     std::string sOutput;
-    Consumers.push_back(d);
+    vConsumers.push_back(d);
     sOutput = "whois consumer added";
     Output::Instance().addOutput(sOutput, 1);
-    sOutput = "Consumers.size() " + Output::Instance().StringFromInt(Consumers.size());
+    sOutput = "vConsumers.size() " + Output::Instance().StringFromInt(vConsumers.size());
     Output::Instance().addOutput(sOutput, 1);
+    pConsumer = d;
 }
 
 void Whois::DelConsumer(WhoisDataContainerInterface *d)
@@ -57,27 +58,28 @@ void Whois::DelConsumer(WhoisDataContainerInterface *d)
     // Note: Replace array-access by iterators? Won't have to worry about erasing the correct item then
     std::string sOutput;
     unsigned int consumer_iterator;
-    for (consumer_iterator = Consumers.size(); consumer_iterator > 0; consumer_iterator--)
+    for (consumer_iterator = vConsumers.size(); consumer_iterator > 0; consumer_iterator--)
     {
         std::cout << "consumer_iterator " << consumer_iterator-1 << std::endl; // Why use cout AND addOutput?
-        if (Consumers[consumer_iterator-1] == d)
+        if (vConsumers[consumer_iterator-1] == d)
         {
             sOutput = "whois consumer removed";
             Output::Instance().addOutput(sOutput, 1);
-            Consumers.erase(Consumers.begin() + consumer_iterator-1);
-            std::string sOutput = "Consumers.size() " + Output::Instance().StringFromInt(Consumers.size());
+            vConsumers.erase(vConsumers.begin() + consumer_iterator-1);
+            std::string sOutput = "vConsumers.size() " + Output::Instance().StringFromInt(vConsumers.size());
             Output::Instance().addOutput(sOutput, 1);
         }
     }
 }
 
-void Whois::AddQueue(std::pair< std::string, std::string > data)
+void Whois::AddQueue(std::pair< std::string, std::string > pData)
 {
-    std::string sOutput = "Consumers.size() " + Output::Instance().StringFromInt(Consumers.size());
+    std::string sOutput = "vConsumers.size() " + Output::Instance().StringFromInt(vConsumers.size());
     Output::Instance().addOutput(sOutput, 1);
     unsigned int consumer_iterator;
-    for (consumer_iterator = 0; consumer_iterator < Consumers.size(); consumer_iterator++)
+    pConsumer->AddWhoisQueue(pData);
+    for (consumer_iterator = 0; consumer_iterator < vConsumers.size(); consumer_iterator++)
     {
-        Consumers[consumer_iterator]->AddWhoisQueue(data);
+        vConsumers[consumer_iterator]->AddWhoisQueue(pData);
     }
 }

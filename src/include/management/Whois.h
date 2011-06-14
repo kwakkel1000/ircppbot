@@ -42,18 +42,19 @@ class Whois
         }
 
         // consumer
-        void AddConsumer(WhoisDataContainerInterface *d);
-        void DelConsumer(WhoisDataContainerInterface *d);
+        void AddConsumer(WhoisDataContainerInterface *pD);
+        void DelConsumer(WhoisDataContainerInterface *pD);
 
         // data
-        void AddQueue(std::pair< std::string, std::string > data);
+        void AddQueue(std::pair< std::string, std::string > pData);
 
     private:
-		Whois() {}
-		~Whois() {};
+        Whois() {}
+        ~Whois() {};
 
         // consumer lists
-        std::vector< WhoisDataContainerInterface * > Consumers;
+        std::vector< WhoisDataContainerInterface * > vConsumers;
+        WhoisDataContainerInterface * pConsumer;
 };
 
 #endif  // SRC_INCLUDE_MANAGEMENT_WHOIS_H_
