@@ -34,29 +34,38 @@
 
 void Whois::AddConsumer(WhoisDataContainerInterface *d)
 {
+    if (!d)
+    {
+        Output::Instance().addOutput("Whois::AddConsumer: Trying to add NULL!", 1);
+        return;
+    }
     std::string sOutput;
     Consumers.push_back(d);
     sOutput = "whois consumer added";
     Output::Instance().addOutput(sOutput, 1);
-    std::string sConsumersSize = Output::Instance().StringFromInt(Consumers.size());
-    sOutput = "Consumers.size() " + sConsumersSize;
+    sOutput = "Consumers.size() " + Output::Instance().StringFromInt(Consumers.size());
     Output::Instance().addOutput(sOutput, 1);
 }
 
 void Whois::DelConsumer(WhoisDataContainerInterface *d)
 {
+    if (!d)
+    {
+        Output::Instance().addOutput("Whois::DelConsumer: Trying to delete NULL!", 1);
+        return;
+    }
+    // Note: Replace array-access by iterators? Won't have to worry about erasing the correct item then
+    std::string sOutput;
     unsigned int consumer_iterator;
     for (consumer_iterator = Consumers.size(); consumer_iterator > 0; consumer_iterator--)
     {
-        std::string sOutput;
-        std::cout << "consumer_iterator " << consumer_iterator-1 << std::endl;
+        std::cout << "consumer_iterator " << consumer_iterator-1 << std::endl; // Why use cout AND addOutput?
         if (Consumers[consumer_iterator-1] == d)
         {
             sOutput = "whois consumer removed";
             Output::Instance().addOutput(sOutput, 1);
             Consumers.erase(Consumers.begin() + consumer_iterator-1);
-            std::string sConsumersSize = Output::Instance().StringFromInt(Consumers.size());
-            std::string sOutput = "Consumers.size() " + sConsumersSize;
+            std::string sOutput = "Consumers.size() " + Output::Instance().StringFromInt(Consumers.size());
             Output::Instance().addOutput(sOutput, 1);
         }
     }
@@ -64,8 +73,7 @@ void Whois::DelConsumer(WhoisDataContainerInterface *d)
 
 void Whois::AddQueue(std::pair< std::string, std::string > data)
 {
-    std::string sConsumersSize = Output::Instance().StringFromInt(Consumers.size());
-    std::string sOutput = "Consumers.size() " + sConsumersSize;
+    std::string sOutput = "Consumers.size() " + Output::Instance().StringFromInt(Consumers.size());
     Output::Instance().addOutput(sOutput, 1);
     unsigned int consumer_iterator;
     for (consumer_iterator = 0; consumer_iterator < Consumers.size(); consumer_iterator++)
