@@ -77,7 +77,7 @@ void Whois::AddQueue(std::pair< std::string, std::string > pData)
     std::string sOutput = "vConsumers.size() " + Output::Instance().StringFromInt(vConsumers.size());
     Output::Instance().addOutput(sOutput, 1);
     unsigned int consumer_iterator;
-    pConsumer->AddWhoisQueue(pData);
+    //pConsumer->AddWhoisQueue(pData);
     for (consumer_iterator = 0; consumer_iterator < vConsumers.size(); consumer_iterator++)
     {
         vConsumers[consumer_iterator]->AddWhoisQueue(pData);
