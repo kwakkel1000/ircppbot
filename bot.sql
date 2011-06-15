@@ -144,7 +144,7 @@ INSERT INTO `OCommandsCommands` (`id`, `command`, `bind`, `access`) VALUES
 (18, 'support', 'support', 0),
 (19, 'action', 'action', 300),
 (20, 'action', 'emote', 300),
-(21, 'broadcast', 'broadcast', 999);
+(21, 'broadcast', 'broadcast', 999),
 (22, 'listchannels', 'listchannels', 200);
 
 -- --------------------------------------------------------
