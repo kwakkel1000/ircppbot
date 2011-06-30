@@ -1,3 +1,27 @@
+//
+//
+//  @ Project : ircppbot
+//  @ File Name : Channels.h
+//  @ Date : 4/18/2011
+//  @ Author : Gijs Kwakkel
+//
+//
+// Copyright (c) 2011 Gijs Kwakkel
+//
+// This program is free software; you can redistribute it and/or
+// modify it under the terms of the GNU General Public License
+// as published by the Free Software Foundation; either version 2
+// of the License, or (at your option) any later version.
+// This program is distributed in the hope that it will be useful,
+// but WITHOUT ANY WARRANTY; without even the implied warranty of
+// MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
+// GNU General Public License for more details.
+//
+// You should have received a copy of the GNU General Public License
+// along with this program; if not, write to the Free Software
+// Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301, USA.
+//
+
 #ifndef Channels_h
 #define Channels_h
 #include "../interfaces/ChannelsInterface.h"
@@ -42,6 +66,11 @@ public:
     virtual bool SetGivevoice(std::string, int);
     virtual int GetGivevoice(std::string);
 
+    std::string GetSetting(std::string msChannel, std::string msKey);
+    bool SetSetting(std::string msChannel, std::string msKey, std::string msValue);
+    bool InitSetting(std::string msChannel, std::string msKey, std::string msValue);
+
+    // depricated
     virtual std::string GetCid(std::string);
     virtual bool SetCid(std::string, std::string);
 
@@ -59,7 +88,7 @@ public:
 
 private:
 
-    std::vector< std::string > channellist;
+    std::vector< std::string > channellist; // making it a std::map  renaming it mChannelList
     std::vector< Channel* > c;
     unsigned int GetChannelIndex(std::string sChannel);
 };

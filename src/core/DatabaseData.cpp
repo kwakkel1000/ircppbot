@@ -33,6 +33,7 @@
 
 #include "../include/core/Database.h"
 #include "../include/core/Global.h"
+#include "../include/core/Output.h"
 #include "../include/interfaces/ConfigReaderInterface.h"
 
 DatabaseData::DatabaseData()
@@ -72,6 +73,98 @@ void DatabaseData::DatabaseInit()
     users_vector = RawSqlSelect(sql_string);
     std::cout << "DatabaseInit() DONE" << std::endl;
     mRun = true;
+}
+
+bool DatabaseData::InsertData(std::string msWhere, std::string msKey, std::string msValue)
+{
+    std::string _sSqlString;
+    _sSqlString = _sSqlString + "INSERT into ";
+    _sSqlString = _sSqlString + msWhere;
+    _sSqlString = _sSqlString + " (`";
+    _sSqlString = _sSqlString + msKey;
+    _sSqlString = _sSqlString + "`) VALUES ('";
+    _sSqlString = _sSqlString + msValue;
+    _sSqlString = _sSqlString + "')";
+    Output::Instance().addOutput(_sSqlString, 5);
+    AddSqlQueue(_sSqlString);
+    return true;
+    return false;
+}
+
+bool DatabaseData::InsertData(std::string msWhere, std::vector< std::string > mvKeys, std::vector< std::string > mvValues)
+{
+    std::string _sSqlString;
+    _sSqlString = _sSqlString + "INSERT into ";
+    _sSqlString = _sSqlString + msWhere;
+    _sSqlString = _sSqlString + " (`";
+    for (unsigned int uiKeysIndex = 0; uiKeysIndex < mvKeys.size() -1; uiKeysIndex++)
+    {
+        _sSqlString = _sSqlString + mvKeys[uiKeysIndex];
+        _sSqlString = _sSqlString + "`, `";
+    }
+    if (mvKeys.size() >= 1)
+    {
+        _sSqlString = _sSqlString + mvKeys[mvKeys.size() -1];
+    }
+    _sSqlString = _sSqlString + "`) VALUES (";
+    for (unsigned int uiValuesIndex = 0; uiValuesIndex < mvValues.size() -1; uiValuesIndex++)
+    {
+        _sSqlString = _sSqlString + "'" + mvValues[uiValuesIndex];
+        _sSqlString = _sSqlString + "', ";
+    }
+    if (mvValues.size() >= 1)
+    {
+        _sSqlString = _sSqlString + "'" + mvValues[mvValues.size() -1] + "'";
+    }
+    Output::Instance().addOutput(_sSqlString, 5);
+    AddSqlQueue(_sSqlString);
+    return true;
+    return false;
+}
+
+bool DatabaseData::UpdateData(std::string msWhere, std::string msKey, std::string msValue, std::string msCondition)
+{
+    std::string _sSqlString;
+    _sSqlString = _sSqlString + "UPDATE ";
+    _sSqlString = _sSqlString + msWhere;
+    _sSqlString = _sSqlString + " SET `";
+    _sSqlString = _sSqlString + msKey;
+    _sSqlString = _sSqlString + "`='";
+    _sSqlString = _sSqlString + msValue;
+    _sSqlString = _sSqlString + "' WHERE ";
+    _sSqlString = _sSqlString + msCondition;
+    Output::Instance().addOutput(_sSqlString, 5);
+    AddSqlQueue(_sSqlString);
+    return true;
+    return false;
+}
+
+bool DatabaseData::UpdateData(std::string msWhere, std::vector< std::string > mvKeys, std::vector< std::string > mvValues, std::string msCondition)
+{
+    std::string _sSqlString;
+    _sSqlString = _sSqlString + "UPDATE ";
+    _sSqlString = _sSqlString + msWhere;
+    _sSqlString = _sSqlString + " SET `";
+    for (unsigned int uiKeysIndex = 0; uiKeysIndex < mvKeys.size() -1; uiKeysIndex++)
+    {
+        _sSqlString = _sSqlString + mvKeys[uiKeysIndex];
+        _sSqlString = _sSqlString + "`='";
+        _sSqlString = _sSqlString + mvValues[uiKeysIndex];
+        _sSqlString = _sSqlString + "', `";
+    }
+    if (mvKeys.size() >= 1 && mvValues.size() >= 1)
+    {
+        _sSqlString = _sSqlString + mvKeys[mvKeys.size() -1];
+        _sSqlString = _sSqlString + "`='";
+        _sSqlString = _sSqlString + mvValues[mvKeys.size() -1];
+        _sSqlString = _sSqlString + "'";
+    }
+    _sSqlString = _sSqlString + " WHERE ";
+    _sSqlString = _sSqlString + msCondition;
+    Output::Instance().addOutput(_sSqlString, 5);
+    AddSqlQueue(_sSqlString);
+    return true;
+    return false;
 }
 
 // deprecated becomes LoadBinds()

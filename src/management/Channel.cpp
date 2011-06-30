@@ -24,6 +24,7 @@
 
 
 #include "../include/management/Channel.h"
+#include "../include/core/DatabaseData.h"
 #include <boost/algorithm/string.hpp>
 
 Channel::Channel()
@@ -36,7 +37,7 @@ Channel::~Channel()
 {
     for ( unsigned int i = 0 ; i < channelauthlist.size(); i++ )
     {
-        cout << "DELETED: CHANNEL: " << channelauthlist[i] << "\r\n";
+        std::cout << "DELETED: CHANNEL: " << channelauthlist[i] << "\r\n";
         channelauthlist.erase(channelauthlist.begin()+i);
         ca[i]->~ChannelAuth();
         ca.erase(ca.begin()+i);
@@ -44,7 +45,7 @@ Channel::~Channel()
 
 }
 
-bool Channel::AddNick(string data)
+bool Channel::AddNick(std::string data)
 {
     int i = GetNicksIndex(data);
     if (i == -1)
@@ -57,7 +58,7 @@ bool Channel::AddNick(string data)
     return false;
 }
 
-bool Channel::DelNick(string data)
+bool Channel::DelNick(std::string data)
 {
     int i = GetNicksIndex(data);
     if (i >= 0)
@@ -70,7 +71,7 @@ bool Channel::DelNick(string data)
     return false;
 }
 
-bool Channel::AddAuth(string data)
+bool Channel::AddAuth(std::string data)
 {
     int i = GetChannelAuthIndex(data);
     if (i == -1)
@@ -84,7 +85,7 @@ bool Channel::AddAuth(string data)
     return false;
 }
 
-bool Channel::DelAuth(string data)
+bool Channel::DelAuth(std::string data)
 {
     int i = GetChannelAuthIndex(data);
     if (i >= 0)
@@ -97,18 +98,18 @@ bool Channel::DelAuth(string data)
     return false;
 }
 
-bool Channel::SetAccess(string data, int access)
+bool Channel::SetAccess(std::string msAuth, int miAccess)
 {
-    int i = GetChannelAuthIndex(data);
+    int i = GetChannelAuthIndex(msAuth);
     if (i >= 0)
     {
-        ca[i]->SetAccess(access);
+        ca[i]->SetAccess(miAccess);
         return true;
     }
     return false;
 }
 
-int Channel::GetAccess(string data)
+int Channel::GetAccess(std::string data)
 {
     int i = GetChannelAuthIndex(data);
     if (i >= 0)
@@ -118,7 +119,7 @@ int Channel::GetAccess(string data)
     return -1;
 }
 
-bool Channel::SetOp(string data, bool set)
+bool Channel::SetOp(std::string data, bool set)
 {
     boost::mutex::scoped_lock  lock(Channel_mutex);
     int i = GetNicksIndex(data);
@@ -130,7 +131,7 @@ bool Channel::SetOp(string data, bool set)
     return false;
 }
 
-bool Channel::GetOp(string data)
+bool Channel::GetOp(std::string data)
 {
     boost::mutex::scoped_lock  lock(Channel_mutex);
     int i = GetNicksIndex(data);
@@ -141,7 +142,7 @@ bool Channel::GetOp(string data)
     return false;
 }
 
-bool Channel::SetVoice(string data, bool set)
+bool Channel::SetVoice(std::string data, bool set)
 {
     boost::mutex::scoped_lock  lock(Channel_mutex);
     int i = GetNicksIndex(data);
@@ -153,7 +154,7 @@ bool Channel::SetVoice(string data, bool set)
     return false;
 }
 
-bool Channel::GetVoice(string data)
+bool Channel::GetVoice(std::string data)
 {
     boost::mutex::scoped_lock  lock(Channel_mutex);
     int i = GetNicksIndex(data);
@@ -164,16 +165,37 @@ bool Channel::GetVoice(string data)
     return false;
 }
 
-vector<string> Channel::GetNicks()
+std::vector< std::string > Channel::GetNicks()
 {
     return nicks;
 }
 
-vector<string> Channel::GetAuths()
+std::vector< std::string > Channel::GetAuths()
 {
     return channelauthlist;
 }
 
+
+std::string Channel::GetSetting(std::string msKey)
+{
+    boost::mutex::scoped_lock  lock(Channel_mutex);
+    return mSettings[msKey];
+}
+
+bool Channel::SetSetting(std::string msKey, std::string msValue)
+{
+    boost::mutex::scoped_lock  lock(Channel_mutex);
+    DatabaseData::Instance().UpdateData("channels", msKey, msValue, "`ChannelUuid` = '" + cid +"'");
+    mSettings[msKey] = msValue;
+    return true;
+}
+
+bool Channel::InitSetting(std::string msKey, std::string msValue)
+{
+    boost::mutex::scoped_lock  lock(Channel_mutex);
+    mSettings[msKey] = msValue;
+    return true;
+}
 
 bool Channel::SetGiveops(int data)
 {
@@ -214,7 +236,7 @@ std::string Channel::GetCid()
 }
 
 
-int Channel::GetChannelAuthIndex(string data)
+int Channel::GetChannelAuthIndex(std::string data)
 {
     for ( unsigned int i = 0 ; i < channelauthlist.size(); i++ )
     {
@@ -226,7 +248,7 @@ int Channel::GetChannelAuthIndex(string data)
     return -1;
 }
 
-int Channel::GetNicksIndex(string data)
+int Channel::GetNicksIndex(std::string data)
 {
     for ( unsigned int i = 0 ; i < nicks.size(); i++ )
     {

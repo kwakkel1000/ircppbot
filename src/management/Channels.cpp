@@ -25,6 +25,7 @@
 
 #include "../include/management/Channels.h"
 #include "../include/core/DatabaseData.h"
+#include "../include/core/BotLib.h"
 #include <boost/algorithm/string.hpp>
 
 Channels::Channels() { }
@@ -140,12 +141,12 @@ bool Channels::DelAuth(string data, string auth)
     return false;
 }
 
-bool Channels::SetAccess(string data, string auth, int access)
+bool Channels::SetAccess(string msChannel, string msAuth, int miAccess)
 {
-    unsigned int i = GetChannelIndex(data);
+    unsigned int i = GetChannelIndex(msChannel);
     if ((i >= 0) && (i < channellist.size()))
     {
-        c[i]->SetAccess(auth, access);
+        c[i]->SetAccess(msAuth, miAccess);
         return true;
     }
     return false;
@@ -161,43 +162,67 @@ int Channels::GetAccess(string data, string auth)
     return -1;
 }
 
-int Channels::GetGiveops(string data)
+std::string Channels::GetSetting(std::string msChannel, std::string msKey)
 {
-    unsigned int i = GetChannelIndex(data);
-    if ((i >= 0) && (i < channellist.size()))
+    unsigned int uiChannelIndex = GetChannelIndex(msChannel);
+    if ((uiChannelIndex >= 0) && (uiChannelIndex < channellist.size()))
     {
-        return c[i]->GetGiveops();
+        return c[uiChannelIndex]->GetSetting(msKey);
     }
+    return "NULL";
+}
+
+bool Channels::SetSetting(std::string msChannel, std::string msKey, std::string msValue)
+{
+    unsigned int uiChannelIndex = GetChannelIndex(msChannel);
+    if ((uiChannelIndex >= 0) && (uiChannelIndex < channellist.size()))
+    {
+        return c[uiChannelIndex]->SetSetting(msKey, msValue);
+    }
+    return false;
+}
+
+bool Channels::InitSetting(std::string msChannel, std::string msKey, std::string msValue)
+{
+    unsigned int uiChannelIndex = GetChannelIndex(msChannel);
+    if ((uiChannelIndex >= 0) && (uiChannelIndex < channellist.size()))
+    {
+        return c[uiChannelIndex]->InitSetting(msKey, msValue);
+    }
+    return false;
+}
+
+int Channels::GetGiveops(std::string msChannel)
+{
+    return BotLib::IntFromString(GetSetting(msChannel, "giveops"));
     return 501;
 }
 
-bool Channels::SetGiveops(string data, int giveops)
+bool Channels::SetGiveops(std::string msChannel, int iGiveops)
 {
-    unsigned int i = GetChannelIndex(data);
+    /*unsigned int i = GetChannelIndex(msChannel);
     if ((i >= 0) && (i < channellist.size()))
     {
-        return c[i]->SetGiveops(giveops);
-    }
+        return c[i]->SetGiveops(iGiveops);
+    }*/
+    return SetSetting(msChannel, "giveops", BotLib::StringFromInt(iGiveops));
     return true;
 }
 
-int Channels::GetGivevoice(string data)
+int Channels::GetGivevoice(std::string msChannel)
 {
-    unsigned int i = GetChannelIndex(data);
-    if ((i >= 0) && (i < channellist.size()))
-    {
-        return c[i]->GetGivevoice();
-    }
+    return BotLib::IntFromString(GetSetting(msChannel, "givevoice"));
     return 501;
 }
 
-bool Channels::SetGivevoice(string data, int givevoice)
+bool Channels::SetGivevoice(std::string msChannel, int iGivevoice)
 {
-    unsigned int i = GetChannelIndex(data);
+    /*unsigned int i = GetChannelIndex(msChannel);
     if ((i >= 0) && (i < channellist.size()))
     {
-        return c[i]->SetGivevoice(givevoice);
-    }
+        return c[i]->SetGivevoice(iGivevoice);
+    }*/
+    return SetSetting(msChannel, "givevoice", BotLib::StringFromInt(iGivevoice));
     return true;
 }
 

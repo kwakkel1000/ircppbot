@@ -83,7 +83,7 @@ class Global
 
         bool m_Run;
 
-		int m_Time;
+        int m_Time;
         std::string m_BotNick;
         std::string m_ConfigFile;
         UsersInterface* m_Users;

@@ -174,12 +174,12 @@ std::string User::GetLanguage()
     return lang;
 }
 
-int User::GetChannelIndex(string data)
+int User::GetChannelIndex(std::string sChannel)
 {
     //boost::mutex::scoped_lock  lock(User_mutex);
     for ( unsigned int i = 0 ; i < channels.size(); i++ )
     {
-        if (boost::iequals(channels[i],data))
+        if (boost::iequals(channels[i], sChannel))
         {
             return i;
         }

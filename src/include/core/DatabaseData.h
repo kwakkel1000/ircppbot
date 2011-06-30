@@ -77,6 +77,12 @@ class DatabaseData
         std::vector< std::vector< std::string > > GetUserUuidAndAccessByChannelUuid(std::string ChannelUuid);
         std::vector< std::string > GetAuths();
 
+        bool InsertData(std::string msWhere, std::string msKey, std::string msValue);
+        bool InsertData(std::string msWhere, std::vector< std::string > mvKeys, std::vector< std::string > mvValues);
+
+        bool UpdateData(std::string msWhere, std::string msKey, std::string msValue, std::string msCondition);
+        bool UpdateData(std::string msWhere, std::vector< std::string > mvKeys, std::vector< std::string > mvValues, std::string msCondition);
+
     private:
         DatabaseData();
         ~DatabaseData();

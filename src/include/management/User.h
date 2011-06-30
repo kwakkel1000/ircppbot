@@ -16,19 +16,16 @@ public:
     User();
     virtual ~User();
 
-    virtual void SetNick(string);
-    virtual string GetNick();
+    virtual void SetNick(std::string);
+    virtual std::string GetNick();
 
+    virtual void SetAuth(std::string);
+    virtual std::string GetAuth();
 
-    virtual void SetAuth(string);
-    virtual string GetAuth();
+    virtual bool AddChannel(std::string);
+    virtual bool DelChannel(std::string);
 
-
-    virtual bool AddChannel(string);
-    virtual bool DelChannel(string);
-
-
-    virtual vector<string> GetChannels();
+    virtual vector< std::string > GetChannels();
 
     virtual void SetOaccess(int);
     virtual int GetOaccess();
@@ -55,16 +52,16 @@ public:
 
 
 private:
-    string nick;
-    string auth;
-    vector<string> channels;
-    vector<string> NULLvector;
+    std::string nick;
+    std::string auth;
+    std::vector< std::string > channels;
+    std::vector< std::string > NULLvector;
     bool gone;
     bool x;
     bool d;
     bool ircop;
     std::string lang;
-    int GetChannelIndex(string data);
+    int GetChannelIndex(std::string sChannel);
     int oaccess;
     int god;
 

@@ -44,12 +44,18 @@ class Reply : public ReplyInterface
         std::string irc_reply_replace(std::string source_string, std::string search_string, std::string replace_string);
 
         std::string irc_privmsg(std::string target, std::string text);
-		std::string irc_notice(std::string target, std::string text);
-		std::string irc_mode(std::string target, std::string mode);
-		std::string irc_join(std::string channel);
-		std::string irc_part(std::string channel, std::string reason);
-		std::string irc_kick(std::string channel, std::string target, std::string reason);
-		std::string irc_invite(std::string channel, std::string target);
+        std::string irc_notice(std::string target, std::string text);
+        std::string irc_mode(std::string target, std::string mode);
+        std::string irc_join(std::string channel);
+        std::string irc_part(std::string channel, std::string reason);
+        std::string irc_kick(std::string channel, std::string target, std::string reason);
+        std::string irc_invite(std::string channel, std::string target);
+
+        std::string irc_bold();
+        std::string irc_underline();
+        std::string irc_italic();
+        std::string irc_normal();
+        std::string irc_color();
 
         // reload
         void Reload();
@@ -61,9 +67,6 @@ class Reply : public ReplyInterface
         std::vector< std::string > reply_name_vector;
         std::vector< std::string > reply_vector;
         std::vector< std::string > reply_language_vector;
-
-        // database
-        std::vector< std::vector< std::string > > RawSqlSelect(std::string data);
 };
 
 #endif  // SRC_INCLUDE_CORE_REPLY_H_

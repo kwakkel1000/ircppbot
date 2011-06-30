@@ -28,6 +28,7 @@
 #include <interfaces/ChannelsInterface.h>
 #include <interfaces/ConfigReaderInterface.h>
 #include <core/DatabaseData.h>
+#include <core/BotLib.h>
 #include <core/Global.h>
 #include <core/Output.h>
 #include <core/Data.h>
@@ -704,23 +705,25 @@ void UserManagement::GetUserInfo(std::string data)
     }
 }
 
-void UserManagement::GetChannelInfo(std::string data)
+void UserManagement::GetChannelInfo(std::string msChannel)
 {
     ChannelsInterface& C = Global::Instance().get_Channels();
-    C.SetCid(data, DatabaseData::Instance().GetChannelUuidByChannel(data));
-    C.SetGiveops(data, DatabaseData::Instance().GetGiveOpsByChannel(data));
-    C.SetGivevoice(data, DatabaseData::Instance().GetGiveVoiceByChannel(data));
+    C.InitSetting(msChannel, "giveops", BotLib::StringFromInt(DatabaseData::Instance().GetGiveOpsByChannel(msChannel)));
+    C.InitSetting(msChannel, "givevoice", BotLib::StringFromInt(DatabaseData::Instance().GetGiveVoiceByChannel(msChannel)));
+    C.SetCid(msChannel, DatabaseData::Instance().GetChannelUuidByChannel(msChannel));
+    /*C.SetGiveops(msChannel, DatabaseData::Instance().GetGiveOpsByChannel(msChannel));
+    C.SetGivevoice(msChannel, DatabaseData::Instance().GetGiveVoiceByChannel(msChannel));*/
 
     std::vector< std::vector< std::string > > channels_vector;
-    std::string ChannelUuid = DatabaseData::Instance().GetChannelUuidByChannel(data);
+    std::string ChannelUuid = DatabaseData::Instance().GetChannelUuidByChannel(msChannel);
     channels_vector = DatabaseData::Instance().GetUserUuidAndAccessByChannelUuid(ChannelUuid);
     unsigned int i;
     for (i = 0 ; i < channels_vector.size() ; i++)
     {
         std::string auth = DatabaseData::Instance().GetAuthByUserUuid(channels_vector[i][0]);
-        //std::cout << data << " " << auth << " " << channels_vector[i][1] << std::endl;
-        C.AddAuth(data, auth);
-        C.SetAccess(data, auth, convertString(channels_vector[i][1]));
+        //std::cout << msChannel << " " << auth << " " << channels_vector[i][1] << std::endl;
+        C.AddAuth(msChannel, auth);
+        C.SetAccess(msChannel, auth, convertString(channels_vector[i][1]));
     }
 }
 

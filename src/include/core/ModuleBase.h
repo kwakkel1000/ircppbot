@@ -40,6 +40,11 @@ class ModuleBase : public ModuleInterface
         ~ModuleBase();
 
     protected:
+
+        bool bParseRaw;
+        bool bParseMode;
+        bool bParseWhois;
+        bool bParsePrivmsg;
         // global functions
 
         // irc

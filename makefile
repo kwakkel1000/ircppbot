@@ -20,7 +20,7 @@ core_objects 		= \
 	$(COREDIR)main.o $(COREDIR)Bot.o $(COREDIR)Output.o \
 	$(COREDIR)Data.o $(COREDIR)IrcData.o \
 	$(COREDIR)Database.o $(COREDIR)DatabaseData.o \
-	$(COREDIR)ConfigReader.o $(COREDIR)Global.o $(COREDIR)Reply.o $(COREDIR)ModuleBase.o
+	$(COREDIR)ConfigReader.o $(COREDIR)Global.o $(COREDIR)Reply.o $(COREDIR)ModuleBase.o $(COREDIR)BotLib.o
 management_objects 	= \
 	$(MANAGEMENTDIR)Whois.o $(MANAGEMENTDIR)WhoisDataContainer.o \
 	$(MANAGEMENTDIR)ChannelAuth.o \

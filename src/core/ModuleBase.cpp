@@ -40,6 +40,10 @@
 // public
 ModuleBase::ModuleBase()
 {
+        bParseRaw = false;
+        bParseMode = false;
+        bParseWhois = false;
+        bParsePrivmsg = false;
 }
 
 
