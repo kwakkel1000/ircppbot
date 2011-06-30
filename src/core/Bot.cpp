@@ -30,6 +30,7 @@
 
 #include <iostream>
 #include <vector>
+#include <sstream>
 #include <string>
 
 #include "../include/core/ConfigReader.h"
