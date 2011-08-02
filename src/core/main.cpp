@@ -106,9 +106,13 @@ int main(int argc, char *argv[])
 {
     SetupSIGSEGVSignal();
     SetupSIGTERMSignal();
-    std::string inifile = "NULL";
-    inifile = "conf/tree.ini";
+
     bool ineedroot = false;
+    std::string inifile = "NULL";
+    std::string pidfile = "NULL";
+
+    inifile = "conf/bot.ini";
+    pidfile = ".run/bot.pid";
 
     std::vector< std::string > args;
     for (int nArg = 0; nArg < argc; nArg++)
@@ -134,7 +138,18 @@ int main(int argc, char *argv[])
                 Output::Instance().setDebugLevel(i);
             }
         }
-        if (args[nArg] == "-INeedRootPowerz")
+        if (args[nArg] == "-pid" || args[nArg] == "-p")
+        {
+            if ((nArg+1) <= args.size())
+            {
+                pidfile = args[nArg+1];
+            }
+        }
+        if (args[nArg] == "--INeedRootPowerz")
+        {
+            ineedroot = true;
+        }
+        if (args[nArg] == "--help" || "-h")
         {
             ineedroot = true;
         }
@@ -181,3 +196,47 @@ int main(int argc, char *argv[])
     }
     return 0;
 }
+
+
+
+// TODO(gijs):
+//     struct pidfh *pfh;
+//     pid_t otherpid, childpid;
+//
+//     pfh = pidfile_open("/var/run/daemon.pid", 0600, &otherpid);
+//     if (pfh == NULL) {
+//             if (errno == EEXIST) {
+//                     errx(EXIT_FAILURE, "Daemon already running, pid: %jd.",
+//                         (intmax_t)otherpid);
+//             }
+//             /* If we cannot create pidfile from other reasons, only warn. */
+//             warn("Cannot open or create pidfile");
+//     }
+//
+//     if (daemon(0, 0) == -1) {
+//             warn("Cannot daemonize");
+//             pidfile_remove(pfh);
+//             exit(EXIT_FAILURE);
+//     }
+//
+//     pidfile_write(pfh);
+//
+//     for (;;) {
+//             /* Do work. */
+//             childpid = fork();
+//             switch (childpid) {
+//             case -1:
+//                     syslog(LOG_ERR, "Cannot fork(): %s.", strerror(errno));
+//                     break;
+//             case 0:
+//                     pidfile_close(pfh);
+//                     /* Do child work. */
+//                     break;
+//             default:
+//                     syslog(LOG_INFO, "Child %jd started.", (intmax_t)childpid);
+//                     break;
+//             }
+//     }
+//
+//     pidfile_remove(pfh);
+//     exit(EXIT_SUCCESS);

@@ -44,12 +44,14 @@
 #include "../include/socket/SocketException.h"
 #include "../include/management/Users.h"
 #include "../include/management/Channels.h"
+#include "../include/management/Whois.h"
 
 
 Bot::Bot()
 // Initialize all member vars! std::string's will just use their default constructor
 : mpIrcSocket(NULL)
 {
+    Whois::Instance();
 }
 
 Bot::~Bot()
