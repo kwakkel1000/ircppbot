@@ -83,6 +83,9 @@ class DatabaseData
         bool UpdateData(std::string msWhere, std::string msKey, std::string msValue, std::string msCondition);
         bool UpdateData(std::string msWhere, std::vector< std::string > mvKeys, std::vector< std::string > mvValues, std::string msCondition);
 
+        std::vector< std::string > GetData(std::string msWhere, std::string msKey, std::string msCondition);
+        // std::vector< std::map< std::string, std::string > GetData(std::string msWhere, std::vector< std::string > mvKeys, std::vector< std::string > mvValues, std::string msCondition);
+
     private:
         DatabaseData();
         ~DatabaseData();

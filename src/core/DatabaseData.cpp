@@ -75,6 +75,51 @@ void DatabaseData::DatabaseInit()
     mRun = true;
 }
 
+/**
+ * GetData
+ * Create sql string from input vars and execute query
+ * @param msWhere Which datasource to get the data from (database in this class)
+ * @param msKey Which key to get the data from (colom in this class)
+ * @param msCondition Which conditions has the data to fullfill to get in the return (Where in this class)
+ * @return result of data in a vector
+ *
+ */
+std::vector< std::string > DatabaseData::GetData(std::string msWhere, std::string msKey, std::string msCondition)
+{
+    std::string _sSqlString;
+    _sSqlString = _sSqlString + "SELECT ";
+    _sSqlString = _sSqlString + " `";
+    _sSqlString = _sSqlString + msKey;
+    _sSqlString = _sSqlString + "` FROM `";
+    _sSqlString = _sSqlString + msWhere;
+    _sSqlString = _sSqlString + "` WHERE ";
+    _sSqlString = _sSqlString + msCondition;
+    Output::Instance().addOutput(_sSqlString, 5);
+    database *db;
+    std::vector< std::vector< std::string > > _vSqlResult;
+    std::vector< std::string > _vDataResult;
+    db = new database();
+    int state = db->openConnection(mHostName.c_str(), mDatabaseName.c_str(), mUserName.c_str(), mPass.c_str());
+    if (state == 200)
+    {
+        _vSqlResult = db->sql_query(_sSqlString.c_str());
+        for (unsigned int _uiSqlResultIndex = 0; _uiSqlResultIndex < _vSqlResult.size(); _uiSqlResultIndex++)
+        {
+            if (_vSqlResult[_uiSqlResultIndex].size() == 1)
+            {
+                _vDataResult.push_back(_vSqlResult[_uiSqlResultIndex][0]);
+            }
+        }
+    }
+    else
+    {
+        Output::Instance().addOutput("Database Connection fail", 4);
+    }
+    db->disconnect();
+    delete db;
+    return _vDataResult;
+}
+
 bool DatabaseData::InsertData(std::string msWhere, std::string msKey, std::string msValue)
 {
     std::string _sSqlString;
@@ -552,7 +597,7 @@ std::vector< std::vector< std::string > > DatabaseData::RawSqlSelect(std::string
 {
     std::cout << data << std::endl;
     database *db;
-    std::vector< std::vector<std::string> > sql_result;
+    std::vector< std::vector< std::string > > sql_result;
     db = new database();    // lol whut... connecting for each query? :'D
     int state = db->openConnection(mHostName.c_str(), mDatabaseName.c_str(), mUserName.c_str(), mPass.c_str());
     if (state == 200)
