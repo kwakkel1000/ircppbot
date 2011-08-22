@@ -68,26 +68,27 @@ public:
     virtual bool DelChannel(std::string, std::string);
     virtual std::vector< std::string > GetChannels(std::string);
 
-    virtual std::string GetUid(std::string);
+    std::string GetUid(std::string);
 
-    virtual bool SetGone(std::string, bool);
-    virtual bool GetGone(std::string);
+    bool SetGone(std::string, bool);
+    bool GetGone(std::string);
 
-    virtual bool SetX(std::string, bool);
-    virtual bool GetX(std::string);
+    bool SetX(std::string, bool);
+    bool GetX(std::string);
 
-    virtual bool SetD(std::string, bool);
-    virtual bool GetD(std::string);
+    bool SetD(std::string, bool);
+    bool GetD(std::string);
 
-    virtual bool SetIrcop(std::string, bool);
-    virtual bool GetIrcop(std::string);
+    bool SetIrcop(std::string, bool);
+    bool GetIrcop(std::string);
 
-    virtual bool SetLanguage(std::string, std::string);
-    virtual std::string GetLanguage(std::string);
+    bool SetLanguage(std::string, std::string);
+    std::string GetLanguage(std::string);
 
-    virtual int GetWidthLength(std::string);
+    int GetWidthLength(std::string); // deprecated  replaced by GetCollums
+    int GetCollums(std::string);
 
-    virtual int GetWidth(std::string);
+    int GetWidth(std::string);
 
 private:
     std::vector< std::string > nick;

@@ -148,7 +148,61 @@ std::vector< int > BotLib::VectorTimeFromSecondsTime(int miTime)
     return vTime;
 }
 
+std::string BotLib::HostmaskToNick(std::vector<std::string> mvRawIrcData)
+{
+    std::vector< std::string > _vWho;
+    boost::split(_vWho, mvRawIrcData[0], boost::is_any_of("!"), boost::token_compress_on);
+    std::string _sNick = _vWho[0];
+    boost::erase_all(_sNick, ":");
+    return _sNick;
+}
 
+std::string BotLib::Centre(std::string msInputString, unsigned int muiRowAmount, unsigned int muiWidth)
+{
+    std::string _sReturnString = "";
+    for (unsigned int l = 0; l < (((muiWidth * muiRowAmount) / 2) - msInputString.size()/2); l++)
+    {
+        _sReturnString = _sReturnString + " ";
+    }
+    _sReturnString = _sReturnString + msInputString;
+    return _sReturnString;
+}
+
+std::string BotLib::FillSpace(std::string data, unsigned int length)
+{
+    std::string tmpstr = data;
+    for (unsigned int l = data.size(); l < length; l++)
+    {
+        tmpstr = tmpstr + " ";
+    }
+    return tmpstr;
+}
+
+std::vector<std::string> BotLib::LineOut(std::vector<std::string> data, unsigned int rowamount, unsigned int length)
+{
+    std::vector< std::string > return_vector;
+    std::string tmpvector;
+    unsigned int k = 0;
+    for (unsigned int j = 0; j < data.size(); j++)
+    {
+        if (k < rowamount)
+        {
+            tmpvector = tmpvector + FillSpace(data[j], length);
+            k++;
+        }
+        if (k >= rowamount)
+        {
+            return_vector.push_back(tmpvector);
+            tmpvector = "";
+            k = 0;
+        }
+    }
+    if (k != 0)
+    {
+        return_vector.push_back(tmpvector);
+    }
+    return return_vector;
+}
 
 
 

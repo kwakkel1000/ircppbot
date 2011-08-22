@@ -41,6 +41,12 @@ class BotLib : public ReplyInterface
         // Conversion
         static std::string StringFromInt(int miInput);
         static int IntFromString(std::string msInput);
+        static std::string HostmaskToNick(std::vector<std::string> mvRawIrcData);
+
+        // lineout
+        static std::string Centre(std::string msInputString, unsigned int muiRowAmount, unsigned int muiWidth);
+        static std::string FillSpace(std::string msInputString, unsigned int muiWidth);
+        static std::vector< std::string > LineOut(std::vector<std::string> mvInputData, unsigned int muiRowAmount, unsigned int muiWidth);
 
     private:
         BotLib();

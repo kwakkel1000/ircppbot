@@ -67,7 +67,7 @@ class ModuleBase : public ModuleInterface
 
         // other
         std::string HostmaskToNick(std::vector<std::string> data);
-        std::string centre(int cmdsize, unsigned int rowamount, unsigned int length);
+        std::string centre(int miStringSize, unsigned int muiRowAmount, unsigned int muiLength);
         std::string fillspace(std::string data, unsigned int length);
         std::vector< std::string > lineout(std::vector<std::string> data, unsigned int rowamount, unsigned int length);
         std::string convertInt(int number);

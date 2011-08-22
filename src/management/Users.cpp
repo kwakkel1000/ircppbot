@@ -464,12 +464,17 @@ bool Users::AddAuth(string data)
 
 
 
-int Users::GetWidth(string nick)
+int Users::GetWidth(std::string msNick)
 {
     return 20;
 }
 
-int Users::GetWidthLength(string nick)
+int Users::GetWidthLength(std::string msNick)
+{
+    return GetCollums(msNick);
+}
+
+int Users::GetCollums(std::string msNick)
 {
     return 5;
 }

@@ -355,14 +355,14 @@ std::string ModuleBase::HostmaskToNick(std::vector<std::string> data)
     return nick;
 }
 
-std::string ModuleBase::centre(int cmdsize, unsigned int rowamount, unsigned int length)
+std::string ModuleBase::centre(int miStringSize, unsigned int muiRowAmount, unsigned int muiLength)
 {
-    std::string returnstring = "";
-    for (unsigned int l = 0; l < (((length * rowamount) / 2) - cmdsize/2); l++)
+    std::string _sReturnString = "";
+    for (unsigned int l = 0; l < (((muiLength * muiRowAmount) / 2) - miStringSize/2); l++)
     {
-        returnstring = returnstring + " ";
+        _sReturnString = _sReturnString + " ";
     }
-    return returnstring;
+    return _sReturnString;
 }
 
 std::string ModuleBase::fillspace(std::string data, unsigned int length)

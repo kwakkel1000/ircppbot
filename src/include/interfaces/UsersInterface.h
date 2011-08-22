@@ -50,7 +50,8 @@ public:
     virtual bool SetLanguage(std::string, std::string)=0;       // Modules
     virtual std::string GetLanguage(std::string)=0;             // Modules
 
-    virtual int GetWidthLength(std::string)=0;                  // Modules
+    virtual int GetCollums(std::string)=0;                      // Modules
+    virtual int GetWidthLength(std::string)=0;                  // Modules  Deprecated  replaced by GetCollums
     virtual int GetWidth(std::string)=0;                        // Modules
 
 
