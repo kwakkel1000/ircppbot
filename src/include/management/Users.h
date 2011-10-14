@@ -51,6 +51,8 @@ public:
 
     virtual void Debug();
 
+    bool FirstJoin(std::string msNick);
+
     virtual bool SetAuth(std::string, std::string);
     virtual std::string GetAuth(std::string);
     virtual std::vector< std::string> GetNicks(std::string);

@@ -47,6 +47,8 @@ public:
     virtual void SetAuth(std::string);
     virtual std::string GetAuth();
 
+    bool FirstJoin();
+
     virtual bool AddChannel(std::string);
     virtual bool DelChannel(std::string);
 
@@ -89,6 +91,7 @@ private:
     int GetChannelIndex(std::string sChannel);
     int oaccess;
     int god;
+    bool bFirstJoin;
 
     boost::mutex User_mutex;
 };

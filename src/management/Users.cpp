@@ -43,6 +43,16 @@ Users::~Users()
     }
 }
 
+bool Users::FirstJoin(std::string msNick)
+{
+    int i = GetNickIndex(msNick);
+    if (i >= 0)
+    {
+        return u[i]->FirstJoin();
+    }
+    return false;
+}
+
 bool Users::AddUser(string data)
 {
     //boost::mutex::scoped_lock  lock(User_mutex);

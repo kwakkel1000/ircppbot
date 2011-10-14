@@ -36,6 +36,7 @@ User::User()
     x = false;
     d = false;
     ircop = false;
+    bFirstJoin=true;
 }
 
 User::~User() { }
@@ -60,6 +61,16 @@ string User::GetAuth()
 {
     boost::mutex::scoped_lock  lock(User_mutex);
     return auth;
+}
+
+bool User::FirstJoin()
+{
+    if(bFirstJoin)
+    {
+        bFirstJoin = false;
+        return true;
+    }
+    return false;
 }
 
 bool User::AddChannel(string data)

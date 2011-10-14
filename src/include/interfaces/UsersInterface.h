@@ -34,6 +34,8 @@ class UsersInterface
 public:
     virtual void Debug()=0;                                     // Modules
 
+    virtual bool FirstJoin(std::string msNick)=0;
+
     virtual std::string GetAuth(std::string)=0;                 // Modules
     virtual std::vector< std::string> GetNicks(std::string)=0;  // Modules  // new function needed: GetAuthNicks
     virtual std::vector< std::string> GetAuths()=0;             // Modules
