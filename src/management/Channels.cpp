@@ -163,12 +163,12 @@ int Channels::GetAccess(std::string msChannel, std::string msAuth)
 }
 
 
-/*bool Channels::SetAutoInvite(std::string msChannel, std::string msAuth, int miAccess)
+/*bool Channels::SetAutoInvite(std::string msChannel, std::string msAuth, bool mbAutoInvite)
 {
     unsigned int i = GetChannelIndex(msChannel);
     if ((i >= 0) && (i < channellist.size()))
     {
-        c[i]->SetAutoInvite(msAuth, miAccess);
+        c[i]->SetAutoInvite(msAuth, mbAutoInvite);
         return true;
     }
     return false;

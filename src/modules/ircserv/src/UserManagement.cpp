@@ -623,12 +623,12 @@ void UserManagement::NICK(std::vector< std::string > data)
     }
 }
 
-void UserManagement::UserAuth(std::string mNick, std::string mAuth)
+void UserManagement::UserAuth(std::string msNick, std::string msAuth)
 {
     UsersInterface& U = Global::Instance().get_Users();
-    U.SetAuth(mNick, mAuth);
-    U.SetOaccess(mNick, -1);
-    if (U.AddAuth(mAuth) == true)
+    U.SetAuth(msNick, msAuth);
+    U.SetOaccess(msNick, -1);
+    if (U.AddAuth(msAuth) == true)
     {
         boost::uuids::uuid uuid = boost::uuids::random_generator()();
         std::stringstream ss;
@@ -638,27 +638,29 @@ void UserManagement::UserAuth(std::string mNick, std::string mAuth)
         outputString = "UserUuid " + UserUuid;
         Output::Instance().addOutput(outputString, 4);
         // std::cout << "UserUuid: " << UserUuid << std::endl;
-        DatabaseData::Instance().AddAuth(UserUuid, mAuth);
+        DatabaseData::Instance().AddAuth(UserUuid, msAuth);
     }
-    std::vector< std::string > userchannels = U.GetChannels(mNick);
+    std::vector< std::string > userchannels = U.GetChannels(msNick);
     if (boost::iequals(userchannels[0], "NULL") == false)
     {
-        GetUserInfo(mNick);
+        GetUserInfo(msNick);
 
         std::multimap< std::string, std::string>::iterator it;
         for ( it=NoWhoisUsers.begin() ; it != NoWhoisUsers.end(); it++ )
         {
-            //WhoisUsers.insert( std::pair< std::string, std::string >((*it).first, (*it).second) );
-            Whois::Instance().AddQueue(std::pair< std::string, std::string >((*it).first, (*it).second));
-            std::string outputString;
-            outputString = "user " + (*it).first + " channel " + (*it).second;
-            Output::Instance().addOutput(outputString, 4);
+            if ((*it).first == msNick)
+            {
+                Whois::Instance().AddQueue(std::pair< std::string, std::string >((*it).first, (*it).second));
+                std::string outputString;
+                outputString = "user " + (*it).first + " channel " + (*it).second;
+                Output::Instance().addOutput(outputString, 4);
+            }
         }
-        //NoWhoisUsers.erase (mNick);
+        NoWhoisUsers.erase (msNick);
     }
     else
     {
-        U.DelUser(mNick);
+        U.DelUser(msNick);
     }
 }
 
