@@ -180,6 +180,7 @@ void UserManagement::ParseData(std::vector< std::string > data)
         }
         if (data[1] == "318")       //WHOIS end
         {
+            EndWhois(data[3]);
             //WHOIS(data);
         }
         if (data[1] == "330")       //WHOIS auth
@@ -627,7 +628,6 @@ void UserManagement::UserAuth(std::string mNick, std::string mAuth)
     UsersInterface& U = Global::Instance().get_Users();
     U.SetAuth(mNick, mAuth);
     U.SetOaccess(mNick, -1);
-    std::string sqlstring;
     if (U.AddAuth(mAuth) == true)
     {
         boost::uuids::uuid uuid = boost::uuids::random_generator()();
@@ -654,12 +654,22 @@ void UserManagement::UserAuth(std::string mNick, std::string mAuth)
             outputString = "user " + (*it).first + " channel " + (*it).second;
             Output::Instance().addOutput(outputString, 4);
         }
-        NoWhoisUsers.erase (mNick);
+        //NoWhoisUsers.erase (mNick);
     }
     else
     {
         U.DelUser(mNick);
     }
+}
+
+void UserManagement::EndWhois(std::string msNick)
+{
+    NoWhoisUsers.erase (msNick);
+    /*std::vector< std::string > userchannels = U.GetChannels(mNick);
+    if (boost::iequals(userchannels[0], "NULL"))
+    {
+        //U.DelUser(mNick);
+    }*/
 }
 
 std::string UserManagement::HostmaskToNick(std::vector< std::string > data)

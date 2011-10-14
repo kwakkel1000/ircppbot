@@ -109,15 +109,36 @@ bool Channel::SetAccess(std::string msAuth, int miAccess)
     return false;
 }
 
-int Channel::GetAccess(std::string data)
+int Channel::GetAccess(std::string msAuth)
 {
-    int i = GetChannelAuthIndex(data);
+    int i = GetChannelAuthIndex(msAuth);
     if (i >= 0)
     {
         return ca[i]->GetAccess();
     }
     return -1;
 }
+
+/*bool Channel::SetAutoinvite(std::string msAuth, bool mbAutoInvite)
+{
+    int i = GetChannelAuthIndex(msAuth);
+    if (i >= 0)
+    {
+        ca[i]->SetAutoInvite(mbAutoInvite);
+        return true;
+    }
+    return false;
+}
+
+bool Channel::GetAutoInvite(std::string msAuth)
+{
+    int i = GetChannelAuthIndex(msAuth);
+    if (i >= 0)
+    {
+        return ca[i]->GetAutoInvite();
+    }
+    return false;
+}*/
 
 bool Channel::SetOp(std::string data, bool set)
 {

@@ -64,6 +64,7 @@ private:
 
     std::string HostmaskToNick(std::vector< std::string > data);
     void UserAuth(std::string mNick, std::string mAuth);
+    void EndWhois(std::string msNick);
     bool Send(std::string data);
 
     std::string convertInt(int);

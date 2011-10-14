@@ -141,7 +141,7 @@ bool Channels::DelAuth(string data, string auth)
     return false;
 }
 
-bool Channels::SetAccess(string msChannel, string msAuth, int miAccess)
+bool Channels::SetAccess(std::string msChannel, std::string msAuth, int miAccess)
 {
     unsigned int i = GetChannelIndex(msChannel);
     if ((i >= 0) && (i < channellist.size()))
@@ -152,15 +152,37 @@ bool Channels::SetAccess(string msChannel, string msAuth, int miAccess)
     return false;
 }
 
-int Channels::GetAccess(string data, string auth)
+int Channels::GetAccess(std::string msChannel, std::string msAuth)
 {
-    unsigned int i = GetChannelIndex(data);
+    unsigned int i = GetChannelIndex(msChannel);
     if ((i >= 0) && (i < channellist.size()))
     {
-        return c[i]->GetAccess(auth);
+        return c[i]->GetAccess(msAuth);
     }
     return -1;
 }
+
+
+/*bool Channels::SetAutoInvite(std::string msChannel, std::string msAuth, int miAccess)
+{
+    unsigned int i = GetChannelIndex(msChannel);
+    if ((i >= 0) && (i < channellist.size()))
+    {
+        c[i]->SetAutoInvite(msAuth, miAccess);
+        return true;
+    }
+    return false;
+}
+
+bool Channels::GetAutoInvite(std::string msChannel, std::string msAuth)
+{
+    unsigned int i = GetChannelIndex(msChannel);
+    if ((i >= 0) && (i < channellist.size()))
+    {
+        return c[i]->GetAutoInvite(msAuth);
+    }
+    return false;
+}*/
 
 std::string Channels::GetSetting(std::string msChannel, std::string msKey)
 {
