@@ -145,7 +145,7 @@ std::string Reply::irc_kick(std::string msChannel, std::string msTarget, std::st
 // irc_invite
 std::string Reply::irc_invite(std::string msChannel, std::string msTarget)
 {
-    return "INVITE " + msChannel + " " + msTarget;
+    return "INVITE " + msTarget + " " + msChannel;
 }
 
 
