@@ -40,6 +40,9 @@ class Output
         }
 
         void setDebugLevel(int level);
+        void setLogFile(std::string msLogFile);
+
+        void init();
 
         virtual void addOutput(std::string output);
         virtual void addOutput(std::string output, int level);
@@ -56,6 +59,7 @@ class Output
         int iLogLevel;
         int iOutputLevel;
 
+        std::string sLogFile;
         std::ofstream fLogFile;
 };
 

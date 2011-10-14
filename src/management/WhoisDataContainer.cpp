@@ -67,6 +67,7 @@ void WhoisDataContainer::AddWhoisQueue(std::pair< std::string, std::string > dat
 std::pair< std::string, std::string > WhoisDataContainer::GetWhoisQueue()
 {
     boost::mutex::scoped_lock lock(WhoisMutex);
+    //lock.lock();
     while (WhoisQueue.empty() && mRun)
     {
         std::cout << "WhoisDataContainer lock" << std::endl;
@@ -81,5 +82,6 @@ std::pair< std::string, std::string > WhoisDataContainer::GetWhoisQueue()
         WhoisQueue.pop();
         return temp;
     }
+    lock.unlock();
     return std::pair< std::string, std::string >("", "");
 }

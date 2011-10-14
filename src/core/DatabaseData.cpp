@@ -259,7 +259,7 @@ void DatabaseData::AddChannel(std::string mChannelUuid, std::string mChannel)
     tmp_channel.push_back(mChannelUuid);
     tmp_channel.push_back(mChannel);
     tmp_channel.push_back("300");
-    tmp_channel.push_back("300");
+    tmp_channel.push_back("100");
     channels_vector.push_back(tmp_channel);
 
     std::string sqlstring = "INSERT into channels ( ChannelUuid, channel ) VALUES ( '" + mChannelUuid + "', '" + mChannel + "' );";

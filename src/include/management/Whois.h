@@ -54,7 +54,6 @@ class Whois
 
         // consumer lists
         std::vector< WhoisDataContainerInterface * > vConsumers;
-        WhoisDataContainerInterface * pConsumer;
 };
 
 #endif  // SRC_INCLUDE_MANAGEMENT_WHOIS_H_

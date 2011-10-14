@@ -45,7 +45,6 @@ void Whois::AddConsumer(WhoisDataContainerInterface *d)
     Output::Instance().addOutput(sOutput, 1);
     sOutput = "vConsumers.size() " + Output::Instance().StringFromInt(vConsumers.size());
     Output::Instance().addOutput(sOutput, 1);
-    pConsumer = d;
 }
 
 void Whois::DelConsumer(WhoisDataContainerInterface *d)

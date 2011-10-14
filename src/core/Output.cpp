@@ -35,6 +35,10 @@ void Output::setDebugLevel(int level)
 {
     iOutputLevel = level;
 }
+void Output::setLogFile(std::string msLogFile)
+{
+    sLogFile = msLogFile;
+}
 
 void Output::addOutput(std::string output)
 {
@@ -83,14 +87,16 @@ std::string Output::sFormatTime(std::string format)
     return buffer;
 }
 
-
+void Output::init()
+{
+    fLogFile.open(sLogFile.c_str(), std::ios::app);
+    fLogFile << "\r\n\r\n\r\n\r\nopen logfile\r\n";
+}
 
 Output::Output()
 {
     iLogLevel = 10;
     iOutputLevel = 5;
-    fLogFile.open("bot.log", std::ios::app);
-    fLogFile << "\r\n\r\n\r\n\r\nopen logfile\r\n";
 }
 
 Output::~Output()

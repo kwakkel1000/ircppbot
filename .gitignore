@@ -1,6 +1,8 @@
 conf/*
+log/*
 !conf/conf.ini.example
 bot
+*.pid
 *.sh
 *.cbp
 *.o
