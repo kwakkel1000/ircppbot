@@ -232,6 +232,7 @@ void UserManagement::WHO(std::vector< std::string > data)
     ChannelsInterface& C = Global::Instance().get_Channels();
     C.AddNick(chan, nick);
     bool added = U.AddUser(nick);
+    U.FirstJoin(nick);
     U.AddChannel(nick, chan);
     GetChannelInfo(chan);
 
@@ -319,6 +320,7 @@ void UserManagement::WHOEXTRA(std::vector< std::string > data)
             C.AddNick(chan, nick);
             U.AddUser(nick);
             U.AddChannel(nick, chan);
+            U.FirstJoin(nick);
             UserAuth(nick, auth);
             GetChannelInfo(chan);
 
