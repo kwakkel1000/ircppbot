@@ -8,6 +8,10 @@ make all
 make mysql database
 import bot.sql
 
+for default running:
+mkdir /var/run/ircppbot/
+and change permissions to the current user
+
 copy conf/conf.ini.example to conf/yourconf.ini
 edit it to your needs.
 

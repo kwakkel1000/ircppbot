@@ -229,14 +229,14 @@ int main(int argc, char *argv[])
         {
             if (args[nArg] == "--config" || args[nArg] == "-c")
             {
-                if ((nArg+1) <= args.size())
+                if ((nArg+1) < args.size())
                 {
                     sIniFile = args[nArg+1];
                 }
             }
             if (args[nArg] == "--debug" || args[nArg] == "-d")
             {
-                if ((nArg+1) <= args.size())
+                if ((nArg+1) < args.size())
                 {
                     int i;
                     std::stringstream ss(args[nArg+1]);
@@ -246,21 +246,21 @@ int main(int argc, char *argv[])
             }
             if (args[nArg] == "--pid" || args[nArg] == "-p")
             {
-                if ((nArg+1) <= args.size())
+                if ((nArg+1) < args.size())
                 {
                     sPidFileLocation = args[nArg+1];
                 }
             }
             if (args[nArg] == "--log" || args[nArg] == "-l")
             {
-                if ((nArg+1) <= args.size())
+                if ((nArg+1) < args.size())
                 {
                     sLogFileLocation = args[nArg+1];
                 }
             }
             if (args[nArg] == "--name" || args[nArg] == "-n")
             {
-                if ((nArg+1) <= args.size())
+                if ((nArg+1) < args.size())
                 {
                     sName = args[nArg+1];
                 }
@@ -269,9 +269,12 @@ int main(int argc, char *argv[])
             {
                 ineedroot = true;
             }
-            if (args[nArg] == "--help" || "-h")
+            if (args[nArg] == "--help" || args[nArg] == "-h")
             {
-                ineedroot = true;
+                fprintf(stderr, "%s",
+                "usage: bot [OPTION]...\n"
+                "Runs the bot on irc (default as bot, bot.pid, bot.log bot.conf)\n");
+                exit(EXIT_SUCCESS);
             }
         }
         std::string sLogFile = sLogFileLocation + sName + ".log";
