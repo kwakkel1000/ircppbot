@@ -85,9 +85,16 @@ void TermAction(int i_num, siginfo_t * i_info, void * i_val)
     usleep(5000000);
     remove(sPidFile.c_str());
     forever = false;
+    Global::Instance().set_Run(false);
     usleep(5000000);
-    // thePlatform->shutdownflag=1;
     exit(0);
+}
+
+void Usr1Action(int i_num, siginfo_t * i_info, void * i_val)
+{
+    std::cout<< "Signal " << i_num << " caught..." << std::endl;
+    usleep(5000000);
+    // restart
 }
 
 void SetupSignal()
@@ -101,6 +108,12 @@ void SetupSignal()
       | SA_NOMASK
 #endif
       ;
+
+// usr
+    new_action.sa_sigaction = Usr1Action;
+    sigaction (SIGUSR1, NULL, &old_action);
+    if (old_action.sa_handler != SIG_IGN)
+      sigaction (SIGUSR1, &new_action, NULL);
 
 // SegFault
     new_action.sa_sigaction = SegFaultAction;
@@ -185,7 +198,7 @@ static bool isRoot()
 int main(int argc, char *argv[])
 {
     SetupSignal();
-
+    // deprecated (Global::Instance().get_Run() == treu);
     while(forever)
     {
         bool ineedroot = false;
