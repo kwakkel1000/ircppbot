@@ -42,8 +42,8 @@ class Whois
         }
 
         // consumer
-        void AddConsumer(WhoisDataContainerInterface *pD);
-        void DelConsumer(WhoisDataContainerInterface *pD);
+        bool AddConsumer(WhoisDataContainerInterface *pWhoisDataContainerInterface);
+        bool DelConsumer(WhoisDataContainerInterface *pWhoisDataContainerInterface);
 
         // data
         void AddQueue(std::pair< std::string, std::string > pData);
