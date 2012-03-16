@@ -81,6 +81,11 @@ void SegFaultAction(int i_num, siginfo_t * i_info, void * i_val)
 
 void TermAction(int i_num, siginfo_t * i_info, void * i_val)
 {
+    std::cout<< "Signal " << i_num << " caught..." << std::endl;
+    usleep(5000000);
+    remove(sPidFile.c_str());
+    forever = false;
+    usleep(5000000);
     // thePlatform->shutdownflag=1;
     exit(0);
 }
