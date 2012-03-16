@@ -1,3 +1,14 @@
+needed packages
+gcc / g++
+make
+
+libboost
+libboost-thread
+libboost-system
+libmysqlclient
+
+a working mysql server (can be another host)
+
 building:
 edit makefile
 change wich modules you like.
@@ -40,3 +51,16 @@ make all
 or
 make cleanYourmodule
 make Yourmodule
+
+
+log
+copy and edit the next text into /etc/logrotate.d/ircppbot
+/your/dir/log/*.log {
+    daily
+    rotate 20
+    compress
+    copytruncate
+    delaycompress
+    missingok
+}
+

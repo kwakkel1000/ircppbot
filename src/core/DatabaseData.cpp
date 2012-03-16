@@ -595,7 +595,7 @@ void DatabaseData::QueryRun()
 
 std::vector< std::vector< std::string > > DatabaseData::RawSqlSelect(std::string data)
 {
-    std::cout << data << std::endl;
+    Output::Instance().addOutput(data, 5);
     database *db;
     std::vector< std::vector< std::string > > sql_result;
     db = new database();    // lol whut... connecting for each query? :'D
@@ -606,11 +606,7 @@ std::vector< std::vector< std::string > > DatabaseData::RawSqlSelect(std::string
     }
     else
     {
-        std::cout << mHostName << std::endl;
-        std::cout << mDatabaseName << std::endl;
-        std::cout << mUserName << std::endl;
-        std::cout << mPass << std::endl;
-        std::cout << "db fail " << state << std::endl;
+        Output::Instance().addStatus(false, "DB Fail [" + convertInt(state) + "] " + mHostName + " " + mDatabaseName + " " + mUserName);
     }
     db->disconnect();
     delete db;

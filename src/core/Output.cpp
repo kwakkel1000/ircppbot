@@ -24,6 +24,7 @@
 
 
 #include "../include/core/Output.h"
+#include "../include/core/BotLib.h"
 #include <iostream>
 #include <sstream>
 #include <cstring>
@@ -31,60 +32,69 @@
 
 #include <fstream>
 
-void Output::setDebugLevel(int level)
+void Output::setDebugLevel(int iLevel)
 {
-    iOutputLevel = level;
+    iOutputLevel = iLevel;
 }
 void Output::setLogFile(std::string msLogFile)
 {
     sLogFile = msLogFile;
 }
 
-void Output::addOutput(std::string output)
+void Output::addStatus(bool bSuccess, std::string sOutput)
 {
-    addOutput(output, 5);
-}
-
-void Output::addOutput(std::string output, int level)
-{
-    if (level <= iOutputLevel)
+    if (bSuccess)
     {
-        std::cout << "[" << sFormatTime("%d-%m-%Y %H:%M:%S") << "] [" << StringFromInt(level) << "] " << output << std::endl;
+        if (2 <= iOutputLevel)
+        {
+            std::cout << "\033[1m\033[34m[\033[32m ok \033[34m]\033[39m\033[22m" << sOutput << std::endl;
+            appendLog("[ ok ] " + sOutput, 2);
+        }
     }
-    appendLog(output, level);
-}
-
-void Output::appendLog(std::string output)
-{
-    appendLog(output, 5);
-}
-
-void Output::appendLog(std::string output, int level)
-{
-    if (level <= iLogLevel)
+    else
     {
-        fLogFile << "[" << sFormatTime("%d-%m-%Y %H:%M:%S") << "] [" << StringFromInt(level) << "] " << output << std::endl;
+        std::cout << "\033[1m\033[34m[\033[31m !! \033[34m]\033[39m\033[22m" << sOutput << std::endl;
+        appendLog("[ !! ] " + sOutput, 1);
     }
 }
 
-std::string Output::StringFromInt(int number)
+void Output::addOutput(std::string sOutput)
 {
-    std::stringstream ss;
-    ss << number;
-    return ss.str();
+    addOutput(sOutput, 5);
 }
 
+void Output::addOutput(std::string sOutput, int iLevel)
+{
+    if (iLevel <= iOutputLevel)
+    {
+        std::cout << "\033[1m\033[34m[\033[33m ** \033[34m] [\033[32m" << BotLib::StringFromInt(iLevel) << "\033[34m] \033[0m" << sOutput << std::endl;
+    }
+    appendLog("[ ** ] " + sOutput, iLevel);
+}
 
-std::string Output::sFormatTime(std::string format)
+void Output::appendLog(std::string sOutput)
+{
+    appendLog(sOutput, 5);
+}
+
+void Output::appendLog(std::string sOutput, int iLevel)
+{
+    if (iLevel <= iLogLevel)
+    {
+        fLogFile << "[" << sFormatTime("%d-%m-%Y %H:%M:%S") << "] [" << BotLib::StringFromInt(iLevel) << "] " << sOutput << std::endl;
+    }
+}
+
+std::string Output::sFormatTime(std::string sFormat)
 {
     time_t rawtime;
     struct tm * timeinfo;
-    char buffer [80];
+    char cBuffer [80];
 
     time ( &rawtime );
     timeinfo = localtime ( &rawtime );
-    strftime(buffer, 80, format.c_str(), timeinfo);
-    return buffer;
+    strftime(cBuffer, 80, sFormat.c_str(), timeinfo);
+    return cBuffer;
 }
 
 void Output::init()

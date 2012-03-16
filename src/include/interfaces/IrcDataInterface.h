@@ -41,8 +41,8 @@ public:
     virtual void stop()=0;
 
     //consumer
-    virtual void AddConsumer(DataInterface *d)=0;
-    virtual void DelConsumer(DataInterface *d)=0;
+    virtual bool AddConsumer(DataInterface *d)=0;
+    virtual bool DelConsumer(DataInterface *d)=0;
 
     //data
     virtual void AddSendQueue(std::string data)=0;

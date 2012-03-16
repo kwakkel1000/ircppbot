@@ -51,6 +51,8 @@ std::string sPidFile;
 
 void SegFaultAction(int i_num, siginfo_t * i_info, void * i_val)
 {
+    std::cout<< "Signal " << i_num << " caught..." << std::endl;
+
     const siginfo_t & v = * i_info;
 
     std::cout << v.si_signo << "= Signal number\n";
@@ -73,24 +75,8 @@ void SegFaultAction(int i_num, siginfo_t * i_info, void * i_val)
 
     // throw "HELP";
     throw * i_info;
-}
-
-void SetupSIGSEGVSignal()
-{
-    struct sigaction a_sig[1] = { { {0} } };
-    struct sigaction a_old_sig[1] = { { {0} } };
-
-    a_sig->sa_sigaction = SegFaultAction;
-    a_sig->sa_flags = SA_SIGINFO
-#if defined(linux) || defined(__linux) || defined(__linux__)
-    | SA_NOMASK
-#endif
-    ;
-
-    if ( -1 == sigaction( SIGSEGV, a_sig, a_old_sig ) )
-    {
-        printf("Failed to set SIGSEGV handler");
-    }
+    remove(sPidFile.c_str());
+    forever = false;
 }
 
 void TermAction(int i_num, siginfo_t * i_info, void * i_val)
@@ -99,60 +85,43 @@ void TermAction(int i_num, siginfo_t * i_info, void * i_val)
     exit(0);
 }
 
-void SetupSIGTERMSignal()
+void SetupSignal()
 {
-    struct sigaction a_sig[1] = { { {0} } };
-    struct sigaction a_old_sig[1] = { { {0} } };
-    a_sig->sa_sigaction = TermAction;
-
-    a_sig->sa_flags = SA_SIGINFO
+    struct sigaction new_action;
+    struct sigaction old_action;
+    /* Set up the structure to specify the new action. */
+    sigemptyset (&new_action.sa_mask);
+    new_action.sa_flags = SA_SIGINFO
 #if defined(linux) || defined(__linux) || defined(__linux__)
       | SA_NOMASK
 #endif
       ;
 
-    if ( -1 == sigaction( SIGTERM, a_sig, a_old_sig ) )
-    {
-        printf("Failed to set SIGTERM handler");
-    }
+// SegFault
+    new_action.sa_action = SegFaultAction;
+    sigaction (SIGSEGV, NULL, &old_action);
+    if (old_action.sa_handler != SIG_IGN)
+      sigaction (SIGSEGV, &new_action, NULL);
+
+
+// termination
+    new_action.sa_action = TermAction;
+    sigaction (SIGINT, NULL, &old_action);
+    if (old_action.sa_handler != SIG_IGN)
+      sigaction (SIGINT, &new_action, NULL);
+
+    sigaction (SIGHUP, NULL, &old_action);
+    if (old_action.sa_handler != SIG_IGN)
+      sigaction (SIGHUP, &new_action, NULL);
+
+    sigaction (SIGTERM, NULL, &old_action);
+    if (old_action.sa_handler != SIG_IGN)
+      sigaction (SIGTERM, &new_action, NULL);
+
 }
 
-void sighandler(int sig)
+bool ReadPidFile()
 {
-    std::cout<< "Signal " << sig << " caught..." << std::endl;
-    switch (sig) {
-    case SIGABRT: case SIGTERM:
-        /* Do something */
-    case SIGILL:
-        /* Do something */
-        break;
-    case SIGSEGV:
-        /* Do something */
-        break;
-    case SIGURG:
-        /* Do something */
-        break;
-    case SIGUSR1: case SIGUSR2:
-        /* Do something */
-        break;
-    default:
-        break;
-    }
-    if (sig == 15)
-    {
-        exit(EXIT_SUCCESS);
-    }
-    if (sig == 2)
-    {
-        exit(EXIT_SUCCESS);
-    }
-    remove(sPidFile.c_str());
-    forever = false;
-}
-
-void CheckPid()
-{
-    pid_t pid;
     std::string sPid = "-2";
     int iFilePid = -2;
 
@@ -163,7 +132,7 @@ void CheckPid()
         while ( ifFilePid.good() )
         {
             getline (ifFilePid,sPid);
-            std::cout << sPid << std::endl;
+            //std::cout << sPid << std::endl;
         }
         ifFilePid.close();
     }
@@ -172,14 +141,17 @@ void CheckPid()
     if (kill(iFilePid, 0) != -1)
     {
         printf("still running \r\n");
+        return true;
         exit(EXIT_FAILURE);
     }
+    return false;
     // end check
+}
 
+void WritePidFile(int iPid)
+{
     // write current pid to pidfile
-    pid = getpid();
-    std::cout << pid << std::endl;
-    if (pid < 0) {
+    if (iPid < 0) {
         printf("pid < 0 FAIL \r\n");
         exit(EXIT_FAILURE);
     }
@@ -187,7 +159,7 @@ void CheckPid()
     std::ofstream ofPidFile (sPidFile.c_str());
     if (ofPidFile.is_open())
     {
-        ofPidFile << pid;
+        ofPidFile << iPid;
         ofPidFile.close();
     }
     else
@@ -198,18 +170,21 @@ void CheckPid()
     // end writing pid file
 }
 
+static bool isRoot()
+{
+    // User root? If one of these were root, we could switch the others to root, too
+    return (geteuid() == 0 || getuid() == 0);
+}
+
+
 int main(int argc, char *argv[])
 {
-    SetupSIGSEGVSignal();
-    SetupSIGTERMSignal();
-
-    signal(SIGABRT, &sighandler);
-    signal(SIGTERM, &sighandler);
-    signal(SIGINT, &sighandler);
+    SetupSignal();
 
     while(forever)
     {
         bool ineedroot = false;
+        bool bForeground = false;
         std::string sIniFile = "NULL";
         std::string sPidFileLocation = "NULL";
         std::string sLogFileLocation = "NULL";
@@ -227,6 +202,31 @@ int main(int argc, char *argv[])
         }
         for (uint nArg = 0; nArg < args.size(); nArg++)
         {
+            if (args[nArg] == "--help" || args[nArg] == "-h")
+            {
+                fprintf(stdout, "Runs the bot on irc (default as %s, %s%s.pid, %s%s.log %s)\n", sName.c_str(), sPidFileLocation.c_str(), sName.c_str(), sLogFileLocation.c_str(), sName.c_str(), sIniFile.c_str());
+                fprintf(stdout, "USAGE bot [OPTIONS]\n");
+                fprintf(stdout, "Available options:\n");
+                fprintf(stdout, "\t-h, --help           List options\n");
+                fprintf(stdout, "\t-v, --version        Output version and exit\n");
+                fprintf(stdout, "\t-f, --foreground     Don't fork into the background\n");
+                fprintf(stdout, "\t-c, --config         Set config file (%s)\n", sIniFile.c_str());
+                fprintf(stdout, "\t-d, --debug          Set debug level [1-10] (default 5)\n");
+                fprintf(stdout, "\t-p, --pid            Set Pid file location (default %s)\n", sPidFileLocation.c_str());
+                fprintf(stdout, "\t-l, --log            Set log file location (default %s)\n", sLogFileLocation.c_str());
+                fprintf(stdout, "\t-n, --name           Set name for pid/log files (default %s)\n", sName.c_str());
+                fprintf(stdout, "\t--INeedRootPowerz    Requered when running as root\n");
+                exit(EXIT_SUCCESS);
+            }
+            if (args[nArg] == "--version" || args[nArg] == "-v")
+            {
+                fprintf(stdout, "Ircppbot %s", "2.5.2");
+                exit(EXIT_SUCCESS);
+            }
+            if (args[nArg] == "--foreground" || args[nArg] == "-f")
+            {
+                bForeground = true;
+            }
             if (args[nArg] == "--config" || args[nArg] == "-c")
             {
                 if ((nArg+1) < args.size())
@@ -269,105 +269,83 @@ int main(int argc, char *argv[])
             {
                 ineedroot = true;
             }
-            if (args[nArg] == "--help" || args[nArg] == "-h")
-            {
-                fprintf(stderr, "%s",
-                "usage: bot [OPTION]...\n"
-                "Runs the bot on irc (default as bot, bot.pid, bot.log bot.conf)\n");
-                exit(EXIT_SUCCESS);
-            }
         }
         std::string sLogFile = sLogFileLocation + sName + ".log";
         sPidFile = sPidFileLocation + sName + ".pid";
         Output::Instance().setLogFile(sLogFile);
         Output::Instance().init();
-        CheckPid();
-        if (getuid() == 0 && ineedroot != true)
+        if (isRoot())
         {
-            std::cout << "dont start as root" << std::endl;
-            std::cout << "if you really need root. start with -INeedRootPowerz" << std::endl;
-            return 0;
+            fprintf(stdout, "Your are running ircppbot as root!\n");
+            fprintf(stdout, "this is dangerouse and can cause great damage!\n");
+            if (!ineedroot) {
+                return 1;
+            }
+            fprintf(stdout, "You have been warned.\n");
+            fprintf(stdout, "Hit CTRL+C now if you don't want to run ircppbot as root.\n");
+            fprintf(stdout, "ircppbot will start in 30 seconds.\n");
+            sleep(30);
+        }
+        if (ReadPidFile())
+        {
+            return 1;
+        }
+        if (bForeground) {
+            int iPid = getpid();
+            WritePidFile(iPid);
+            fprintf(stdout, "Staying open for debugging\n");
+            fprintf(stdout, "pid [%d]\n", iPid);
         }
         else
         {
-            if (sIniFile == "NULL")
-            {
-                std::cout << "please provide a ini file with -c <inifile>" << std::endl;
+            fprintf(stdout, "Forking into the background\n");
+
+            int iPid = fork();
+
+            if (iPid == -1) {
+                fprintf(stderr, "%s\n", strerror(errno));
+                return 1;
             }
-            else
-            {
-                std::cout << "start first time" << std::endl;
-                Output::Instance().addOutput("++++++++++++++++++++++++++++++++++++", 2);
-                Output::Instance().addOutput("+ Start bot on " + Output::Instance().sFormatTime("%d-%m-%Y %H:%M:%S") + " +", 2);
-                Output::Instance().addOutput("++++++++++++++++++++++++++++++++++++", 2);
-                usleep(2000000);
-                Global::Instance().set_Run(true);
-                while (Global::Instance().get_Run() == true)
-                {
-                    std::cout << "make new bot" << std::endl;
-                    Bot *b = new Bot();
-                    b->Init(sIniFile);
-                    b->Run();
-                    std::cout << "sleep" << std::endl;
-                    usleep(5000000);
-                    std::cout << "delete bot" << std::endl;
-                    delete b;
-                    std::cout << "delete global vars bot" << std::endl;
-                    Global::Instance().delete_all();
-                    std::cout << "sleep" << std::endl;
-                    usleep(5000000);
-                }
+
+            if (iPid > 0) {
+                // We are the parent. We are done and will go to bed.
+                WritePidFile(iPid);
+                fprintf(stdout, "pid [%d]\n", iPid);
+                return 0;
             }
-            std::cout << "closing down" << std::endl;
-            std::cin.get();
-            return 0;
+            // Redirect std in/out/err to /dev/null
+            close(0); open("/dev/null", O_RDONLY);
+            close(1); open("/dev/null", O_WRONLY);
+            close(2); open("/dev/null", O_WRONLY);
+
+            // We are the child. There is no way we can be a process group
+            // leader, thus setsid() must succeed.
+            setsid();
+            // Now we are in our own process group and session (no
+            // controlling terminal). We are independent!
         }
+
+        Output::Instance().addOutput("++++++++++++++++++++++++++++++++++++", 2);
+        Output::Instance().addOutput("+ Start bot on " + Output::Instance().sFormatTime("%d-%m-%Y %H:%M:%S") + " +", 2);
+        Output::Instance().addOutput("++++++++++++++++++++++++++++++++++++", 2);
+        usleep(2000000);
+        Global::Instance().set_Run(true);
+        while (Global::Instance().get_Run() == true)
+        {
+            Output::Instance().addOutput("make new bot", 2);
+            Bot *b = new Bot();
+            b->Init(sIniFile);
+            b->Run();
+            usleep(5000000);
+            Output::Instance().addOutput("delete bot", 2);
+            delete b;
+            Output::Instance().addOutput("delete global vars bot", 2);
+            Global::Instance().delete_all();
+            usleep(5000000);
+        }
+        Output::Instance().addOutput("closing down", 2);
+        std::cin.get();
         return 0;
     }
     return 0;
 }
-
-
-//int main(int argc, char *argv[])
-//{
-//    struct pidfh *pfh;
-//    pid_t otherpid, childpid;
-//
-//    pfh = pidfile_open("/var/run/daemon.pid", 0600, &otherpid);
-//    if (pfh == NULL) {
-//         if (errno == EEXIST) {
-//                 errx(EXIT_FAILURE, "Daemon already running, pid: %jd.",
-//                     (intmax_t)otherpid);
-//         }
-//         /* If we cannot create pidfile from other reasons, only warn. */
-//         warn("Cannot open or create pidfile");
-//    }
-//
-//    if (daemon(0, 0) == -1) {
-//         warn("Cannot daemonize");
-//         pidfile_remove(pfh);
-//         exit(EXIT_FAILURE);
-//    }
-//
-//    pidfile_write(pfh);
-//
-//    for (;;) {
-//         /* Do work. */
-//         run(argc, argv);
-//         childpid = fork();
-//         switch (childpid) {
-//         case -1:
-//                 syslog(LOG_ERR, "Cannot fork(): %s.", strerror(errno));
-//                 break;
-//         case 0:
-//                 pidfile_close(pfh);
-//                 /* Do child work. */
-//                 break;
-//         default:
-//                 syslog(LOG_INFO, "Child %jd started.", (intmax_t)childpid);
-//                 break;
-//         }
-//    }
-//    pidfile_remove(pfh);
-//    exit(EXIT_SUCCESS);
-//}
