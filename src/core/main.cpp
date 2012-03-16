@@ -98,14 +98,14 @@ void SetupSignal()
       ;
 
 // SegFault
-    new_action.sa_action = SegFaultAction;
+    new_action.sa_sigaction = SegFaultAction;
     sigaction (SIGSEGV, NULL, &old_action);
     if (old_action.sa_handler != SIG_IGN)
       sigaction (SIGSEGV, &new_action, NULL);
 
 
 // termination
-    new_action.sa_action = TermAction;
+    new_action.sa_sigaction = TermAction;
     sigaction (SIGINT, NULL, &old_action);
     if (old_action.sa_handler != SIG_IGN)
       sigaction (SIGINT, &new_action, NULL);
