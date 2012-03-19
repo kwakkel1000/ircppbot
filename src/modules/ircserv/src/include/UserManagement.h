@@ -55,20 +55,16 @@ private:
 
     void WHO(std::vector< std::string > data);
     void WHOEXTRA(std::vector< std::string > data);
-    void JOIN(std::vector< std::string > data);
+    void IrcJoin(std::vector< std::string > data);
     void PART(std::vector< std::string > data);
     void KICK(std::vector< std::string > data);
     void NICK(std::vector< std::string > data);
     void MODE(std::vector< std::string > data);
     void QUIT(std::vector< std::string > data);
 
-    std::string HostmaskToNick(std::vector< std::string > data);
     void UserAuth(std::string mNick, std::string mAuth);
     void EndWhois(std::string msNick);
     bool Send(std::string data);
-
-    std::string convertInt(int);
-    int convertString(std::string);
 
     void GetChannelInfo(std::string data);
     void GetUserInfo(std::string data);

@@ -42,11 +42,11 @@ public:
     Channels();
     virtual ~Channels();
 
-    void RegistrateChannel(std::string mChannelUuid, std::string mChannel);
-    void UnregistrateChannel(std::string mChannelUuid);
+    void RegistrateChannel(std::string mChannelUuid, std::string mChannel); // to channelbot Channel
+    void UnregistrateChannel(std::string mChannelUuid); // to channelbot Channel
 
-    void AddUserToChannel(std::string mChannelUuid, std::string mUserUuid, int mAccess);
-    void DeleteUserFromChannel(std::string mChannelUuid, std::string mUserUuid);
+    void AddUserToChannel(std::string mChannelUuid, std::string mUserUuid, int mAccess);    // to channelbot Channel
+    void DeleteUserFromChannel(std::string mChannelUuid, std::string mUserUuid);    // to channelbot Channel
 
     virtual bool AddChannel(std::string);
     virtual bool DelChannel(std::string);

@@ -70,50 +70,48 @@ void Channels::DeleteUserFromChannel(std::string mChannelUuid, std::string mUser
     DelAuth(DatabaseData::Instance().GetChannelByChannelUuid(mChannelUuid), DatabaseData::Instance().GetAuthByUserUuid(mUserUuid));
 }
 
-bool Channels::AddChannel(string data)
+bool Channels::AddChannel(std::string sChannel)
 {
-    int i = GetChannelIndex(data);
+    int i = GetChannelIndex(sChannel);
     if (i == -1)
     {
-        channellist.push_back(data);
-        Channel *tmpchannel = new Channel();
-        //tmpchannel->SetChannel(data);
-        c.push_back(tmpchannel);
+        channellist.push_back(sChannel);
+        c.push_back(new Channel());
         return true;
     }
     return false;
 }
 
-bool Channels::DelChannel(string data)
+bool Channels::DelChannel(std::string sChannel)
 {
-    unsigned int i = GetChannelIndex(data);
-    if ((i >= 0) && (i < channellist.size()))
+    unsigned int _uiChannelIndex = GetChannelIndex(sChannel);
+    if ((_uiChannelIndex >= 0) && (_uiChannelIndex < channellist.size()))
     {
-        channellist.erase(channellist.begin()+i);
-        delete c[i];
-        c.erase(c.begin()+i);
+        channellist.erase(channellist.begin()+_uiChannelIndex);
+        delete c[_uiChannelIndex];
+        c.erase(c.begin()+_uiChannelIndex);
         return true;
     }
     return false;
 }
 
-bool Channels::AddNick(string data, string nick)
+bool Channels::AddNick(std::string sChannel, std::string sNick)
 {
-    unsigned int i = GetChannelIndex(data);
-    if ((i >= 0) && (i < channellist.size()))
+    unsigned int _uiChannelIndex = GetChannelIndex(sChannel);
+    if ((_uiChannelIndex >= 0) && (_uiChannelIndex < channellist.size()))
     {
-        c[i]->AddNick(nick);
+        c[_uiChannelIndex]->AddNick(sNick);
         return true;
     }
     return false;
 }
 
-bool Channels::DelNick(string data, string nick)
+bool Channels::DelNick(std::string sChannel, std::string sNick)
 {
-    unsigned int i = GetChannelIndex(data);
-    if ((i >= 0) && (i < channellist.size()))
+    unsigned int _uiChannelIndex = GetChannelIndex(sChannel);
+    if ((_uiChannelIndex >= 0) && (_uiChannelIndex < channellist.size()))
     {
-        c[i]->DelNick(nick);
+        c[_uiChannelIndex]->DelNick(sNick);
         return true;
     }
     return false;
@@ -141,6 +139,8 @@ bool Channels::DelAuth(string data, string auth)
     return false;
 }
 
+
+// to channelbot Channel
 bool Channels::SetAccess(std::string msChannel, std::string msAuth, int miAccess)
 {
     unsigned int i = GetChannelIndex(msChannel);
@@ -152,6 +152,7 @@ bool Channels::SetAccess(std::string msChannel, std::string msAuth, int miAccess
     return false;
 }
 
+// to channelbot Channel
 int Channels::GetAccess(std::string msChannel, std::string msAuth)
 {
     unsigned int i = GetChannelIndex(msChannel);
@@ -184,6 +185,7 @@ bool Channels::GetAutoInvite(std::string msChannel, std::string msAuth)
     return false;
 }*/
 
+// to channelbot Channel
 std::string Channels::GetSetting(std::string msChannel, std::string msKey)
 {
     unsigned int uiChannelIndex = GetChannelIndex(msChannel);
@@ -194,6 +196,7 @@ std::string Channels::GetSetting(std::string msChannel, std::string msKey)
     return "NULL";
 }
 
+// to channelbot Channel
 bool Channels::SetSetting(std::string msChannel, std::string msKey, std::string msValue)
 {
     unsigned int uiChannelIndex = GetChannelIndex(msChannel);
@@ -204,6 +207,7 @@ bool Channels::SetSetting(std::string msChannel, std::string msKey, std::string 
     return false;
 }
 
+// to channelbot Channel
 bool Channels::InitSetting(std::string msChannel, std::string msKey, std::string msValue)
 {
     unsigned int uiChannelIndex = GetChannelIndex(msChannel);
@@ -214,29 +218,32 @@ bool Channels::InitSetting(std::string msChannel, std::string msKey, std::string
     return false;
 }
 
-int Channels::GetGiveops(std::string msChannel)
+// to channelbot Channel
+// deprecated
+int Channels::GetGiveops(std::string sChannel)
 {
-    return BotLib::IntFromString(GetSetting(msChannel, "giveops"));
+    return BotLib::IntFromString(GetSetting(sChannel, "giveops"));
     return 501;
 }
 
+// to channelbot Channel
+// deprecated
 bool Channels::SetGiveops(std::string msChannel, int iGiveops)
 {
-    /*unsigned int i = GetChannelIndex(msChannel);
-    if ((i >= 0) && (i < channellist.size()))
-    {
-        return c[i]->SetGiveops(iGiveops);
-    }*/
     return SetSetting(msChannel, "giveops", BotLib::StringFromInt(iGiveops));
     return true;
 }
 
+// to channelbot Channel
+// deprecated
 int Channels::GetGivevoice(std::string msChannel)
 {
     return BotLib::IntFromString(GetSetting(msChannel, "givevoice"));
     return 501;
 }
 
+// to channelbot Channel
+// deprecated
 bool Channels::SetGivevoice(std::string msChannel, int iGivevoice)
 {
     /*unsigned int i = GetChannelIndex(msChannel);
@@ -275,9 +282,9 @@ std::vector< std::string > Channels::GetAuths(std::string sChannel)
     return tmp;
 }
 
-bool Channels::SetCid(string data, std::string cid)
+bool Channels::SetCid(std::string sChannel, std::string cid)
 {
-    unsigned int i = GetChannelIndex(data);
+    unsigned int i = GetChannelIndex(sChannel);
     if ((i >= 0) && (i < channellist.size()))
     {
         c[i]->SetCid(cid);
@@ -286,9 +293,9 @@ bool Channels::SetCid(string data, std::string cid)
     return false;
 }
 
-std::string Channels::GetCid(string data)
+std::string Channels::GetCid(std::string sChannel)
 {
-    unsigned int i = GetChannelIndex(data);
+    unsigned int i = GetChannelIndex(sChannel);
     if ((i >= 0) && (i < channellist.size()))
     {
         return c[i]->GetCid();
@@ -296,42 +303,42 @@ std::string Channels::GetCid(string data)
     return "NULL";
 }
 
-bool Channels::GetOp(string data, string nick)
+bool Channels::GetOp(std::string sChannel, std::string sNick)
 {
-    unsigned int i = GetChannelIndex(data);
+    unsigned int i = GetChannelIndex(sChannel);
     if ((i >= 0) && (i < channellist.size()))
     {
-        return c[i]->GetOp(nick);
+        return c[i]->GetOp(sNick);
     }
     return false;
 }
 
-bool Channels::SetOp(string data, string nick, bool set)
+bool Channels::SetOp(std::string sChannel, std::string sNick, bool set)
 {
-    unsigned int i = GetChannelIndex(data);
+    unsigned int i = GetChannelIndex(sChannel);
     if ((i >= 0) && (i < channellist.size()))
     {
-        return c[i]->SetOp(nick, set);
+        return c[i]->SetOp(sNick, set);
     }
     return false;
 }
 
-bool Channels::GetVoice(string data, string nick)
+bool Channels::GetVoice(std::string sChannel, std::string sNick)
 {
-    unsigned int i = GetChannelIndex(data);
+    unsigned int i = GetChannelIndex(sChannel);
     if ((i >= 0) && (i < channellist.size()))
     {
-        return c[i]->GetVoice(nick);
+        return c[i]->GetVoice(sNick);
     }
     return false;
 }
 
-bool Channels::SetVoice(string data, string nick, bool set)
+bool Channels::SetVoice(std::string sChannel, std::string sNick, bool set)
 {
-    unsigned int i = GetChannelIndex(data);
+    unsigned int i = GetChannelIndex(sChannel);
     if ((i >= 0) && (i < channellist.size()))
     {
-        return c[i]->SetVoice(nick, set);
+        return c[i]->SetVoice(sNick, set);
     }
     return false;
 }
@@ -358,11 +365,11 @@ void Channels::Debug()
     }
 }
 
-unsigned int Channels::GetChannelIndex(string data)
+unsigned int Channels::GetChannelIndex(std::string sChannel)
 {
     for ( unsigned int i = 0; i < channellist.size(); i++ )
     {
-        if (boost::iequals(channellist[i],data))
+        if (boost::iequals(channellist[i],sChannel))
         {
             return i;
         }

@@ -44,6 +44,7 @@ public:
     virtual std::string irc_part(std::string channel, std::string reason)=0;
     virtual std::string irc_kick(std::string channel, std::string target, std::string reason)=0;
     virtual std::string irc_invite(std::string channel, std::string target)=0;
+    virtual std::string irc_whois(std::string target)=0;
 
     virtual std::string irc_bold()=0;
     virtual std::string irc_underline()=0;

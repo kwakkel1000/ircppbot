@@ -66,6 +66,18 @@ public:
     virtual std::vector< std::string > GetAuths();
 
 private:
+    // /* new system
+    std::string m_sChannelName;
+
+    std::string m_sTopic;
+    std::string m_sModes;
+    std::string m_sKey;
+
+    std::vector< std::string > m_vsBans;
+    std::vector< std::string > m_vsNicks;
+    // new system */
+
+    // old deprecated
     std::vector< std::string > channelauthlist;
     std::vector< ChannelAuth * > ca;
     std::vector< std::string>  nicks;

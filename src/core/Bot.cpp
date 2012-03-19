@@ -60,13 +60,12 @@ Bot::~Bot()
     std::cout << "Bot::~Bot()" << std::endl;
     timeron = false;
     timer_thread->join();
-    std::cout << "timer_thread stopped" << std::endl;
+    Output::Instance().addOutput("timer_thread stopped", 2);
     std::vector< std::string > tmpmodulelist = modulelist;
     for (unsigned int i = 0; i < tmpmodulelist.size(); i++)
     {
-        std::string modname = tmpmodulelist[i];
-        std::cout << "unloading " << modname << std::endl;
-        UnLoadModule(modname);
+        std::string sModuleName = tmpmodulelist[i];
+        Output::Instance().addStatus(UnLoadModule(sModuleName), "Unloading " + sModuleName);
     }
     std::cout << "Bot::~Bot()" << std::endl;
     mpIrcSocket->Disconnect();
@@ -84,11 +83,11 @@ void Bot::Init(std::string configfile)
     Global::Instance().get_ConfigReader().ClearSettings();
     if (Global::Instance().get_ConfigReader().ReadFile(configfile))
     {
-        std::cout << "W00p config is gelezen \\o/" << std::endl;
+        Output::Instance().addStatus(true, "Opening Config [" + configfile + "]");
     }
     else
     {
-        std::cout << "Kon niet lezen :/" << std::endl;
+        Output::Instance().addStatus(false, "Failed Opening Config [" + configfile + "]");
         exit(1);
     }
     DatabaseData::Instance().init();
@@ -135,15 +134,15 @@ void Bot::ModuleInit()
     G.get_Reply().Init();
     G.get_IrcData().run();
 
-    std::string loadmodsstr;
-    loadmodsstr = reader.GetString("loadmods");
+    std::string sLoadMods;
+    sLoadMods = reader.GetString("loadmods");
     moduledir = reader.GetString("moduledir");
-    LoadModule(reader.GetString("ircserv"));
-    std::vector< std::string > loadmods;
-    boost::split(loadmods, loadmodsstr, boost::is_any_of(" "), boost::token_compress_on);
-    for (unsigned int i = 0; i < loadmods.size(); i++)
+    Output::Instance().addStatus(LoadModule(reader.GetString("ircserv")), "Loading " + reader.GetString("ircserv"));
+    std::vector< std::string > vLoadMods;
+    boost::split(vLoadMods, sLoadMods, boost::is_any_of(" "), boost::token_compress_on);
+    for (unsigned int uiModuleIndex = 0; uiModuleIndex < vLoadMods.size(); uiModuleIndex++)
     {
-        LoadModule(loadmods[i]);
+        Output::Instance().addStatus(LoadModule(vLoadMods[uiModuleIndex]), "Loading " + vLoadMods[uiModuleIndex]);
     }
     timeron = true;
     assert(!console_thread);
@@ -201,26 +200,27 @@ void Bot::UnLoadAdmin()
     std::cout << "Admin UnLoaded" << std::endl;
 }
 
-bool Bot::LoadModule(std::string modulename)
+bool Bot::LoadModule(std::string sModuleName)
 {
-    bool loaded = false;
-    for (unsigned int i = 0; i < modulelist.size(); i++)
+    bool bLoaded = false;
+    for (unsigned int uiModuleListIndex = 0; uiModuleListIndex < modulelist.size(); uiModuleListIndex++)
     {
-        if (modulelist[i] == modulename)
+        if (modulelist[uiModuleListIndex] == sModuleName)
         {
-            loaded = true;
+            bLoaded = true;
         }
     }
-    if (!loaded)
+    if (!bLoaded)
     {
-        ModuleInterface* mi;
+        ModuleInterface* pModuleInterface;
         void* module;
         create_tmi* create_module;
         destroy_tmi* destroy_module;
-        std::string modulepath = "./" + moduledir + modulename + ".so";
+        std::string modulepath = "./" + moduledir + sModuleName + ".so";
         // load the library
         module = dlopen(modulepath.c_str(), RTLD_LAZY);
-        if (!module) {
+        if (!module)
+        {
             cerr << "Cannot load library: " << dlerror() << '\n';
             return false;
             exit(1);
@@ -230,65 +230,63 @@ bool Bot::LoadModule(std::string modulename)
         // load the symbols
         create_module = (create_tmi*) dlsym(module, "create");
         destroy_module = (destroy_tmi*) dlsym(module, "destroy");
-        if (!create_module || !destroy_module) {
+        if (!create_module || !destroy_module)
+        {
             cerr << "Cannot load symbols: " << dlerror() << '\n';
             return false;
             exit(1);
             // return 1;
         }
-        std::cout << "Module " << modulename << " Loaded" << std::endl;
         // create an instance of the class
-        mi = create_module();
-        mi->Init(new Data());
-        modulelist.push_back(modulename);
+        pModuleInterface = create_module();
+        pModuleInterface->Init(new Data());
+        modulelist.push_back(sModuleName);
         modulevector.push_back(module);
-        moduleinterfacevector.push_back(mi);
+        moduleinterfacevector.push_back(pModuleInterface);
         createvector.push_back(create_module);
         destroyvector.push_back(destroy_module);
         boost::shared_ptr<boost::thread> tmp_thread;
-        int modi = -1;
+        int iModuleIndex = -1;
         for (unsigned int i = 0; i < modulelist.size(); i++)
         {
-            if (modulelist[i] == modulename)
+            if (modulelist[i] == sModuleName)
             {
-                modi = i;
+                iModuleIndex = i;
             }
         }
-        if (modi >= 0)
+        if (iModuleIndex >= 0)
         {
             assert(!tmp_thread);
-            tmp_thread = boost::shared_ptr<boost::thread>(new boost::thread(boost::bind(&Bot::ModuleRun, this, modi)));
+            tmp_thread = boost::shared_ptr<boost::thread>(new boost::thread(boost::bind(&Bot::ModuleRun, this, iModuleIndex)));
             module_thread_vector.push_back(tmp_thread);
         }
         return true;
     }
-    std::cout << "module " << modulename  << " already loaded" << std::endl;
     return false;
 }
 
-bool Bot::UnLoadModule(std::string modulename)
+bool Bot::UnLoadModule(std::string sModuleName)
 {
-    int modi = -1;
+    int iModuleIndex = -1;
     for (unsigned int i = 0; i < modulelist.size(); i++)
     {
-        if (modulelist[i] == modulename)
+        if (modulelist[i] == sModuleName)
         {
-            modi = i;
+            iModuleIndex = i;
         }
     }
-    if (modi >= 0)
+    if (iModuleIndex >= 0)
     {
-        moduleinterfacevector[modi]->stop();
-        // module_thread_vector[modi]->join();
-        module_thread_vector.erase(module_thread_vector.begin()+modi);
-        destroyvector[modi](moduleinterfacevector[modi]);
-        moduleinterfacevector.erase(moduleinterfacevector.begin()+modi);
-        dlclose(modulevector[modi]);
-        modulelist.erase(modulelist.begin()+modi);
-        modulevector.erase(modulevector.begin()+modi);
-        createvector.erase(createvector.begin()+modi);
-        destroyvector.erase(destroyvector.begin()+modi);
-        std::cout << modulename << " UnLoaded" << std::endl;
+        moduleinterfacevector[iModuleIndex]->stop();
+        // module_thread_vector[iModuleIndex]->join();
+        module_thread_vector.erase(module_thread_vector.begin()+iModuleIndex);
+        destroyvector[iModuleIndex](moduleinterfacevector[iModuleIndex]);
+        moduleinterfacevector.erase(moduleinterfacevector.begin()+iModuleIndex);
+        dlclose(modulevector[iModuleIndex]);
+        modulelist.erase(modulelist.begin()+iModuleIndex);
+        modulevector.erase(modulevector.begin()+iModuleIndex);
+        createvector.erase(createvector.begin()+iModuleIndex);
+        destroyvector.erase(destroyvector.begin()+iModuleIndex);
         return true;
     }
     return false;
@@ -296,21 +294,21 @@ bool Bot::UnLoadModule(std::string modulename)
 
 bool Bot::UnLoadModuleId(unsigned int moduleid)
 {
-    int modi = -1;
+    int iModuleIndex = -1;
     if (moduleid < modulelist.size())
     {
-        modi = moduleid;
+        iModuleIndex = moduleid;
     }
-    if (modi >= 0)
+    if (iModuleIndex >= 0)
     {
-        destroyvector[modi](moduleinterfacevector[modi]);
-        dlclose(modulevector[modi]);
-        modulelist.erase(modulelist.begin()+modi);
-        modulevector.erase(modulevector.begin()+modi);
-        moduleinterfacevector.erase(moduleinterfacevector.begin()+modi);
-        createvector.erase(createvector.begin()+modi);
-        destroyvector.erase(destroyvector.begin()+modi);
-        std::cout << modulelist[modi] << " UnLoaded" << std::endl;
+        destroyvector[iModuleIndex](moduleinterfacevector[iModuleIndex]);
+        dlclose(modulevector[iModuleIndex]);
+        modulelist.erase(modulelist.begin()+iModuleIndex);
+        modulevector.erase(modulevector.begin()+iModuleIndex);
+        moduleinterfacevector.erase(moduleinterfacevector.begin()+iModuleIndex);
+        createvector.erase(createvector.begin()+iModuleIndex);
+        destroyvector.erase(destroyvector.begin()+iModuleIndex);
+        std::cout << modulelist[iModuleIndex] << " UnLoaded" << std::endl;
         return true;
     }
     return false;

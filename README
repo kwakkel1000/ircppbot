@@ -1,3 +1,14 @@
+needed packages
+gcc / g++
+make
+
+libboost
+libboost-thread
+libboost-system
+libmysqlclient
+
+a working mysql server (can be another host)
+
 building:
 edit makefile
 change wich modules you like.

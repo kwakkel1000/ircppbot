@@ -44,10 +44,11 @@ class Output
 
         void init();
 
-        virtual void addOutput(std::string output);
-        virtual void addOutput(std::string output, int level);
-        virtual void appendLog(std::string output);
-        virtual void appendLog(std::string output, int level);
+        virtual void addStatus(bool bSuccess, std::string sOutput);
+        virtual void addOutput(std::string sOutput);
+        virtual void addOutput(std::string sOutput, int iLevel);
+        virtual void appendLog(std::string sOutput);
+        virtual void appendLog(std::string sOutput, int iLevel);
 
         std::string StringFromInt(int number);
         std::string sFormatTime(std::string format);

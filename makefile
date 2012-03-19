@@ -23,7 +23,7 @@ core_objects 		= \
 	$(COREDIR)ConfigReader.o $(COREDIR)Global.o $(COREDIR)Reply.o $(COREDIR)ModuleBase.o $(COREDIR)BotLib.o
 management_objects 	= \
 	$(MANAGEMENTDIR)Whois.o $(MANAGEMENTDIR)WhoisDataContainer.o \
-	$(MANAGEMENTDIR)ChannelAuth.o \
+	$(MANAGEMENTDIR)Auth.o $(MANAGEMENTDIR)ChannelAuth.o \
 	$(MANAGEMENTDIR)Channels.o $(MANAGEMENTDIR)Channel.o \
 	$(MANAGEMENTDIR)Users.o $(MANAGEMENTDIR)User.o
 socket_objects 		= \

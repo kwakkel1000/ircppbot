@@ -1,7 +1,7 @@
 //
 //
 //  @ Project : ircppbot
-//  @ File Name : Whois.h
+//  @ File Name : Auth.h
 //  @ Date : 4/18/2011
 //  @ Author : Gijs Kwakkel
 //
@@ -22,38 +22,36 @@
 // Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301, USA.
 //
 
-#ifndef SRC_INCLUDE_MANAGEMENT_WHOIS_H_
-#define SRC_INCLUDE_MANAGEMENT_WHOIS_H_
 
-#include <queue>
-#include <vector>
+
+#ifndef SRC_INCLUDE_MANAGEMENT_AUTH_H_
+#define SRC_INCLUDE_MANAGEMENT_AUTH_H_
+
 #include <string>
+#include <vector>
 
-#include "../interfaces/WhoisDataContainerInterface.h"
-
-class WhoisDataContainerInterface;
-class Whois
+class Auth
 {
-    public:
-        static Whois& Instance()
-        {
-            static Whois obj;
-            return obj;
-        }
+public:
 
-        // consumer
-        bool AddConsumer(WhoisDataContainerInterface *pWhoisDataContainerInterface);
-        bool DelConsumer(WhoisDataContainerInterface *pWhoisDataContainerInterface);
+    Auth(std::string sAuthName);
+    ~Auth();
 
-        // data
-        void AddQueue(std::pair< std::string, std::string > pData);
 
-    private:
-        Whois() {}
-        ~Whois() {};
+    // setters
+    void SetAuthName(std::string sAuthName) { m_sAuthName = sAuthName; };
 
-        // consumer lists
-        std::vector< WhoisDataContainerInterface * > vConsumers;
+    // getters
+    std::string GetAuthName() { return m_sAuthName; };
+
+
+private:
+
+    std::string m_sAuthName;
+
+    std::vector< std::string > m_vsNicks;
 };
 
-#endif  // SRC_INCLUDE_MANAGEMENT_WHOIS_H_
+#endif // SRC_INCLUDE_MANAGEMENT_AUTH_H_
+
+

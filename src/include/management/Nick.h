@@ -1,7 +1,7 @@
 //
 //
 //  @ Project : ircppbot
-//  @ File Name : Whois.h
+//  @ File Name : Nick.h
 //  @ Date : 4/18/2011
 //  @ Author : Gijs Kwakkel
 //
@@ -22,38 +22,42 @@
 // Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301, USA.
 //
 
-#ifndef SRC_INCLUDE_MANAGEMENT_WHOIS_H_
-#define SRC_INCLUDE_MANAGEMENT_WHOIS_H_
 
-#include <queue>
-#include <vector>
+
+#ifndef SRC_INCLUDE_MANAGEMENT_NICK_H_
+#define SRC_INCLUDE_MANAGEMENT_NICK_H_
+
 #include <string>
+#include <vector>
 
-#include "../interfaces/WhoisDataContainerInterface.h"
-
-class WhoisDataContainerInterface;
-class Whois
+class Nick
 {
-    public:
-        static Whois& Instance()
-        {
-            static Whois obj;
-            return obj;
-        }
+public:
 
-        // consumer
-        bool AddConsumer(WhoisDataContainerInterface *pWhoisDataContainerInterface);
-        bool DelConsumer(WhoisDataContainerInterface *pWhoisDataContainerInterface);
+    Nick(std::string sNick);
+    ~Nick();
 
-        // data
-        void AddQueue(std::pair< std::string, std::string > pData);
+    bool HasPermission(std::string sPermission) const;
+    bool AddPermission(std::string sPermission);
+    bool RemPermission(std::string sPermission);
 
-    private:
-        Whois() {}
-        ~Whois() {};
+    // setters
+    void SetNick(std::string sNick) { m_sNick = sNick; };
 
-        // consumer lists
-        std::vector< WhoisDataContainerInterface * > vConsumers;
+    // getters
+    std::string GetNick() { return m_sNick; };
+
+
+private:
+
+    std::string m_sNick;
+    std::string m_sIdent;
+    std::string m_sHost;
+
+    std::vector< std::string > m_vsChannelPermissions;
 };
 
-#endif  // SRC_INCLUDE_MANAGEMENT_WHOIS_H_
+#endif // SRC_INCLUDE_MANAGEMENT_NICK_H_
+
+
+

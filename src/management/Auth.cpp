@@ -1,7 +1,7 @@
 //
 //
 //  @ Project : ircppbot
-//  @ File Name : IrcDataInterface.h
+//  @ File Name : Auth.cpp
 //  @ Date : 4/18/2011
 //  @ Author : Gijs Kwakkel
 //
@@ -23,33 +23,29 @@
 //
 
 
-#ifndef IrcDataInterface_H
-#define IrcDataInterface_H
+#include "../include/management/Auth.h"
+#include "../include/core/BotLib.h"
+#include "../include/core/Global.h"
+#include "../include/core/Output.h"
+#include "../include/core/DatabaseData.h"
+#include <boost/algorithm/string.hpp>
 
-#include "IrcSocketInterface.h"
-#include "DataInterface.h"
-
-#include <string>
-
-class IrcSocketInterface;
-class DataInterface;
-class IrcDataInterface
+/**
+ * Constructor
+ * @param sAuthName authname
+ * @param sUserUUID UUID of the user
+ *
+ */
+Auth::Auth(std::string sAuthName)
 {
-public:
-    virtual void init(IrcSocketInterface *s)=0;
-    virtual void run()=0;
-    virtual void stop()=0;
+    SetAuthName(sAuthName);
+}
 
-    //consumer
-    virtual bool AddConsumer(DataInterface *d)=0;
-    virtual bool DelConsumer(DataInterface *d)=0;
-
-    //data
-    virtual void AddSendQueue(std::string data)=0;
-    virtual void AddHighPrioritySendQueue(std::string data)=0;
-    virtual void AddLowPrioritySendQueue(std::string data)=0;
-};
-
-#endif // IrcDataInterface_H
-
+/**
+ * Destructor
+ *
+ */
+Auth::~Auth()
+{
+}
 

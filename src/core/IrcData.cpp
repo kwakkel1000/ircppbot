@@ -123,7 +123,7 @@ void IrcData::init(IrcSocketInterface *s)
     }
 }
 
-void IrcData::AddConsumer(DataInterface *d)
+bool IrcData::AddConsumer(DataInterface *d)
 {
     // Consumers.push_back(d);
     if (d->GetRaw() == true)
@@ -142,9 +142,10 @@ void IrcData::AddConsumer(DataInterface *d)
     {
         PrivmsgConsumers.push_back(d);
     }
+    return true;
 }
 
-void IrcData::DelConsumer(DataInterface *d)
+bool IrcData::DelConsumer(DataInterface *d)
 {
     unsigned int consumer_iterator;
     std::cout << "RawConsumers.size() " << RawConsumers.size() << std::endl;
@@ -187,6 +188,7 @@ void IrcData::DelConsumer(DataInterface *d)
             PrivmsgConsumers.erase(PrivmsgConsumers.begin() + consumer_iterator-1);
         }
     }
+    return true;
 }
 
 void IrcData::run()

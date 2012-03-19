@@ -51,8 +51,8 @@ class IrcData : public IrcDataInterface
         void stop();
 
         // consumer
-        void AddConsumer(DataInterface *d);
-        void DelConsumer(DataInterface *d);
+        bool AddConsumer(DataInterface *d);
+        bool DelConsumer(DataInterface *d);
 
         // data
         void AddSendQueue(std::string data);
