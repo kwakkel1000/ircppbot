@@ -51,6 +51,8 @@ std::string sPidFile;
 
 void SegFaultAction(int i_num, siginfo_t * i_info, void * i_val)
 {
+    std::cout<< "Signal " << i_num << " caught..." << std::endl;
+
     const siginfo_t & v = * i_info;
 
     std::cout << v.si_signo << "= Signal number\n";
@@ -73,81 +75,67 @@ void SegFaultAction(int i_num, siginfo_t * i_info, void * i_val)
 
     // throw "HELP";
     throw * i_info;
-}
-
-void SetupSIGSEGVSignal()
-{
-    struct sigaction a_sig[1] = { { {0} } };
-    struct sigaction a_old_sig[1] = { { {0} } };
-
-    a_sig->sa_sigaction = SegFaultAction;
-    a_sig->sa_flags = SA_SIGINFO
-#if defined(linux) || defined(__linux) || defined(__linux__)
-    | SA_NOMASK
-#endif
-    ;
-
-    if ( -1 == sigaction( SIGSEGV, a_sig, a_old_sig ) )
-    {
-        printf("Failed to set SIGSEGV handler");
-    }
+    remove(sPidFile.c_str());
+    forever = false;
 }
 
 void TermAction(int i_num, siginfo_t * i_info, void * i_val)
 {
-    // thePlatform->shutdownflag=1;
+    std::cout<< "Signal " << i_num << " caught..." << std::endl;
+    usleep(5000000);
+    remove(sPidFile.c_str());
+    forever = false;
+    Global::Instance().set_Run(false);
+    usleep(5000000);
     exit(0);
 }
 
-void SetupSIGTERMSignal()
+void Usr1Action(int i_num, siginfo_t * i_info, void * i_val)
 {
-    struct sigaction a_sig[1] = { { {0} } };
-    struct sigaction a_old_sig[1] = { { {0} } };
-    a_sig->sa_sigaction = TermAction;
+    std::cout<< "Signal " << i_num << " caught..." << std::endl;
+    usleep(5000000);
+    // restart
+}
 
-    a_sig->sa_flags = SA_SIGINFO
+void SetupSignal()
+{
+    struct sigaction new_action;
+    struct sigaction old_action;
+    /* Set up the structure to specify the new action. */
+    sigemptyset (&new_action.sa_mask);
+    new_action.sa_flags = SA_SIGINFO
 #if defined(linux) || defined(__linux) || defined(__linux__)
       | SA_NOMASK
 #endif
       ;
 
-    if ( -1 == sigaction( SIGTERM, a_sig, a_old_sig ) )
-    {
-        printf("Failed to set SIGTERM handler");
-    }
-}
+// usr
+    new_action.sa_sigaction = Usr1Action;
+    sigaction (SIGUSR1, NULL, &old_action);
+    if (old_action.sa_handler != SIG_IGN)
+      sigaction (SIGUSR1, &new_action, NULL);
 
-void sighandler(int sig)
-{
-    std::cout<< "Signal " << sig << " caught..." << std::endl;
-    switch (sig) {
-    case SIGABRT: case SIGTERM:
-        /* Do something */
-    case SIGILL:
-        /* Do something */
-        break;
-    case SIGSEGV:
-        /* Do something */
-        break;
-    case SIGURG:
-        /* Do something */
-        break;
-    case SIGUSR1: case SIGUSR2:
-        /* Do something */
-        break;
-    default:
-        break;
-    }
-    if (sig == 15)
-    {
-        exit(EXIT_SUCCESS);
-    }
-    if (sig == 2)
-    {
-        exit(EXIT_SUCCESS);
-    }
-    remove(sPidFile.c_str());
-    forever = false;
+// SegFault
+    new_action.sa_sigaction = SegFaultAction;
+    sigaction (SIGSEGV, NULL, &old_action);
+    if (old_action.sa_handler != SIG_IGN)
+      sigaction (SIGSEGV, &new_action, NULL);
+
+
+// termination
+    new_action.sa_sigaction = TermAction;
+    sigaction (SIGINT, NULL, &old_action);
+    if (old_action.sa_handler != SIG_IGN)
+      sigaction (SIGINT, &new_action, NULL);
+
+    sigaction (SIGHUP, NULL, &old_action);
+    if (old_action.sa_handler != SIG_IGN)
+      sigaction (SIGHUP, &new_action, NULL);
+
+    sigaction (SIGTERM, NULL, &old_action);
+    if (old_action.sa_handler != SIG_IGN)
+      sigaction (SIGTERM, &new_action, NULL);
+
 }
 
 bool ReadPidFile()
@@ -209,13 +197,8 @@ static bool isRoot()
 
 int main(int argc, char *argv[])
 {
-    SetupSIGSEGVSignal();
-    SetupSIGTERMSignal();
-
-    signal(SIGABRT, &sighandler);
-    signal(SIGTERM, &sighandler);
-    signal(SIGINT, &sighandler);
-
+    SetupSignal();
+    // deprecated (Global::Instance().get_Run() == treu);
     while(forever)
     {
         bool ineedroot = false;
