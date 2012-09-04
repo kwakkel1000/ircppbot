@@ -22,6 +22,9 @@
 // Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301, USA.
 //
 
+
+// implement http://www.sqlapi.com/ later
+
 #include "../include/core/DatabaseData.h"
 
 #include <boost/algorithm/string.hpp>
