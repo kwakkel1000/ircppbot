@@ -1,0 +1,36 @@
+singleton channels
+channels::get(std::string channel_name);
+channels::add(std::string channel_name);
+channels::del(std::string channel_name);
+
+class user
+channel {
+
+std::vector< user* > users;
+
+};
+
+
+
+singletond users
+users::get(std::string user_name);
+users::add(std::string user_name);
+users::del(std::string user_name);
+
+
+user needs whois var (default false)
+
+
+
+
+
+channels::instance().get("appel").channel_function
+
+auth class pointer in user
+
+
+
+include gframe
+
+
+
