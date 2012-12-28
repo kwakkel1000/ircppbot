@@ -1,8 +1,8 @@
 //
 //
 //  @ Project : ircppbot
-//  @ File Name : IrcDataInterface.h
-//  @ Date : 4/18/2011
+//  @ File Name : channels.h
+//  @ Date : 26-12-2012
 //  @ Author : Gijs Kwakkel
 //
 //
@@ -23,33 +23,34 @@
 //
 
 
-#ifndef IrcDataInterface_H
-#define IrcDataInterface_H
-
-#include "IrcSocketInterface.h"
-#include "DataInterface.h"
+#ifndef SRC_INCLUDE_MANAGEMENT_CHANNELS_H
+#define SRC_INCLUDE_MANAGEMENT_CHANNELS_H
 
 #include <string>
+#include <map>
+#include "channel.h"
 
-class IrcSocketInterface;
-class DataInterface;
-class IrcDataInterface
+class channel;
+class channels
 {
-public:
-    virtual void init(IrcSocketInterface *s)=0;
-    virtual void run()=0;
-    virtual void stop()=0;
+    public:
+        static channels& instance()
+        {
+            static channels obj;
+            return obj;
+        }
+        bool addChannel(std::string channelName);
+        bool delChannel(std::string channelName);
 
-    //consumer
-    virtual bool AddConsumer(DataInterface *d)=0;
-    virtual bool DelConsumer(DataInterface *d)=0;
+        bool getChannels(std::map< std::string, channel > &channelList);
+        channel& getChannel(std::string channelName);
 
-    //data
-    virtual void AddSendQueue(std::string data)=0;
-    virtual void AddHighPrioritySendQueue(std::string data)=0;
-    virtual void AddLowPrioritySendQueue(std::string data)=0;
+
+    private:
+        channels();
+        ~channels();
+
+        std::map< std::string, channel > m_ChannelList;
 };
 
-#endif // IrcDataInterface_H
-
-
+#endif // SRC_INCLUDE_MANAGEMENT_CHANNELS_H

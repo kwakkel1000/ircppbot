@@ -1,8 +1,8 @@
 //
 //
 //  @ Project : ircppbot
-//  @ File Name : IrcSocketInterface.h
-//  @ Date : 4/18/2011
+//  @ File Name : moduleinterface.h
+//  @ Date : 25-12-2012
 //  @ Author : Gijs Kwakkel
 //
 //
@@ -23,35 +23,23 @@
 //
 
 
-#ifndef IrcSocketInterface_h
-#define IrcSocketInterface_h
+#ifndef SRC_INCLUDE_INTERFACES_MODULEINTERFACE_H
+#define SRC_INCLUDE_INTERFACES_MODULEINTERFACE_H
 
-#include <string>
-
-class IrcSocketInterface
+#include "../ircdata.h"
+class moduleinterface
 {
- public:
-    // Todo: add exception class for every excepion type
-    class ExceptionInterface
-    {
-     public:
-        virtual const std::string& Description()=0;
-        virtual int Errornr()=0;
-    };
-
- public:
-
-    virtual void Connect(std::string address, std::string service)=0;
-    virtual void Disconnect()=0;
-    virtual void set_non_blocking ( const bool )=0;
-
-    virtual void Send(const std::string data)=0;
-    virtual void Recv(std::string &data)=0;
-
-    virtual bool  IsConnected()=0;
-    virtual const std::string& Hostname()=0;
-    virtual const std::string& Service()=0;
+public:
+    moduleinterface() { }
+    virtual void run()=0;
+    virtual void stop()=0;
+    virtual void init(ircdata* id)=0;
+    virtual void timerrun()=0;
 };
 
-#endif // IrcSocketInterface_h
+typedef moduleinterface* createModuleInterface();
 
+typedef void destroyModuleInterface(moduleinterface*);
+
+
+#endif // SRC_INCLUDE_INTERFACES_MODULEINTERFACE_H

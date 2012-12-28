@@ -36,4 +36,4 @@ username=dbuser
 password=dbpass
 
 [config]
-conf/fail.ini
+#conf/fail.ini

@@ -25,33 +25,32 @@
 #ifndef UserManagement_h
 #define UserManagement_h
 
-#include <interfaces/ModuleInterface.h>
-#include <interfaces/DataInterface.h>
+#include "ircdata.h"
 #include <string>
 #include <vector>
 #include <map>
 #include <boost/thread/thread.hpp>
 #include <boost/shared_ptr.hpp>
 
-class DataInterface;
-class UserManagement : public ModuleInterface
+class ircdata;
+class management
 {
 public:
-    UserManagement();
-    ~UserManagement();
+    management();
+    ~management();
     void read();
     void stop();
-    void Init(DataInterface* pData);
+    void init(ircdata* ircData);
     void timerrun(){}
 
 private:
     void ParseData(std::vector< std::string > data);
     void RefreshChannel(std::string sChannel);
 
-    bool NickServ;
-    //bool WhoExtra;
-    bool Run;
-    DataInterface* mpDataInterface;
+    std::atomic<bool> m_NickServer;
+    std::atomic<bool> m_Run;
+    std::atomic<bool> m_WhoExtra;
+    ircdata* m_IrcData;
 
     void WHO(std::vector< std::string > data);
     void WHOEXTRA(std::vector< std::string > data);
@@ -65,17 +64,18 @@ private:
     std::string HostmaskToNick(std::vector< std::string > data);
     void UserAuth(std::string mNick, std::string mAuth);
     void EndWhois(std::string msNick);
-    bool Send(std::string data);
-
-    std::string convertInt(int);
-    int convertString(std::string);
 
     void GetChannelInfo(std::string data);
     void GetUserInfo(std::string data);
     void GetAuths();
 
-    void parse_raw();
-    boost::shared_ptr<boost::thread> raw_parse_thread;
+    void parseModes();
+    void parseWhois();
+    void parseEvents();
+
+    std::shared_ptr< std::thread > m_ModesThread;
+    std::shared_ptr< std::thread > m_WhoisThread;
+    std::shared_ptr< std::thread > m_EventsThread;
 
     std::multimap< std::string, std::string > NoWhoisUsers;
 };

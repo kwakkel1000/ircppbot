@@ -23,41 +23,51 @@
 //
 
 
-#include "../include/core/reply.h"
+#include "include/reply.h"
 
 #include <vector>
 #include <gframe/configreader.h>
 #include <gframe/database.h>
 #include <gframe/glib.h>
 
+
+reply::reply()
+{
+    m_Reply.clear();
+}
+
+reply::~reply()
+{
+}
+
 // init
 void reply::init()
 {
-    mReply.clear();
+    m_Reply.clear();
     std::vector< std::string > keys;
     keys.push_back("reply_name");
     keys.push_back("reply");
     keys.push_back("language");
     std::vector< std::map< std::string, std::string > > result;
-    result = databasedata::instance().get("reply", keys, "1=1");
+    result = databasedata::instance().get("reply", keys);
     for (unsigned int _uiResultIndex = 0; _uiResultIndex < result.size(); _uiResultIndex++)
     {
-        mReply[result[_uiResultIndex]["language"]][result[_uiResultIndex]["reply_name"]] = result[_uiResultIndex]["reply"];
+        m_Reply[result[_uiResultIndex]["language"]][result[_uiResultIndex]["reply_name"]] = result[_uiResultIndex]["reply"];
     }
 }
 
 // private
 
 // reply
-std::string reply::irc_reply(std::string reply_name, std::string reply_language)
+std::string reply::ircReply(std::string reply_name, std::string reply_language)
 {
-    if (mReply.find(reply_language) != mReply.end() && mReply[reply_language].find(reply_name) != mReply[reply_language].end())
+    if (m_Reply.find(reply_language) != m_Reply.end() && m_Reply[reply_language].find(reply_name) != m_Reply[reply_language].end())
     {
-        return mReply[reply_language][reply_name];
+        return m_Reply[reply_language][reply_name];
     }
-    else if (mReply.find(configreader::instance().getString("defaultlanguage")) != mReply.end() && mReply[configreader::instance().getString("defaultlanguage")].find(reply_name) != mReply[configreader::instance().getString("defaultlanguage")].end())
+    else if (m_Reply.find(configreader::instance().getString("defaultlanguage")) != m_Reply.end() && m_Reply[configreader::instance().getString("defaultlanguage")].find(reply_name) != m_Reply[configreader::instance().getString("defaultlanguage")].end())
     {
-        return mReply[configreader::instance().getString("defaultlanguage")][reply_name];
+        return m_Reply[configreader::instance().getString("defaultlanguage")][reply_name];
     }
     else
     {
@@ -66,7 +76,7 @@ std::string reply::irc_reply(std::string reply_name, std::string reply_language)
 }
 
 // irc_reply_replace
-std::string reply::irc_reply_replace(std::string source_string, std::string search_string, std::string replace_string)
+std::string reply::ircReplyReplace(std::string source_string, std::string search_string, std::string replace_string)
 {
     size_t search_pos;
     search_pos = source_string.find(search_string);
@@ -79,47 +89,68 @@ std::string reply::irc_reply_replace(std::string source_string, std::string sear
 
 
 // irc_privmsg
-std::string reply::irc_privmsg(std::string msTarget, std::string msText)
+std::string reply::ircPrivmsg(std::string target, std::string msText)
 {
-    return "PRIVMSG " + msTarget + " :" + msText;
+    return "PRIVMSG " + target + " :" + msText;
 }
 
 // irc_notice
-std::string reply::irc_notice(std::string msTarget, std::string msText)
+std::string reply::ircNotice(std::string target, std::string msText)
 {
-    return "NOTICE " + msTarget + " :" + msText;
+    return "NOTICE " + target + " :" + msText;
 }
 
 // irc_mode
-std::string reply::irc_mode(std::string msTarget, std::string msMode)
+std::string reply::ircMode(std::string target, std::string msMode)
 {
-    return "MODE " + msTarget + " " + msMode;
+    return "MODE " + target + " " + msMode;
 }
 
 // irc_join
-std::string reply::irc_join(std::string msChannel)
+std::string reply::ircJoin(std::string channel)
 {
-    return "JOIN " + msChannel;
+    return "JOIN " + channel;
 }
 
 // irc_part
-std::string reply::irc_part(std::string msChannel, std::string msReason)
+std::string reply::ircPart(std::string channel, std::string reason)
 {
-    return "PART " + msChannel + " :" + msReason;
+    return "PART " + channel + " :" + reason;
 }
 
 // irc_kick
-std::string reply::irc_kick(std::string msChannel, std::string msTarget, std::string msReason)
+std::string reply::ircKick(std::string channel, std::string target, std::string reason)
 {
-    return "KICK " + msChannel + " " + msTarget + " :" + msReason;
+    return "KICK " + channel + " " + target + " :" + reason;
 }
 
 // irc_invite
-std::string reply::irc_invite(std::string msChannel, std::string msTarget)
+std::string reply::ircInvite(std::string channel, std::string target)
 {
-    return "INVITE " + msTarget + " " + msChannel;
+    return "INVITE " + target + " " + channel;
 }
 
+// irc_who
+std::string reply::ircWho(std::string channel)
+{
+    return "WHO " + channel;
+}
+// irc_whoextra
+std::string reply::ircWhoExtra(std::string channel)
+{
+    return "WHO " + channel + " %ncaf";
+}
+
+// irc_whois
+std::string reply::ircWhois(std::string target)
+{
+    return "WHOIS " + target;
+}
+// irc_whois2
+std::string reply::ircWhois2(std::string target)
+{
+    return "WHOIS " + target + " " + target;
+}
 
 
 // parse_tags
@@ -136,31 +167,31 @@ std::string reply::irc_invite(std::string msChannel, std::string msTarget)
 //} // nog niet af
 
 // irc_bold
-std::string reply::irc_bold()
+std::string reply::ircBold()
 {
     return "" + char(2);
 }
 
 // irc_underline
-std::string reply::irc_underline()
+std::string reply::ircUnderline()
 {
     return "" + char(31);
 }
 
 // irc_italic
-std::string reply::irc_italic()
+std::string reply::ircItalic()
 {
     return "" + char(22);
 }
 
 // irc_normal
-std::string reply::irc_normal()
+std::string reply::ircNormal()
 {
     return "" + char(15);
 }
 
 // irc_color
-std::string reply::irc_color()
+std::string reply::ircColor()
 {
     return "" + char(3);
 }

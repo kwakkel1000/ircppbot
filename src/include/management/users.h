@@ -1,8 +1,8 @@
 //
 //
 //  @ Project : ircppbot
-//  @ File Name : AdminInterface.h
-//  @ Date : 4/18/2011
+//  @ File Name : users.h
+//  @ Date : 26-12-2012
 //  @ Author : Gijs Kwakkel
 //
 //
@@ -23,26 +23,35 @@
 //
 
 
-#ifndef AdminInterface_H
-#define AdminInterface_H
-#include "../core/Bot.h"
+#ifndef SRC_INCLUDE_MANAGEMENT_USERS_H
+#define SRC_INCLUDE_MANAGEMENT_USERS_H
 
-class Bot;
-class AdminInterface {
+#include "user.h"
+#include <string>
+#include <map>
 
+class user;
+class users
+{
 public:
-    AdminInterface() { }
-    virtual void Init(Bot *bot, int port)=0;
-    virtual void Run()=0;
-    virtual void AddSendQueue(std::string mSendData)=0;
+        static users& instance()
+        {
+            static users obj;
+            return obj;
+        }
+        bool addUser(std::string userName);
+        bool delUser(std::string userName);
+        bool renameUser(std::string oldUserName, std::string newUserName);
 
+        bool getUsers(std::map< std::string, user > &userList);
+        user& getUser(std::string userName);
+
+
+    private:
+        users();
+        ~users();
+
+        std::map< std::string, user > m_UserList;
 };
 
-typedef AdminInterface* create_tai();
-typedef void destroy_tai(AdminInterface*);
-
-
-#endif // AdminInterface_H
-
-
-
+#endif // SRC_INCLUDE_MANAGEMENT_USERS_H
