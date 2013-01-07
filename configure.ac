@@ -55,8 +55,7 @@ AC_SUBST(IRCPPBOT_LIBS)
 
 AC_CONFIG_FILES([Makefile
                  man/Makefile
-                 src/Makefile
-                 src/management/Makefile])
+                 src/Makefile])
 
 
 AC_OUTPUT

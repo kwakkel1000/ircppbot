@@ -43,6 +43,7 @@ public:
         bool delUser(std::string userName);
         bool renameUser(std::string oldUserName, std::string newUserName);
 
+        bool findUser(std::string userName);
         bool getUsers(std::map< std::string, user > &userList);
         user& getUser(std::string userName);
 

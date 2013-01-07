@@ -33,7 +33,7 @@ users::users()
 users::~users()
 {
     std::map< std::string, user >::iterator m_UserListIterator;
-    for (m_UserListIterator = m_UserList.end(); m_UserListIterator != m_UserList.begin(); m_UserListIterator--)
+    for (m_UserListIterator = m_UserList.end(); m_UserListIterator != m_UserList.begin(); --m_UserListIterator)
     {
         delUser((*m_UserListIterator).first);
     }
@@ -75,6 +75,17 @@ bool users::renameUser(std::string oldUserName, std::string newUserName)
     }
     output::instance().addStatus(false, "bool users::renameUser(std::string oldUserName, std::string newUserName) user already exists");
     return false;
+}
+
+bool users::findUser(std::string userName)
+{
+    std::map< std::string, user >::iterator l_UserListIterator;
+    l_UserListIterator = m_UserList.find(userName);
+    if (l_UserListIterator != m_UserList.end())
+    {
+        return false;
+    }
+    return true;
 }
 
 bool users::getUsers(std::map< std::string, user > &userList)

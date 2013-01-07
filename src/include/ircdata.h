@@ -45,13 +45,13 @@ class ircdata
         void start();
         void addRawQueue(std::vector< std::string > data);
         void addEventsQueue(std::vector< std::string > data);
-        void addModeQueue(std::vector< std::string > data);
+        void addModesQueue(std::vector< std::string > data);
         void addWhoisQueue(std::vector< std::string > data);
         void addPrivmsgQueue(std::vector< std::string > data);
 
         std::vector< std::string > getRawQueue();
         std::vector< std::string > getEventsQueue();
-        std::vector< std::string > getModeQueue();
+        std::vector< std::string > getModesQueue();
         std::vector< std::string > getWhoisQueue();
         std::vector< std::string > getPrivmsgQueue();
 
@@ -59,8 +59,8 @@ class ircdata
         bool getRaw();
         void setEvents(bool events);
         bool getEvents();
-        void setMode(bool mode);
-        bool getMode();
+        void setModes(bool modes);
+        bool getModes();
         void setWhois(bool whois);
         bool getWhois();
         void setPrivmsg(bool privmsg);
@@ -71,7 +71,7 @@ class ircdata
         std::atomic<bool> m_Run;
         std::atomic<bool> m_GetRaw;
         std::atomic<bool> m_GetEvents;
-        std::atomic<bool> m_GetMode;
+        std::atomic<bool> m_GetModes;
         std::atomic<bool> m_GetWhois;
         std::atomic<bool> m_GetPrivmsg;
 
@@ -81,7 +81,7 @@ class ircdata
         // irc data queues
         std::queue< std::vector< std::string > > m_RawQueue;
         std::queue< std::vector< std::string > > m_EventsQueue;
-        std::queue< std::vector< std::string > > m_ModeQueue;
+        std::queue< std::vector< std::string > > m_ModesQueue;
         std::queue< std::vector< std::string > > m_WhoisQueue;
         std::queue< std::vector< std::string > > m_PrivmsgQueue;
 
@@ -91,13 +91,13 @@ class ircdata
         // threadvars
         std::condition_variable m_RawAvailable;
         std::condition_variable m_EventsAvailable;
-        std::condition_variable m_ModeAvailable;
+        std::condition_variable m_ModesAvailable;
         std::condition_variable m_WhoisAvailable;
         std::condition_variable m_PrivmsgAvailable;
 
         std::mutex m_RawMutex;
         std::mutex m_EventsMutex;
-        std::mutex m_ModeMutex;
+        std::mutex m_ModesMutex;
         std::mutex m_WhoisMutex;
         std::mutex m_PrivmsgMutex;
 };

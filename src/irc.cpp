@@ -128,9 +128,9 @@ bool irc::addConsumer(ircdata *ircData)
     {
         m_EventsConsumers.push_back(ircData);
     }
-    if (ircData->getMode() == true)
+    if (ircData->getModes() == true)
     {
-        m_ModeConsumers.push_back(ircData);
+        m_ModesConsumers.push_back(ircData);
     }
     if (ircData->getWhois() == true)
     {
@@ -166,14 +166,14 @@ bool irc::delConsumer(ircdata *ircData)
             m_EventsConsumers.erase(m_EventsConsumers.begin() + consumerIterator-1);
         }
     }
-    output::instance().addOutput("ModeConsumers.size() " + glib::stringFromInt(m_ModeConsumers.size()), 9);
-    for (consumerIterator = m_ModeConsumers.size(); consumerIterator > 0; consumerIterator--)
+    output::instance().addOutput("ModesConsumers.size() " + glib::stringFromInt(m_ModesConsumers.size()), 9);
+    for (consumerIterator = m_ModesConsumers.size(); consumerIterator > 0; consumerIterator--)
     {
         output::instance().addOutput("consumerIterator " + glib::stringFromInt(consumerIterator-1), 9);
-        if (m_ModeConsumers[consumerIterator-1] == ircData)
+        if (m_ModesConsumers[consumerIterator-1] == ircData)
         {
             output::instance().addOutput("consumer removed");
-            m_ModeConsumers.erase(m_ModeConsumers.begin() + consumerIterator-1);
+            m_ModesConsumers.erase(m_ModesConsumers.begin() + consumerIterator-1);
         }
     }
     output::instance().addOutput("WhoisConsumers.size() " + glib::stringFromInt(m_WhoisConsumers.size()), 9);
@@ -413,6 +413,7 @@ void irc::parse()
             {
                 if (result[1] == "NICK" || result[1] == "JOIN")
                 {
+                    output::instance().addOutput("void irc::parse() if (result[1] == \"NICK\" || result[1] == \"JOIN\")", 11);
                     m_EventsConsumers[consumerIterator]->addEventsQueue(result);
                 }
             }
@@ -420,6 +421,7 @@ void irc::parse()
             {
                 if (result[1] == "QUIT" || result[1] == "PART")
                 {
+                    output::instance().addOutput("void irc::parse() if (result[1] == \"QUIT\" || result[1] == \"PART\")", 11);
                     m_EventsConsumers[consumerIterator]->addEventsQueue(result);
                 }
             }
@@ -427,17 +429,19 @@ void irc::parse()
             {
                 if (result[1] == "KICK")
                 {
+                    output::instance().addOutput("void irc::parse() if (result[1] == \"KICK\")", 11);
                     m_EventsConsumers[consumerIterator]->addEventsQueue(result);
                 }
             }
         }
-        for (consumerIterator = 0; consumerIterator < m_ModeConsumers.size(); consumerIterator++)
+        for (consumerIterator = 0; consumerIterator < m_ModesConsumers.size(); consumerIterator++)
         {
             if (result.size() == 4)
             {
                 if (result[1] == "MODE")
                 {
-                    m_ModeConsumers[consumerIterator]->addModeQueue(result);
+                    output::instance().addOutput("void irc::parse() if (result[1] == \"MODE\")", 11);
+                    m_ModesConsumers[consumerIterator]->addModesQueue(result);
                 }
             }
             // own queue would be overkill
@@ -445,14 +449,41 @@ void irc::parse()
             {
                 if (result[1] == "TOPIC")
                 {
-                    m_ModeConsumers[consumerIterator]->addModeQueue(result);
+                    output::instance().addOutput("void irc::parse() if (result[1] == \"TOPIC\")", 11);
+                    m_ModesConsumers[consumerIterator]->addModesQueue(result);
                 }
             }
-            // ModeConsumers[consumerIterator]->AddModeQueue(result);
+            if (result.size() >= 5)
+            {
+                if (result[1] == "332")
+                {
+                    output::instance().addOutput("void irc::parse() if (result[1] == \"332\")", 11);
+                    m_ModesConsumers[consumerIterator]->addModesQueue(result);
+                }
+            }
         }
         for (consumerIterator = 0; consumerIterator < m_WhoisConsumers.size(); consumerIterator++)
         {
-            // WhoisConsumers[consumerIterator]->AddWhoisQueue(result);
+            if (result.size() >= 4)
+            {
+                if (result[1] == "307" || result[1] == "318" || result[1] == "330" || result[1] == "402" || result[1] == "354")       //WHOIS regged userName
+                {
+                    for (consumerIterator = 0; consumerIterator < m_PrivmsgConsumers.size(); consumerIterator++)
+                    {
+                        m_WhoisConsumers[consumerIterator]->addWhoisQueue(result);
+                    }
+                }
+            }
+            if (result.size() >= 11)
+            {
+                if (result[1] == "352")       //WHO
+                {
+                    for (consumerIterator = 0; consumerIterator < m_PrivmsgConsumers.size(); consumerIterator++)
+                    {
+                        m_WhoisConsumers[consumerIterator]->addWhoisQueue(result);
+                    }
+                }
+            }
         }
         if (result.size() >= 4)
         {

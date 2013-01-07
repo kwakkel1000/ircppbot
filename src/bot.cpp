@@ -43,7 +43,8 @@
 
 bot::bot()
 // Initialize all member vars! std::string's will just use their default constructor
-//: m_IrcSocket(NULL)
+: m_IrcSocket(NULL),
+ m_Management(NULL)
 {
     //Whois::Instance();
 }
@@ -91,6 +92,10 @@ void bot::ircInit()
     m_IrcSocket->connect(configreader::instance().getString("ircserver"), glib::intFromString(configreader::instance().getString("ircport")));
     output::instance().addOutput("before irc::instance().init(*m_IrcSocket);");
     irc::instance().init(*m_IrcSocket);
+    m_Management = new management();
+    ircdata* tmpircdata = new ircdata();
+    m_Management->init(tmpircdata);
+    //m_ManagementThread = std::shared_ptr<std::thread>(new std::thread(std::bind(&management::read, this)));
 }
 
 void bot::moduleInit()
@@ -98,8 +103,6 @@ void bot::moduleInit()
     output::instance().addOutput("void bot::moduleInit()", 10);
     reply::instance().init();
     irc::instance().run();
-
-    output::instance().addStatus(loadModule(configreader::instance().getString("ircserv")), "Loading " + configreader::instance().getString("ircserv"));
     std::vector< std::string > vLoadMods = glib::split(configreader::instance().getString("loadmods"));
     for (size_t uiModuleIndex = 0; uiModuleIndex < vLoadMods.size(); uiModuleIndex++)
     {
@@ -188,7 +191,7 @@ bool bot::loadModule(std::string moduleName)
             if (m_ModuleList[m_ModuleListIndex] == moduleName)
             {
                 size_t moduleIndex = m_ModuleListIndex;
-                if (moduleIndex >= 0)
+                //if (moduleIndex >= 0)
                 {
                     //assert(!tmp_thread);
                     tmp_thread = std::shared_ptr<std::thread>(new std::thread(std::bind(&bot::moduleRun, this, moduleIndex)));
@@ -209,7 +212,7 @@ bool bot::unLoadModule(std::string moduleName)
         if (m_ModuleList[m_ModuleListIndex] == moduleName)
         {
             size_t moduleIndex = m_ModuleListIndex;
-            if (moduleIndex >= 0)
+            //if (moduleIndex >= 0)
             {
                 m_ModuleInterfaceVector[moduleIndex]->stop();
                 m_ModuleThreadVector.erase(m_ModuleThreadVector.begin()+moduleIndex);
@@ -232,7 +235,7 @@ bool bot::unLoadModuleId(size_t moduleIndex)
     output::instance().addOutput("bool bot::unLoadModuleId(size_t moduleIndex)", 10);
     if (moduleIndex < m_ModuleList.size())
     {
-        if (moduleIndex >= 0)
+        //if (moduleIndex >= 0)
         {
             m_DestroyVector[moduleIndex](m_ModuleInterfaceVector[moduleIndex]);
             dlclose(m_ModuleVector[moduleIndex]);
@@ -261,6 +264,7 @@ void bot::ircRun()
     *m_IrcSocket << USER;
     *m_IrcSocket << PASS;
     *m_IrcSocket << NICK;
+    m_Management->read();
 }
 
 void bot::moduleRun(size_t moduleIndex)
@@ -296,7 +300,7 @@ std::string bot::parseCommands(std::vector<std::string> args)
                 std::map< std::string, channel > channelList;
                 channels::instance().getChannels(channelList);
                 std::map< std::string, channel >::iterator channelListIterator;
-                for (channelListIterator = channelList.end(); channelListIterator != channelList.begin(); channelListIterator--)
+                for (channelListIterator = channelList.end(); channelListIterator != channelList.begin(); --channelListIterator)
                 {
                     for (size_t versionsVectorIterator = 0; versionsVectorIterator < versionsVector.size(); versionsVectorIterator++)
                     {
@@ -347,7 +351,7 @@ std::string bot::parseCommands(std::vector<std::string> args)
             if (glib::iequals(args[0], "reloadall"))
             {
                 std::vector< std::string > tmpm_ModuleList = m_ModuleList;
-                std::string reply_string;
+                //std::string reply_string;
                 for (size_t i = 0; i < tmpm_ModuleList.size(); i++)
                 {
                     std::string modname = tmpm_ModuleList[i];

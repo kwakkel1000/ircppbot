@@ -25,11 +25,17 @@
 #include "include/ircdata.h"
 
 ircdata::ircdata() :
+    m_Run(true),
     m_GetRaw(false),
     m_GetEvents(false),
-    m_GetMode(false),
+    m_GetModes(false),
     m_GetWhois(false),
-    m_GetPrivmsg(false)
+    m_GetPrivmsg(false),
+    m_RawQueue(),
+    m_EventsQueue(),
+    m_ModesQueue(),
+    m_WhoisQueue(),
+    m_PrivmsgQueue()
 {
 }
 
@@ -38,7 +44,7 @@ ircdata::~ircdata()
     m_Run = false;
     m_RawAvailable.notify_all();
     m_EventsAvailable.notify_all();
-    m_ModeAvailable.notify_all();
+    m_ModesAvailable.notify_all();
     m_WhoisAvailable.notify_all();
     m_PrivmsgAvailable.notify_all();
 }
@@ -61,13 +67,13 @@ bool ircdata::getEvents()
     return m_GetEvents;
 }
 
-void ircdata::setMode(bool mode)
+void ircdata::setModes(bool modes)
 {
-    m_GetMode = mode;
+    m_GetModes = modes;
 }
-bool ircdata::getMode()
+bool ircdata::getModes()
 {
-    return m_GetMode;
+    return m_GetModes;
 }
 
 void ircdata::setWhois(bool whois)
@@ -105,12 +111,12 @@ void ircdata::addEventsQueue(std::vector<std::string> data)
     m_EventsAvailable.notify_one();
 }
 
-void ircdata::addModeQueue(std::vector<std::string> data)
+void ircdata::addModesQueue(std::vector<std::string> data)
 {
-    std::unique_lock<std::mutex> lock(m_ModeMutex);
-    m_ModeQueue.push(data);
+    std::unique_lock<std::mutex> lock(m_ModesMutex);
+    m_ModesQueue.push(data);
     lock.unlock();
-    m_ModeAvailable.notify_one();
+    m_ModesAvailable.notify_one();
 }
 
 void ircdata::addWhoisQueue(std::vector<std::string> data)
@@ -166,17 +172,17 @@ std::vector< std::string > ircdata::getEventsQueue()
     return NULLvector;
 }
 
-std::vector< std::string > ircdata::getModeQueue()
+std::vector< std::string > ircdata::getModesQueue()
 {
-    std::unique_lock<std::mutex> lock(m_ModeMutex);
-    while (m_ModeQueue.empty() && m_Run)
+    std::unique_lock<std::mutex> lock(m_ModesMutex);
+    while (m_ModesQueue.empty() && m_Run)
     {
-        m_ModeAvailable.wait(lock);
+        m_ModesAvailable.wait(lock);
     }
-    if (!m_ModeQueue.empty())
+    if (!m_ModesQueue.empty())
     {
-        std::vector< std::string > temp = m_ModeQueue.front();
-        m_ModeQueue.pop();
+        std::vector< std::string > temp = m_ModesQueue.front();
+        m_ModesQueue.pop();
         lock.unlock();
         return temp;
     }

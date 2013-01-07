@@ -13,16 +13,26 @@ ircppbot_include_HEADERS = \
 	include/ircdata.h \
 	include/reply.h \
 	include/bot.h \
+	include/management/channels.h \
+	include/management/channel.h \
+	include/management/users.h \
+	include/management/user.h \
+	include/management/management.h \
 	include/config.h
 
 ircppbot_SOURCES = \
-        irc.cpp \
-        ircdata.cpp \
-        reply.cpp \
-        bot.cpp \
-        main.cpp
+	irc.cpp \
+	ircdata.cpp \
+	reply.cpp \
+	bot.cpp \
+	management/channels.cpp \
+	management/channel.cpp \
+	management/users.cpp \
+	management/user.cpp \
+	management/management.cpp \
+	main.cpp
 
 
 ircppbot_CPPFLAGS = $(IRCPPBOT_CPPFLAGS)
 ircppbot_LDFLAGS = $(IRCPPBOT_LDFLAGS)
-ircppbot_LDADD = $(IRCPPBOT_LIBS) management/libmanagement.a
+ircppbot_LDADD = $(IRCPPBOT_LIBS)

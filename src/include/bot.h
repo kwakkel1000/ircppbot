@@ -33,6 +33,7 @@
 #include <vector>
 
 #include "interfaces/moduleinterface.h"
+#include "management/management.h"
 
 
 class bot
@@ -58,8 +59,11 @@ class bot
         std::vector< createModuleInterface* > m_CreateVector;
         std::vector< destroyModuleInterface* > m_DestroyVector;
 
+        management* m_Management;
+
         std::atomic<bool> m_Run;
         std::shared_ptr< std::thread > m_TimerThread;
+        std::shared_ptr< std::thread > m_ManagementThread;
         std::vector< std::shared_ptr< std::thread > > m_ModuleThreadVector;
 
         std::string parseCommands(std::vector<std::string> args);

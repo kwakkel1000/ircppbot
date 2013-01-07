@@ -30,19 +30,14 @@
 #include "include/reply.h"
 
 #include <gframe/glib.h>
-
+#include <gframe/configreader.h>
+#include <gframe/output.h>
 
 #include <management/Whois.h>
 
-#include <boost/algorithm/string.hpp>
-#include <boost/uuid/uuid.hpp>            // uuid class
-#include <boost/uuid/uuid_generators.hpp> // generators
-#include <boost/uuid/uuid_io.hpp>         // streaming operators etc.
-#include <iostream>
 #include <algorithm>
 #include <sstream>
 #include <cstring>
-#include <map>
 
 const char addchar    = '+';
 const char remchar    = '-';
@@ -64,13 +59,6 @@ const char opwhochar     = '@';
 const char halfopwhochar = '%';
 const char voicewhochar  = '+';
 
-extern "C" management* create() {
-    return new management;
-}
-
-extern "C" void destroy(management* x) {
-    delete x;
-}
 
 management::management() :
     m_NickServer(false),
@@ -90,40 +78,39 @@ management::~management()
 void management::stop()
 {
     m_Run = false;
-    m_IrcData->stop();
+    //m_IrcData->stop();
     output::instance().addOutput("management::stop", 6);
-    raw_parse_thread->join();
-    std::cout << "raw_parse_thread stopped" << std::endl;
+    m_ModesThread->join();
+    m_WhoisThread->join();
+    m_EventsThread->join();
 }
 
 void management::init(ircdata* ircData)
 {
     m_NickServer = (configreader::instance().getString("nickserv") == "true");
     m_WhoExtra = (configreader::instance().getString("whoextra") == "true");
-    GetAuths();
+    getAuths();
     m_IrcData = ircData;
-    m_IrcData->addModesQueue(true);
-    m_IrcData->addWhoisQueue(true);
-    m_IrcData->addEventsQueue(true);
+    m_IrcData->setModes(true);
+    m_IrcData->setWhois(true);
+    m_IrcData->setEvents(true);
     irc::instance().addConsumer(m_IrcData);
 }
 
 void management::read()
 {
     m_Run = true;
-    assert(!raw_parse_thread);
-    raw_parse_thread = boost::shared_ptr<boost::thread>(new boost::thread(boost::bind(&management::parse_raw, this)));
-
-
-    ChannelsInterface& C = Global::Instance().get_Channels();
-    int Tijd;
+    m_ModesThread = std::shared_ptr<std::thread>(new std::thread(std::bind(&management::parseModes, this)));
+    m_WhoisThread = std::shared_ptr<std::thread>(new std::thread(std::bind(&management::parseWhois, this)));
+    m_EventsThread = std::shared_ptr<std::thread>(new std::thread(std::bind(&management::parseEvents, this)));
+    /*int Tijd;
     time_t t;
     t = time(0);
     Tijd = t;
-    int iRefreshTime = 0;
+    int iRefreshTime = 0;*/
     while (m_Run)
     {
-        iRefreshTime++;
+        /*iRefreshTime++;
         if (iRefreshTime >= 3600)
         {
             iRefreshTime = 0;
@@ -133,105 +120,138 @@ void management::read()
                 RefreshChannel(vChannels[iChannelsIndex]);
                 usleep(5 * 100000); // 5 * 1000000 5 seconds between each channel
             }
-        }
+        }*/
         usleep(1000000);
     }
 }
 
-void management::parse_raw()
+void management::parseModes()
 {
+    output::instance().addOutput("void management::parseModes()");
     std::vector< std::string > data;
     while(m_Run)
     {
-        data = m_IrcData->GetRawQueue();
-        ParseData(data);
-    }
-}
-
-void management::ParseData(std::vector< std::string > data)
-{
-    if (data.size() == 3)
-    {
-        if (data[1] == "JOIN")      //JOIN
+        data = m_IrcData->getModesQueue();
+        if (data.size() == 4)
         {
-            join(data);
-        }
-        if (data[1] == "NICK")      //NICK nickchange
-        {
-            NICK(data);
-        }
-    }
-    if (data.size() >= 3)
-    {
-        if (data[1] == "QUIT")      //QUIT
-        {
-            quit(data);
-        }
-        if (data[1] == "PART")      //PART
-        {
-            part(data);
-        }
-    }
-    if (data.size() >= 4)
-    {
-        if (data[1] == "001")   //welcome
-        {
-            Global::Instance().set_BotNick(data[2]);
-        }
-        if (data[1] == "307")       //WHOIS regged userName
-        {
-            if (m_NickServer)
+            if (data[1] == "MODE")      //KICK
             {
-                UserAuth(data[3], data[3]);
+                mode(data);
             }
         }
-        if (data[1] == "318")       //WHOIS end
+        if (data.size() >= 4)
         {
-            EndWhois(data[3]);
-            //WHOIS(data);
-        }
-        if (data[1] == "330")       //WHOIS auth
-        {
-            if (!m_NickServer)
+            if (data[1] == "TOPIC")      //TOPIC
             {
-                UserAuth(data[3], data[4]);
+                //topic(data);
             }
         }
-        if (data[1] == "402")       //WHOIS no server
+        if (data.size() >= 5)
         {
-            //WHOIS(data);
-        }
-        if (data[1] == "354")       //WHO (extra)
-        {
-            if (m_WhoExtra)
+            if (data[1] == "332")      //TOPIC
             {
-                WHOEXTRA(data);
+                //topic(data);
             }
-        }
-    }
-    if (data.size() >= 5)
-    {
-        if (data[1] == "KICK")      //KICK
-        {
-            kick(data);
-        }
-        if (data[1] == "MODE")      //KICK
-        {
-            MODE(data);
-        }
-    }
-    if (data.size() >= 11)
-    {
-        if (data[1] == "352")       //WHO
-        {
-            WHO(data);
         }
     }
 }
 
-void management::WHO(std::vector< std::string > data)
+void management::parseWhois()
 {
-    std::string channelName = data[3];
+    output::instance().addOutput("void management::parseWhois()");
+    std::vector< std::string > data;
+    while(m_Run)
+    {
+        data = m_IrcData->getWhoisQueue();
+        if (data.size() >= 4)
+        {
+            if (data[1] == "001")   //welcome
+            {
+                //Global::Instance().set_BotNick(data[2]);
+            }
+            if (data[1] == "307")       //WHOIS regged userName
+            {
+                if (m_NickServer)
+                {
+                    userAuth(data[3], data[3]);
+                }
+            }
+            if (data[1] == "318")       //WHOIS end
+            {
+                endWhois(data[3]);
+                //WHOIS(data);
+            }
+            if (data[1] == "330")       //WHOIS auth
+            {
+                if (!m_NickServer)
+                {
+                    userAuth(data[3], data[4]);
+                }
+            }
+            if (data[1] == "402")       //WHOIS no server
+            {
+                //WHOIS(data);
+            }
+            if (data[1] == "354")       //WHO (extra)
+            {
+                if (m_WhoExtra)
+                {
+                    whoextra(data);
+                }
+            }
+        }
+        if (data.size() >= 11)
+        {
+            if (data[1] == "352")       //WHO
+            {
+                who(data);
+            }
+        }
+    }
+}
+
+void management::parseEvents()
+{
+    output::instance().addOutput("void management::parseEvents()");
+    std::vector< std::string > data;
+    while(m_Run)
+    {
+        data = m_IrcData->getEventsQueue();
+        if (data.size() == 3)
+        {
+            if (data[1] == "NICK")
+            {
+                nick(data);
+            }
+            if (data[1] == "JOIN")
+            {
+                join(data);
+            }
+        }
+        if (data.size() >= 3)
+        {
+            if (data[1] == "QUIT")
+            {
+                quit(data);
+            }
+            if (data[1] == "PART")
+            {
+                part(data);
+            }
+        }
+        if (data.size() >= 4)
+        {
+            if (data[1] == "KICK")
+            {
+                kick(data);
+            }
+        }
+    }
+}
+
+void management::who(std::vector< std::string > data)
+{
+    /*std::string channelName = data[3];
     std::string userName = data[7];
     std::string modes = data[8];
 
@@ -239,7 +259,7 @@ void management::WHO(std::vector< std::string > data)
     bool added = users::instance().addUser(userName);
     //U.FirstJoin(userName);
     users::instance().getUser(userName).addChannel(channelName);
-    GetChannelInfo(channelName);
+    getChannelInfo(channelName);
 
     userModes(userName, modes);
     channelUserModes(channelName, userName, modes);
@@ -248,10 +268,10 @@ void management::WHO(std::vector< std::string > data)
     if (added)
     {
         irc::instance().addSendQueue(reply::instance().ircWhois(userName));
-    }
+    }*/
 }
 
-void management::WHOEXTRA(std::vector< std::string > data)
+void management::whoextra(std::vector< std::string > data)
 {
     if (data.size() == 7)
     {
@@ -263,80 +283,95 @@ void management::WHOEXTRA(std::vector< std::string > data)
         chanpos = channelName.find("#");
         if (chanpos != std::string::npos)
         {
-            UsersInterface& U = Global::Instance().get_Users();
-            ChannelsInterface& C = Global::Instance().get_Channels();
-            C.AddNick(channelName, userName);
-            U.AddUser(userName);
-            U.AddChannel(userName, channelName);
-            U.FirstJoin(userName);
-            UserAuth(userName, auth);
-            GetChannelInfo(channelName);
+            if (channels::instance().findChannel(channelName))
+            {
+                channels::instance().getChannel(channelName).addUser(userName);
+            }
+            if (users::instance().findUser(userName))
+            {
+                users::instance().addUser(userName);
+                users::instance().getUser(userName).addChannel(channelName);
+            }
+            //U.FirstJoin(userName);
+            userAuth(userName, auth);
+            getChannelInfo(channelName);
 
             userModes(userName, modes);
-            channelUserModes(channelName, userName, modes);
+            //channelUserModes(channelName, userName, modes);
         }
     }
 }
 
-void management::JOIN(std::vector< std::string > data)
+void management::join(std::vector< std::string > eventData)
 {
-    UsersInterface& U = Global::Instance().get_Users();
-    ChannelsInterface& C = Global::Instance().get_Channels();
-    std::string channelName = data[2];
-    boost::erase_all(channelName, ":");
-    //vector<string> channelName = Split(data[2], ":",true,true);
-    std::string userName = HostmaskToNick(data);
-    if (userName == Global::Instance().get_BotNick())
+    output::instance().addOutput("void management::join(std::vector< std::string > eventData)", 10);
+    std::string channelName = eventData[2];
+    deleteFirst(channelName, ":");
+    //boost::erase_all(channelName, ":");
+    std::string userName = eventData[0];
+    nickFromHostmask(userName);
+    //if (userName == Global::Instance().get_BotNick())
+    if (userName == "bot")
     {
-        C.AddChannel(channelName);
+        channels::instance().addChannel(channelName);
         whoChannel(channelName);
-        GetChannelInfo(channelName);
+        getChannelInfo(channelName);
     }
     else
     {
-        C.AddNick(channelName, userName);
-        bool added = false;
-        added = U.AddUser(userName);
-        U.AddChannel(userName, channelName);
-        if (added)
+        bool added;
+        if (channels::instance().findChannel(channelName))
         {
-            irc::instance().addSendQueue(reply::instance().ircWhois(userName));
-        }
-        if (U.GetAuth(userName) != "NULL")
-        {
-            std::string outputString = "WhoisUsers insert:  userName " + userName + " channel " + channelName;
-            Output::Instance().addOutput(outputString, 4);
-            //WhoisUsers.insert( std::pair< std::string, std::string >(userName, channelName) );
-            Whois::Instance().AddQueue(std::pair< std::string, std::string >(userName, channelName));
-        }
-        else
-        {
-            std::string outputString = "NoWhoisUsers insert:  userName " + userName + " channel " + channelName;
-            Output::Instance().addOutput(outputString, 4);
-            NoWhoisUsers.insert( std::pair< std::string, std::string >(userName, channelName) );
+            channels::instance().getChannel(channelName).addUser(userName);
+            added = users::instance().addUser(userName);
+            users::instance().getUser(userName).addChannel(channelName);
+            if (added)
+            {
+                irc::instance().addSendQueue(reply::instance().ircWhois(userName));
+            }
+            /*if (U.GetAuth(userName) != "NULL")
+            {
+                std::string outputString = "WhoisUsers insert:  userName " + userName + " channel " + channelName;
+                Output::Instance().addOutput(outputString, 4);
+                //WhoisUsers.insert( std::pair< std::string, std::string >(userName, channelName) );
+                Whois::Instance().AddQueue(std::pair< std::string, std::string >(userName, channelName));
+            }
+            else
+            {
+                std::string outputString = "NoWhoisUsers insert:  userName " + userName + " channel " + channelName;
+                Output::Instance().addOutput(outputString, 4);
+                NoWhoisUsers.insert( std::pair< std::string, std::string >(userName, channelName) );
+            }*/
         }
     }
 }
 
 void management::part(std::vector< std::string > eventData)
 {
+    output::instance().addOutput("void management::part(std::vector< std::string > eventData)", 10);
     std::string channelName = eventData[2];
-    boost::erase_all(channelName, ":");
-    std::string userName = HostmaskToNick(eventData);
+    deleteFirst(channelName, ":");
+    std::string userName = eventData[0];
+    nickFromHostmask(userName);
     leaveChannel(channelName, userName);
 }
 
 void management::kick(std::vector< std::string > eventData)
 {
+    output::instance().addOutput("void management::kick(std::vector< std::string > eventData)", 10);
     std::string channelName = eventData[2];
+    deleteFirst(channelName, ":");
     std::string userName = eventData[3];
     leaveChannel(channelName, userName);
 }
 
 void management::quit(std::vector< std::string > eventData)
 {
-    std::string userName = HostmaskToNick(eventData);
-    if (userName == Global::Instance().get_BotNick())
+    output::instance().addOutput("void management::quit(std::vector< std::string > eventData)", 10);
+    std::string userName = eventData[0];
+    nickFromHostmask(userName);
+    //if (userName == Global::Instance().get_BotNick())
+    if (userName == "bot")
     {
         // should never see its own quit :S
         exit(EXIT_FAILURE);
@@ -345,7 +380,7 @@ void management::quit(std::vector< std::string > eventData)
     {
         std::unordered_set< std::string > userChannels = users::instance().getUser(userName).getChannels();
         std::unordered_set< std::string >::iterator userChannelsIterator;
-        for (userChannelsIterator = userChannels.begin(); userChannelsIterator != channelUsers.end(); ++userChannelsIterator)
+        for (userChannelsIterator = userChannels.begin(); userChannelsIterator != userChannels.end(); ++userChannelsIterator)
         {
             leaveChannel(*userChannelsIterator, userName);
         }
@@ -355,11 +390,12 @@ void management::quit(std::vector< std::string > eventData)
 
 
 
-void management::NICK(std::vector< std::string > data)
+void management::nick(std::vector< std::string > eventData)
 {
-    UsersInterface& U = Global::Instance().get_Users();
+    output::instance().addOutput("void management::nick(std::vector< std::string > eventData)", 10);
+    /*UsersInterface& U = Global::Instance().get_Users();
     ChannelsInterface& C = Global::Instance().get_Channels();
-    std::string oldnick = HostmaskToNick(data);
+    std::string oldnick = nickFromHostmask(data);
     std::string userName = data[2];
     boost::erase_all(userName, ":");
     //vector<string> userName = Split(data[2], ":",true,true);
@@ -386,13 +422,14 @@ void management::NICK(std::vector< std::string > data)
             C.AddNick(channels[i], userName);
         }
         //cout << "NICK" << endl;
-    }
+    }*/
 }
 
-void management::MODE(std::vector< std::string > data)
+void management::mode(std::vector< std::string > data)
 {
-    ChannelsInterface& C = Global::Instance().get_Channels();
-    std::string userName = HostmaskToNick(data);
+    output::instance().addOutput("void management::mode(std::vector< std::string > data)", 10);
+    /*std::string channelName = data[2];
+    std::string userName = nickFromHostmask(data);
     if (userName == Global::Instance().get_BotNick())
     {
 
@@ -420,13 +457,13 @@ void management::MODE(std::vector< std::string > data)
         if (modeparse[i] == ownerchar)
         {
             //cout << "channelName: " << data[2] << " user: " << data[parsepos] << " " << ownerchar << endl;
-            C.SetOp(data[2], data[parsepos], add);
+            //C.SetOp(data[2], data[parsepos], add);
             parsepos++;
         }
         if (modeparse[i] == adminchar)
         {
             //cout << "channelName: " << data[2] << " user: " << data[parsepos] << " " << adminchar << endl;
-            C.SetOp(data[2], data[parsepos], add);
+            //C.SetOp(data[2], data[parsepos], add);
             parsepos++;
         }
         if (modeparse[i] == opchar)
@@ -447,12 +484,13 @@ void management::MODE(std::vector< std::string > data)
             C.SetVoice(data[2], data[parsepos], add);
             parsepos++;
         }
-    }
+    }*/
 }
 
-void management::UserAuth(std::string msNick, std::string msAuth)
+void management::userAuth(std::string msNick, std::string msAuth)
 {
-    UsersInterface& U = Global::Instance().get_Users();
+    output::instance().addOutput("void management::userAuth(std::string msNick, std::string msAuth)", 10);
+    /*UsersInterface& U = Global::Instance().get_Users();
     U.SetAuth(msNick, msAuth);
     U.SetOaccess(msNick, -1);
     if (U.AddAuth(msAuth) == true)
@@ -488,10 +526,10 @@ void management::UserAuth(std::string msNick, std::string msAuth)
     else
     {
         U.DelUser(msNick);
-    }
+    }*/
 }
 
-void management::EndWhois(std::string msNick)
+void management::endWhois(std::string msNick)
 {
     NoWhoisUsers.erase (msNick);
     /*std::vector< std::string > userchannels = U.GetChannels(mNick);
@@ -501,19 +539,41 @@ void management::EndWhois(std::string msNick)
     }*/
 }
 
-std::string management::HostmaskToNick(std::vector< std::string > data)
+bool management::nickFromHostmask(std::string& data)
 {
     std::vector< std::string > who;
-    boost::split( who, data[0], boost::is_any_of("!"), boost::token_compress_on );
-    std::string userName = who[0];
-    boost::erase_all(userName, ":");
-    return userName;
+    who = glib::split(data);
+    if (deleteFirst(who[0], ":"))
+    {
+        size_t pos;
+        pos = who[0].find("!");
+        data = who[0].substr(0, pos);
+        return true;
+    }
+    else
+    {
+        return false;
+    }
+}
+
+bool management::deleteFirst(std::string& data, std::string character)
+{
+    size_t pos;
+    std::string tmpstring = "";
+    pos = data.find(character);
+    if (pos > 2)
+    {
+        tmpstring = data.substr(0, pos-1);
+    }
+    tmpstring = tmpstring + data.substr(pos+1);
+    data = tmpstring;
+    return true;
 }
 
 
-void management::GetUserInfo(std::string data)
+void management::getUserInfo(std::string data)
 {
-    UsersInterface& U = Global::Instance().get_Users();
+    /*UsersInterface& U = Global::Instance().get_Users();
     std::string auth = U.GetAuth(data);
     if (boost::iequals(auth, "NULL") != true)
     {
@@ -521,18 +581,18 @@ void management::GetUserInfo(std::string data)
         U.SetOaccess(data, DatabaseData::Instance().GetOaccessByAuth(auth));
         U.SetGod(data, DatabaseData::Instance().GetGodByAuth(auth));
         U.SetLanguage(data, DatabaseData::Instance().GetLanguageByAuth(auth));
-    }
+    }*/
 }
 
-void management::GetChannelInfo(std::string msChannel)
+void management::getChannelInfo(std::string msChannel)
 {
-    ChannelsInterface& C = Global::Instance().get_Channels();
+    /*ChannelsInterface& C = Global::Instance().get_Channels();
     C.InitSetting(msChannel, "giveops", BotLib::StringFromInt(DatabaseData::Instance().GetGiveOpsByChannel(msChannel)));
     C.InitSetting(msChannel, "givevoice", BotLib::StringFromInt(DatabaseData::Instance().GetGiveVoiceByChannel(msChannel)));
     C.SetCid(msChannel, DatabaseData::Instance().GetChannelUuidByChannel(msChannel));
     /*C.SetGiveops(msChannel, DatabaseData::Instance().GetGiveOpsByChannel(msChannel));
     C.SetGivevoice(msChannel, DatabaseData::Instance().GetGiveVoiceByChannel(msChannel));*/
-
+/*
     std::vector< std::vector< std::string > > channels_vector;
     std::string ChannelUuid = DatabaseData::Instance().GetChannelUuidByChannel(msChannel);
     channels_vector = DatabaseData::Instance().GetUserUuidAndAccessByChannelUuid(ChannelUuid);
@@ -543,12 +603,12 @@ void management::GetChannelInfo(std::string msChannel)
         //std::cout << msChannel << " " << auth << " " << channels_vector[i][1] << std::endl;
         C.AddAuth(msChannel, auth);
         C.SetAccess(msChannel, auth, convertString(channels_vector[i][1]));
-    }
+    }*/
 }
 
-void management::GetAuths()
+void management::getAuths()
 {
-    UsersInterface& U = Global::Instance().get_Users();
+    /*UsersInterface& U = Global::Instance().get_Users();
     std::vector< std::string > auth_vector;
     auth_vector = DatabaseData::Instance().GetAuths();
     size_t i;
@@ -556,7 +616,7 @@ void management::GetAuths()
     {
         U.AddAuth(auth_vector[i]);
         //std::cout << auth_vector[i] << std::endl;
-    }
+    }*/
 }
 
 
@@ -564,30 +624,54 @@ void management::GetAuths()
 
 void management::leaveChannel(std::string channelName, std::string userName)
 {
-    if (userName == Global::Instance().get_BotNick())
+    //if (userName == Global::Instance().get_BotNick())
+    if (userName == "bot")
     {
-        std::unordered_set< std::string > channelUsers = channels::instance().getChannel(channelName).getUsers();
-        std::unordered_set< std::string >::iterator channelUsersIterator;
+        //std::unordered_set< std::string > channelUsers = channels::instance().getChannel(channelName).getUsers();
+        //std::unordered_set< std::string >::iterator channelUsersIterator;
+        std::set< std::string > channelUsers = channels::instance().getChannel(channelName).getUsers();
+        std::set< std::string >::iterator channelUsersIterator;
         for (channelUsersIterator = channelUsers.begin(); channelUsersIterator != channelUsers.end(); ++channelUsersIterator)
         {
             users::instance().getUser(*channelUsersIterator).delChannel(channelName);
-            channels::instance().getChannel(channelName).delUser(*channelUsersIterator);
-            if (users::instance().getUser(userName).getChannels().empty())
+            if (channels::instance().findChannel(channelName))
             {
-                output::instance().addOutput(*channelUsersIterator + ": no channels left, deleting.", 8);
-                users::instance().delUser(*channelUsersIterator);
+                channels::instance().getChannel(channelName).delUser(userName);
+                if (users::instance().getUser(userName).getChannels().empty())
+                {
+                    output::instance().addOutput(*channelUsersIterator + ": no channels left, deleting.", 8);
+                    users::instance().delUser(*channelUsersIterator);
+                }
+            }
+            else
+            {
+                output::instance().addOutput("void management::leaveChannel(std::string channelName, std::string userName) channel not found : " + channelName, 8);
             }
         }
         channels::instance().delChannel(channelName);
     }
     else
     {
-        channels::instance().getChannel(channelName).delUser(userName);
-        users::instance().getUser(userName).delChannel(channelName);
-        if (users::instance().getUser(userName).getChannels().empty())
+        if (channels::instance().findChannel(channelName))
         {
-            output::instance().addOutput(userName + ": no channels left, deleting.", 8);
-            users::instance().delUser(userName);
+            channels::instance().getChannel(channelName).delUser(userName);
+            if (users::instance().findUser(userName))
+            {
+                users::instance().getUser(userName).delChannel(channelName);
+                if (users::instance().getUser(userName).getChannels().empty())
+                {
+                    output::instance().addOutput(userName + ": no channels left, deleting.", 8);
+                    users::instance().delUser(userName);
+                }
+            }
+            else
+            {
+                output::instance().addOutput("void management::leaveChannel(std::string channelName, std::string userName) user not found : " + userName, 8);
+            }
+        }
+        else
+        {
+            output::instance().addOutput("void management::leaveChannel(std::string channelName, std::string userName) channel not found : " + channelName, 8);
         }
     }
 }

@@ -10,7 +10,6 @@ DIST_SUBDIRS = \
 
 SUBDIRS = \
         src\
-        src/management \
         man \
 	src
 

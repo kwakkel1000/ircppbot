@@ -74,7 +74,7 @@ class irc
         std::vector< ircdata * > m_Consumers;
         std::vector< ircdata * > m_RawConsumers;
         std::vector< ircdata * > m_EventsConsumers;
-        std::vector< ircdata * > m_ModeConsumers;
+        std::vector< ircdata * > m_ModesConsumers;
         std::vector< ircdata * > m_WhoisConsumers;
         std::vector< ircdata * > m_PrivmsgConsumers;
 

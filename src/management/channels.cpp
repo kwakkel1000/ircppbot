@@ -33,7 +33,7 @@ channels::channels()
 channels::~channels()
 {
     std::map< std::string, channel >::iterator m_ChannelListIterator;
-    for (m_ChannelListIterator = m_ChannelList.end(); m_ChannelListIterator != m_ChannelList.begin(); m_ChannelListIterator--)
+    for (m_ChannelListIterator = m_ChannelList.end(); m_ChannelListIterator != m_ChannelList.begin(); --m_ChannelListIterator)
     {
         delChannel((*m_ChannelListIterator).first);
     }
@@ -42,6 +42,18 @@ channels::~channels()
 bool channels::getChannels(std::map< std::string, channel > &channelList)
 {
     channelList = m_ChannelList;
+    return true;
+}
+
+bool channels::findChannel(std::string channelName)
+{
+    std::map< std::string, channel >::iterator m_ChannelListIterator;
+    m_ChannelListIterator = m_ChannelList.find(channelName);
+    if (m_ChannelListIterator != m_ChannelList.end())
+    {
+        output::instance().addStatus(false, "bool channels::findChannel(std::string channelName) channel not found");
+        return false;
+    }
     return true;
 }
 

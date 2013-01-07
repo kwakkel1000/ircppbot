@@ -2,11 +2,11 @@
 //
 //  @ Project : ircppbot
 //  @ File Name : channels.h
-//  @ Date : 26-12-2012
+//  @ Date : 06-01-2013
 //  @ Author : Gijs Kwakkel
 //
 //
-// Copyright (c) 2011 Gijs Kwakkel
+// Copyright (c) 2013 Gijs Kwakkel
 //
 // This program is free software; you can redistribute it and/or
 // modify it under the terms of the GNU General Public License
@@ -42,6 +42,7 @@ class channels
         bool addChannel(std::string channelName);
         bool delChannel(std::string channelName);
 
+        bool findChannel(std::string channelName);
         bool getChannels(std::map< std::string, channel > &channelList);
         channel& getChannel(std::string channelName);
 
