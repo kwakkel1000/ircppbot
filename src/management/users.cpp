@@ -81,7 +81,7 @@ bool users::findUser(std::string userName)
 {
     std::map< std::string, user >::iterator l_UserListIterator;
     l_UserListIterator = m_UserList.find(userName);
-    if (l_UserListIterator != m_UserList.end())
+    if (l_UserListIterator == m_UserList.end())
     {
         return false;
     }

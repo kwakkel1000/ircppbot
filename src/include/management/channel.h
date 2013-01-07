@@ -2,11 +2,11 @@
 //
 //  @ Project : ircppbot
 //  @ File Name : channel.h
-//  @ Date : 26-12-2012
+//  @ Date : 07-01-2013
 //  @ Author : Gijs Kwakkel
 //
 //
-// Copyright (c) 2011 Gijs Kwakkel
+// Copyright (c) 2013 Gijs Kwakkel
 //
 // This program is free software; you can redistribute it and/or
 // modify it under the terms of the GNU General Public License
@@ -26,14 +26,13 @@
 #ifndef SRC_INCLUDE_MANAGEMENT_CHANNEL_H
 #define SRC_INCLUDE_MANAGEMENT_CHANNEL_H
 #include <string>
-//#include <unordered_set>
-#include <set>
+#include <unordered_set>
 #include <unordered_map>
 #include <mutex>
 
 class channel
 {
-public:
+    public:
         channel();
         channel(const channel&);
         ~channel();
@@ -41,15 +40,12 @@ public:
         // ### channel users ###
         bool addUser(std::string userName);
         bool delUser(std::string userName);
-        //std::unordered_set< std::string > getUsers();
-        std::set< std::string > getUsers();
+        std::unordered_set< std::string > getUsers();
         // ### end channel users ###
     private:
         //std::unordered_map< std::string, std::unordered_set< std::string > > m_Users;
-        //std::unordered_set< std::string > m_Users;
-        std::set< std::string > m_Users;
-        //std::unordered_set< std::string > m_Bans;
-        std::set< std::string > m_Bans;
+        std::unordered_set< std::string > m_Users;
+        std::unordered_set< std::string > m_Bans;
 
         // ### irc channel modes ###
         std::string m_Topic;

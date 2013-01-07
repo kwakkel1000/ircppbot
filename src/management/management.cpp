@@ -66,6 +66,8 @@ management::management() :
     m_WhoExtra(false),
     m_IrcData(NULL)
 {
+    channels::instance();
+    users::instance();
 }
 
 management::~management()
@@ -607,7 +609,7 @@ void management::getChannelInfo(std::string msChannel)
     C.InitSetting(msChannel, "giveops", BotLib::StringFromInt(DatabaseData::Instance().GetGiveOpsByChannel(msChannel)));
     C.InitSetting(msChannel, "givevoice", BotLib::StringFromInt(DatabaseData::Instance().GetGiveVoiceByChannel(msChannel)));
     C.SetCid(msChannel, DatabaseData::Instance().GetChannelUuidByChannel(msChannel));
-    /*C.SetGiveops(msChannel, DatabaseData::Instance().GetGiveOpsByChannel(msChannel));
+    / * C.SetGiveops(msChannel, DatabaseData::Instance().GetGiveOpsByChannel(msChannel));
     C.SetGivevoice(msChannel, DatabaseData::Instance().GetGiveVoiceByChannel(msChannel));*/
 /*
     std::vector< std::vector< std::string > > channels_vector;
@@ -644,10 +646,8 @@ void management::leaveChannel(std::string channelName, std::string userName)
     //if (userName == Global::Instance().get_BotNick())
     if (userName == "bot")
     {
-        //std::unordered_set< std::string > channelUsers = channels::instance().getChannel(channelName).getUsers();
-        //std::unordered_set< std::string >::iterator channelUsersIterator;
-        std::set< std::string > channelUsers = channels::instance().getChannel(channelName).getUsers();
-        std::set< std::string >::iterator channelUsersIterator;
+        std::unordered_set< std::string > channelUsers = channels::instance().getChannel(channelName).getUsers();
+        std::unordered_set< std::string >::iterator channelUsersIterator;
         for (channelUsersIterator = channelUsers.begin(); channelUsersIterator != channelUsers.end(); ++channelUsersIterator)
         {
             users::instance().getUser(*channelUsersIterator).delChannel(channelName);

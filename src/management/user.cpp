@@ -25,7 +25,11 @@
 
 #include "../include/management/user.h"
 
-user::user() : m_Gone(false), m_X(false), m_Bot(false), m_IrcOp(false)
+user::user() :
+m_Gone(false),
+m_X(false),
+m_Bot(false),
+m_IrcOp(false)
 {
     m_Channels.clear();
 }

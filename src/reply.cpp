@@ -169,29 +169,34 @@ std::string reply::ircWhois2(std::string target)
 // irc_bold
 std::string reply::ircBold()
 {
-    return "" + char(2);
+    return "\x02";
+//    return "" + char(2);
 }
 
 // irc_underline
 std::string reply::ircUnderline()
 {
-    return "" + char(31);
+    return "\x1f";
+//    return "" + char(31);
 }
 
 // irc_italic
 std::string reply::ircItalic()
 {
-    return "" + char(22);
+    return "\x15";
+//    return "" + char(22);
 }
 
 // irc_normal
 std::string reply::ircNormal()
 {
-    return "" + char(15);
+    return "\x0f";
+//    return "" + char(15);
 }
 
 // irc_color
 std::string reply::ircColor()
 {
-    return "" + char(3);
+    return "\x03";
+//    return "" + char(3);
 }
