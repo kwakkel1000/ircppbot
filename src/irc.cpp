@@ -262,7 +262,7 @@ void irc::send()
             data = getSendQueue();
             sOutput = ">> " + data;
             data = data + "\r\n";
-            output::instance().addOutput(sOutput, 5);
+            output::instance().addOutput(sOutput, 11);
             // try
             {
                 if (m_Send)
@@ -286,7 +286,7 @@ void irc::send()
             data = getSendQueue();
             sOutput = ">> " + data;
             data = data + "\r\n";
-            output::instance().addOutput(sOutput, 5);
+            output::instance().addOutput(sOutput, 11);
             // try
             {
                 if (m_Send)
@@ -316,7 +316,7 @@ void irc::recv()
         {
             *m_IrcSocket >> buf;
             sOutput = "<< " + buf;
-            output::instance().addOutput(sOutput, 5);
+            output::instance().addOutput(sOutput, 11);
             addRecvQueue(buf);
             /*if (glib::iequals(configreader::instance().getString("chandebug"), "true"))
             {

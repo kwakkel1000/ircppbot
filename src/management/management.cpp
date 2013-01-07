@@ -251,28 +251,38 @@ void management::parseEvents()
 
 void management::who(std::vector< std::string > data)
 {
-    /*std::string channelName = data[3];
+    output::instance().addOutput("void management::who(std::vector< std::string > data)", 11);
+    std::string channelName = data[3];
     std::string userName = data[7];
     std::string modes = data[8];
 
-    channels::instance().getChannel(channelName).addUser(userName);
-    bool added = users::instance().addUser(userName);
-    //U.FirstJoin(userName);
-    users::instance().getUser(userName).addChannel(channelName);
-    getChannelInfo(channelName);
-
-    userModes(userName, modes);
-    channelUserModes(channelName, userName, modes);
-
-
-    if (added)
+    if (!channels::instance().findChannel(channelName))
     {
-        irc::instance().addSendQueue(reply::instance().ircWhois(userName));
-    }*/
+        channels::instance().addChannel(channelName);
+    }
+    if (channels::instance().findChannel(channelName))
+    {
+        channels::instance().getChannel(channelName).addUser(userName);
+        bool added = users::instance().addUser(userName);
+        //U.FirstJoin(userName);
+        users::instance().getUser(userName).addChannel(channelName);
+        getChannelInfo(channelName);
+
+        userModes(userName, modes);
+        userChannelModes(channelName, userName, modes);
+
+
+        if (added)
+        {
+            irc::instance().addSendQueue(reply::instance().ircWhois(userName));
+        }
+    }
+
 }
 
 void management::whoextra(std::vector< std::string > data)
 {
+    output::instance().addOutput("void management::whoextra(std::vector< std::string > data)", 11);
     if (data.size() == 7)
     {
         std::string channelName = data[3];
@@ -283,13 +293,20 @@ void management::whoextra(std::vector< std::string > data)
         chanpos = channelName.find("#");
         if (chanpos != std::string::npos)
         {
+            if (!channels::instance().findChannel(channelName))
+            {
+                channels::instance().addChannel(channelName);
+            }
             if (channels::instance().findChannel(channelName))
             {
                 channels::instance().getChannel(channelName).addUser(userName);
             }
-            if (users::instance().findUser(userName))
+            if (!users::instance().findUser(userName))
             {
                 users::instance().addUser(userName);
+            }
+            if (users::instance().findUser(userName))
+            {
                 users::instance().getUser(userName).addChannel(channelName);
             }
             //U.FirstJoin(userName);
@@ -297,22 +314,22 @@ void management::whoextra(std::vector< std::string > data)
             getChannelInfo(channelName);
 
             userModes(userName, modes);
-            //channelUserModes(channelName, userName, modes);
+            userChannelModes(channelName, userName, modes);
         }
     }
 }
 
 void management::join(std::vector< std::string > eventData)
 {
-    output::instance().addOutput("void management::join(std::vector< std::string > eventData)", 10);
+    output::instance().addOutput("void management::join(std::vector< std::string > eventData)", 11);
     std::string channelName = eventData[2];
     deleteFirst(channelName, ":");
-    //boost::erase_all(channelName, ":");
     std::string userName = eventData[0];
     nickFromHostmask(userName);
     //if (userName == Global::Instance().get_BotNick())
     if (userName == "bot")
     {
+        output::instance().addOutput("void management::join(std::vector< std::string > eventData) bot(" + userName + ") joins channel(" + channelName + ")", 11);
         channels::instance().addChannel(channelName);
         whoChannel(channelName);
         getChannelInfo(channelName);
@@ -348,7 +365,7 @@ void management::join(std::vector< std::string > eventData)
 
 void management::part(std::vector< std::string > eventData)
 {
-    output::instance().addOutput("void management::part(std::vector< std::string > eventData)", 10);
+    output::instance().addOutput("void management::part(std::vector< std::string > eventData)", 11);
     std::string channelName = eventData[2];
     deleteFirst(channelName, ":");
     std::string userName = eventData[0];
@@ -358,7 +375,7 @@ void management::part(std::vector< std::string > eventData)
 
 void management::kick(std::vector< std::string > eventData)
 {
-    output::instance().addOutput("void management::kick(std::vector< std::string > eventData)", 10);
+    output::instance().addOutput("void management::kick(std::vector< std::string > eventData)", 11);
     std::string channelName = eventData[2];
     deleteFirst(channelName, ":");
     std::string userName = eventData[3];
@@ -367,7 +384,7 @@ void management::kick(std::vector< std::string > eventData)
 
 void management::quit(std::vector< std::string > eventData)
 {
-    output::instance().addOutput("void management::quit(std::vector< std::string > eventData)", 10);
+    output::instance().addOutput("void management::quit(std::vector< std::string > eventData)", 11);
     std::string userName = eventData[0];
     nickFromHostmask(userName);
     //if (userName == Global::Instance().get_BotNick())
@@ -392,7 +409,7 @@ void management::quit(std::vector< std::string > eventData)
 
 void management::nick(std::vector< std::string > eventData)
 {
-    output::instance().addOutput("void management::nick(std::vector< std::string > eventData)", 10);
+    output::instance().addOutput("void management::nick(std::vector< std::string > eventData)", 11);
     /*UsersInterface& U = Global::Instance().get_Users();
     ChannelsInterface& C = Global::Instance().get_Channels();
     std::string oldnick = nickFromHostmask(data);
@@ -427,7 +444,7 @@ void management::nick(std::vector< std::string > eventData)
 
 void management::mode(std::vector< std::string > data)
 {
-    output::instance().addOutput("void management::mode(std::vector< std::string > data)", 10);
+    output::instance().addOutput("void management::mode(std::vector< std::string > data)", 11);
     /*std::string channelName = data[2];
     std::string userName = nickFromHostmask(data);
     if (userName == Global::Instance().get_BotNick())
@@ -489,7 +506,7 @@ void management::mode(std::vector< std::string > data)
 
 void management::userAuth(std::string msNick, std::string msAuth)
 {
-    output::instance().addOutput("void management::userAuth(std::string msNick, std::string msAuth)", 10);
+    output::instance().addOutput("void management::userAuth(std::string msNick, std::string msAuth)", 11);
     /*UsersInterface& U = Global::Instance().get_Users();
     U.SetAuth(msNick, msAuth);
     U.SetOaccess(msNick, -1);

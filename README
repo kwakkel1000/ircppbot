@@ -2,58 +2,24 @@ needed packages
 gcc / g++
 make
 
-libboost
-libboost-thread
-libboost-system
 libmysqlclient
+gframe (database and socket)
 
 a working mysql server (can be another host)
 
 building:
-edit makefile
-change wich modules you like.
+./configure
+make
+make install
 
-make clean
-make all
-
-make mysql database
+mysql database
 import bot.sql
 
 for default running:
-mkdir /var/run/ircppbot/
-and change permissions to the current user
-
-copy conf/conf.ini.example to conf/yourconf.ini
-edit it to your needs.
-
-
-
-./bot -c conf/yourconf.ini
-
-
-
-
-
-making modules:
-copy MODULES.exampel to MODULES
-edit MODULES to your modules locations
-
-
-copy src/modules/Test.cpp to src/modules/yourmodule.cpp
-copy include/Test.h to include/yourmodule.h
-edit both files.
-
-add yourmodule in the makefile (look at Test and those files)
-if you want your module to start on startup. add the module to conf/yourconf.ini to the loadmods= line (space seperated)
-
-make clean
-make all
-or
-make cleanYourmodule
-make Yourmodule
 
 
 log
+// if filelog (gframe)
 copy and edit the next text into /etc/logrotate.d/ircppbot
 /your/dir/log/*.log {
     daily
