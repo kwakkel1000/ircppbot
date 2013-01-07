@@ -132,6 +132,7 @@ void bot::run()
         std::string input_string = "";
         std::getline(std::cin, input_string);
         output::instance().addOutput(" [" + input_string + "]");
+        irc::instance().addSendQueue(reply::instance().ircPrivmsg(configreader::instance().getString("debugchannel"), "[" + input_string + "]"));
         std::vector< std::string > args;
         args = glib::split(input_string);
         parseCommands(args);
@@ -288,98 +289,190 @@ void bot::timer()
 std::string bot::parseCommands(std::vector<std::string> args)
 {
     std::string returnString = "";
-    irc::instance().addSendQueue(reply::instance().ircPrivmsg(configreader::instance().getString("debugchannel"), args[0]));
-    //for (size_t nArg = 0; nArg < args.size(); nArg++)
-    //{
-        if (args.size() == 1)
+    if (args.size() == 1)
+    {
+        if (glib::iequals(args[0], "version"))
         {
-            if (glib::iequals(args[0], "version"))
+            std::vector< std::string > versionsVector;
+            versionsVector = versions::instance().getVersions();
+            /*std::map< std::string, channel > channelList;
+            channels::instance().getChannels(channelList);
+            std::map< std::string, channel >::iterator channelListIterator;
+            for (channelListIterator = channelList.begin(); channelListIterator != channelList.end(); channelListIterator++)
             {
-                std::vector< std::string > versionsVector;
-                versionsVector = versions::instance().getVersions();
-                std::map< std::string, channel > channelList;
-                channels::instance().getChannels(channelList);
-                std::map< std::string, channel >::iterator channelListIterator;
-                for (channelListIterator = channelList.end(); channelListIterator != channelList.begin(); --channelListIterator)
-                {
-                    for (size_t versionsVectorIterator = 0; versionsVectorIterator < versionsVector.size(); versionsVectorIterator++)
-                    {
-                        // *m_IrcSocket << reply::instance().ircPrivmsg((*channelListIterator).first, versionsVector[versionsVectorIterator]);
-                        irc::instance().addSendQueue(reply::instance().ircPrivmsg(configreader::instance().getString("debugchannel"), "broadcastversion"));
-                        irc::instance().addSendQueue(reply::instance().ircPrivmsg(configreader::instance().getString("debugchannel"), (*channelListIterator).first + " " + versionsVector[versionsVectorIterator]));
-                    }
-                }
                 for (size_t versionsVectorIterator = 0; versionsVectorIterator < versionsVector.size(); versionsVectorIterator++)
                 {
-                    irc::instance().addSendQueue(reply::instance().ircPrivmsg(configreader::instance().getString("debugchannel"), reply::instance().ircBold() + versionsVector[versionsVectorIterator]));
+                    // *m_IrcSocket << reply::instance().ircPrivmsg((*channelListIterator).first, versionsVector[versionsVectorIterator]);
+                    irc::instance().addSendQueue(reply::instance().ircPrivmsg(configreader::instance().getString("debugchannel"), (*channelListIterator).first + " " + versionsVector[versionsVectorIterator]));
                 }
-                returnString += "channels: " + glib::stringFromInt(channelList.size()) + " version lines: " + glib::stringFromInt(versionsVector.size()) + "\r\n";
-            }
-            if (glib::iequals(args[0], "rehash"))
+            }*/
+            for (size_t versionsVectorIterator = 0; versionsVectorIterator < versionsVector.size(); versionsVectorIterator++)
             {
-                /*std::string returnstring = "PRIVMSG " + chan + " :reading config file now\r\n";
-                Send(returnstring);*/
-                configreader::instance().clearSettings();
-                if(!configreader::instance().readFile())
-                {
-                    output::instance().addStatus(false, "reading config file failed");
-                    exit(EXIT_FAILURE);
-                }
-                reply::instance().init();
+                irc::instance().addSendQueue(reply::instance().ircPrivmsg(configreader::instance().getString("debugchannel"), reply::instance().ircBold() + versionsVector[versionsVectorIterator]));
             }
-            if (glib::iequals(args[0], "stop"))
-            {
-                returnString += output::instance().addOutput("stop", 3);
-                returnString += "\r\n";
-                m_Run = false;
-            }
-            if (glib::iequals(args[0], "restart"))
-            {
-                /*std::string returnstring = "PRIVMSG " + chan + " :restarting now\r\n";
-                Send(returnstring);*/
-            }
-            if (glib::iequals(args[0], "listmodules"))
-            {
-                for (size_t i = 0; i < m_ModuleList.size(); i++)
-                {
-                    std::string modname = m_ModuleList[i];
-                    returnString += output::instance().addOutput("[" + glib::stringFromInt(i) + "]" + modname);
-                    returnString += "\r\n";
-                    //ai->AddSendQueue(modname);
-                }
-            }
-            if (glib::iequals(args[0], "reloadall"))
-            {
-                std::vector< std::string > tmpm_ModuleList = m_ModuleList;
-                //std::string reply_string;
-                for (size_t i = 0; i < tmpm_ModuleList.size(); i++)
-                {
-                    std::string modname = tmpm_ModuleList[i];
-                    unLoadModule(modname);
-                }
-                for (size_t i = 0; i < tmpm_ModuleList.size(); i++)
-                {
-                    std::string modname = tmpm_ModuleList[i];
-                    loadModule(modname);
-                }
-            }
+            //returnString += "channels: " + glib::stringFromInt(channelList.size()) + " version lines: " + glib::stringFromInt(versionsVector.size()) + "\r\n";
         }
-        if (args.size() == 2)
+        if (glib::iequals(args[0], "rehash"))
         {
-            if (glib::iequals(args[0], "reload"))
+            /*std::string returnstring = "PRIVMSG " + chan + " :reading config file now\r\n";
+            Send(returnstring);*/
+            configreader::instance().clearSettings();
+            if(!configreader::instance().readFile())
             {
-                unLoadModule(args[0]);
-                loadModule(args[0]);
+                output::instance().addStatus(false, "reading config file failed");
+                exit(EXIT_FAILURE);
             }
-            if (glib::iequals(args[0], "load"))
+            reply::instance().init();
+        }
+        if (glib::iequals(args[0], "stop"))
+        {
+            returnString += output::instance().addOutput("stop", 3);
+            returnString += "\r\n";
+            m_Run = false;
+        }
+        if (glib::iequals(args[0], "restart"))
+        {
+            /*std::string returnstring = "PRIVMSG " + chan + " :restarting now\r\n";
+            Send(returnstring);*/
+        }
+        if (glib::iequals(args[0], "listmodules"))
+        {
+            for (size_t i = 0; i < m_ModuleList.size(); i++)
             {
-                loadModule(args[0]);
-            }
-            if (glib::iequals(args[0], "unload"))
-            {
-                unLoadModule(args[0]);
+                std::string modname = m_ModuleList[i];
+                returnString += output::instance().addOutput("[" + glib::stringFromInt(i) + "]" + modname);
+                returnString += "\r\n";
+                //ai->AddSendQueue(modname);
             }
         }
-    //}
+        if (glib::iequals(args[0], "reloadall"))
+        {
+            std::vector< std::string > tmpm_ModuleList = m_ModuleList;
+            //std::string reply_string;
+            for (size_t i = 0; i < tmpm_ModuleList.size(); i++)
+            {
+                std::string modname = tmpm_ModuleList[i];
+                unLoadModule(modname);
+            }
+            for (size_t i = 0; i < tmpm_ModuleList.size(); i++)
+            {
+                std::string modname = tmpm_ModuleList[i];
+                loadModule(modname);
+            }
+        }
+        if (glib::iequals(args[0], "listchannels"))
+        {
+            std::map< std::string, channel > channelList;
+            channels::instance().getChannels(channelList);
+            std::map< std::string, channel >::iterator channelListIterator;
+            for (channelListIterator = channelList.begin(); channelListIterator != channelList.end(); channelListIterator++)
+            {
+                irc::instance().addSendQueue(reply::instance().ircPrivmsg(configreader::instance().getString("debugchannel"), (*channelListIterator).first));
+            }
+            irc::instance().addSendQueue(reply::instance().ircPrivmsg(configreader::instance().getString("debugchannel"), "# channels: " + glib::stringFromInt(channelList.size())));
+        }
+        if (glib::iequals(args[0], "listusers"))
+        {
+            std::map< std::string, user > userList;
+            users::instance().getUsers(userList);
+            std::map< std::string, user >::iterator userListIterator;
+            for (userListIterator = userList.begin(); userListIterator != userList.end(); userListIterator++)
+            {
+                irc::instance().addSendQueue(reply::instance().ircPrivmsg(configreader::instance().getString("debugchannel"), (*userListIterator).first));
+            }
+            irc::instance().addSendQueue(reply::instance().ircPrivmsg(configreader::instance().getString("debugchannel"), "# users: " + glib::stringFromInt(userList.size())));
+        }
+    }
+    if (args.size() == 2)
+    {
+        if (glib::iequals(args[0], "reload"))
+        {
+            unLoadModule(args[1]);
+            loadModule(args[1]);
+        }
+        if (glib::iequals(args[0], "load"))
+        {
+            loadModule(args[1]);
+        }
+        if (glib::iequals(args[0], "unload"))
+        {
+            unLoadModule(args[1]);
+        }
+        if (glib::iequals(args[0], "listuserchannels"))
+        {
+            if (users::instance().findUser(args[1]))
+            {
+                std::unordered_set< std::string > channelList = users::instance().getUser(args[1]).getChannels();
+                std::unordered_set< std::string >::iterator channelListIterator;
+                for (channelListIterator = channelList.begin(); channelListIterator != channelList.end(); channelListIterator++)
+                {
+                    irc::instance().addSendQueue(reply::instance().ircPrivmsg(configreader::instance().getString("debugchannel"), (*channelListIterator)));
+                }
+                irc::instance().addSendQueue(reply::instance().ircPrivmsg(configreader::instance().getString("debugchannel"), "# channels: " + glib::stringFromInt(channelList.size())));
+            }
+        }
+        if (glib::iequals(args[0], "listchannelusers"))
+        {
+            if (channels::instance().findChannel(args[1]))
+            {
+                std::unordered_set< std::string > userList = channels::instance().getChannel(args[1]).getUsers();
+                std::unordered_set< std::string >::iterator userListIterator;
+                for (userListIterator = userList.begin(); userListIterator != userList.end(); userListIterator++)
+                {
+                    irc::instance().addSendQueue(reply::instance().ircPrivmsg(configreader::instance().getString("debugchannel"), (*userListIterator)));
+                }
+                irc::instance().addSendQueue(reply::instance().ircPrivmsg(configreader::instance().getString("debugchannel"), "# users: " + glib::stringFromInt(userList.size())));
+            }
+        }
+        if (glib::iequals(args[0], "join"))
+        {
+            irc::instance().addSendQueue(reply::instance().ircJoin(args[1]));
+        }
+    }
+    if (args.size() >= 2)
+    {
+        if (glib::iequals(args[0], "part"))
+        {
+            std::string partReason = "";
+            for (size_t argsIterator = 2; argsIterator < (args.size() - 1); argsIterator++)
+            {
+                partReason = partReason + args[argsIterator] + " ";
+            }
+            if (args.size() >= 3)
+            {
+                partReason = partReason + args[args.size()-1];
+            }
+            irc::instance().addSendQueue(reply::instance().ircPart(args[1], partReason));
+        }
+        if (glib::iequals(args[0], "raw"))
+        {
+            std::string command = "";
+            for (size_t argsIterator = 1; argsIterator < (args.size() - 1); argsIterator++)
+            {
+                command = command + args[argsIterator] + " ";
+            }
+            if (args.size() >= 2)
+            {
+                command = command + args[args.size()-1];
+            }
+            irc::instance().addSendQueue(command);
+        }
+    }
+    if (args.size() >= 3)
+    {
+        if (glib::iequals(args[0], "kick"))
+        {
+            std::string kickReason = "";
+            for (size_t argsIterator = 3; argsIterator < (args.size() - 1); argsIterator++)
+            {
+                kickReason = kickReason + args[argsIterator] + " ";
+            }
+            if (args.size() >= 4)
+            {
+                kickReason = kickReason + args[args.size()-1];
+            }
+            irc::instance().addSendQueue(reply::instance().ircKick(args[1], args[2], kickReason));
+        }
+    }
     return returnString;
 }

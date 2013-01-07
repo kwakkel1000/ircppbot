@@ -194,12 +194,12 @@ void management::parseWhois()
             {
                 //WHOIS(data);
             }
-            if (data[1] == "354")       //WHO (extra)
+        }
+        if (data.size() == 7)
+        {
+            if (data[1] == "354")       //WHOEXTRA
             {
-                if (m_WhoExtra)
-                {
-                    whoextra(data);
-                }
+                whoextra(data);
             }
         }
         if (data.size() >= 11)
@@ -253,7 +253,6 @@ void management::parseEvents()
 
 void management::who(std::vector< std::string > data)
 {
-    output::instance().addOutput("void management::who(std::vector< std::string > data)", 11);
     std::string channelName = data[3];
     std::string userName = data[7];
     std::string modes = data[8];
@@ -284,7 +283,6 @@ void management::who(std::vector< std::string > data)
 
 void management::whoextra(std::vector< std::string > data)
 {
-    output::instance().addOutput("void management::whoextra(std::vector< std::string > data)", 11);
     if (data.size() == 7)
     {
         std::string channelName = data[3];
@@ -338,11 +336,10 @@ void management::join(std::vector< std::string > eventData)
     }
     else
     {
-        bool added;
+        bool added = users::instance().addUser(userName);
         if (channels::instance().findChannel(channelName))
         {
             channels::instance().getChannel(channelName).addUser(userName);
-            added = users::instance().addUser(userName);
             users::instance().getUser(userName).addChannel(channelName);
             if (added)
             {
@@ -397,11 +394,14 @@ void management::quit(std::vector< std::string > eventData)
     }
     else
     {
-        std::unordered_set< std::string > userChannels = users::instance().getUser(userName).getChannels();
-        std::unordered_set< std::string >::iterator userChannelsIterator;
-        for (userChannelsIterator = userChannels.begin(); userChannelsIterator != userChannels.end(); ++userChannelsIterator)
+        if (users::instance().findUser(userName))
         {
-            leaveChannel(*userChannelsIterator, userName);
+            std::unordered_set< std::string > userChannels = users::instance().getUser(userName).getChannels();
+            std::unordered_set< std::string >::iterator userChannelsIterator;
+            for (userChannelsIterator = userChannels.begin(); userChannelsIterator != userChannels.end(); ++userChannelsIterator)
+            {
+                leaveChannel(*userChannelsIterator, userName);
+            }
         }
         users::instance().delUser(userName);
     }
@@ -580,7 +580,7 @@ bool management::deleteFirst(std::string& data, std::string character)
     size_t pos;
     std::string tmpstring = "";
     pos = data.find(character);
-    if (pos > 2)
+    if (pos > 2 && pos != std::string::npos)
     {
         tmpstring = data.substr(0, pos-1);
     }

@@ -58,7 +58,7 @@ bool channel::addUser(std::string userName)
 
 bool channel::delUser(std::string userName)
 {
-    output::instance().addOutput("bool channel::addUser(std::string userName) username: " + userName, 12);
+    output::instance().addOutput("bool channel::delUser(std::string userName) username: " + userName, 12);
     std::lock_guard< std::mutex > lock(m_UsersMutex);
     if (m_Users.erase(userName))
     {

@@ -32,11 +32,11 @@ users::users()
 
 users::~users()
 {
-    std::map< std::string, user >::iterator m_UserListIterator;
-    for (m_UserListIterator = m_UserList.end(); m_UserListIterator != m_UserList.begin(); --m_UserListIterator)
+    /*std::map< std::string, user >::iterator m_UserListIterator;
+    for (m_UserListIterator = m_UserList.begin(); m_UserListIterator < m_UserList.end(); ++m_UserListIterator)
     {
         delUser((*m_UserListIterator).first);
-    }
+    }*/
 }
 
 bool users::addUser(std::string userName)
@@ -45,9 +45,10 @@ bool users::addUser(std::string userName)
     ret = m_UserList.insert (std::pair< std::string, user >(userName, user()));
     if (ret.second)
     {
+        output::instance().addStatus(true, "bool users::addUser(std::string userName) add: " + userName);
         return true;
     }
-    output::instance().addStatus(false, "bool users::addUser(std::string userName) user already exists");
+    //output::instance().addStatus(false, "bool users::addUser(std::string userName) user already exists");
     return false;
 }
 

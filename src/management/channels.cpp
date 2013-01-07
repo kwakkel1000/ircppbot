@@ -33,11 +33,11 @@ m_ChannelList()
 
 channels::~channels()
 {
-    std::map< std::string, channel >::iterator m_ChannelListIterator;
-    for (m_ChannelListIterator = m_ChannelList.end(); m_ChannelListIterator != m_ChannelList.begin(); --m_ChannelListIterator)
+    /*std::map< std::string, channel >::iterator l_ChannelListIterator;
+    for (l_ChannelListIterator = m_ChannelList.begin(); l_ChannelListIterator < m_ChannelList.end(); ++l_ChannelListIterator)
     {
-        delChannel((*m_ChannelListIterator).first);
-    }
+        delChannel((*l_ChannelListIterator).first);
+    }*/
 }
 
 bool channels::getChannels(std::map< std::string, channel > &channelList)
@@ -48,11 +48,11 @@ bool channels::getChannels(std::map< std::string, channel > &channelList)
 
 bool channels::findChannel(std::string channelName)
 {
-    std::map< std::string, channel >::iterator m_ChannelListIterator;
-    m_ChannelListIterator = m_ChannelList.find(channelName);
-    if (m_ChannelListIterator == m_ChannelList.end())
+    std::map< std::string, channel >::iterator l_ChannelListIterator;
+    l_ChannelListIterator = m_ChannelList.find(channelName);
+    if (l_ChannelListIterator == m_ChannelList.end())
     {
-        output::instance().addStatus(false, "bool channels::findChannel(std::string channelName) channel not found");
+        output::instance().addStatus(false, "bool channels::findChannel(std::string channelName) channel not found: " + channelName);
         return false;
     }
     return true;
@@ -60,14 +60,14 @@ bool channels::findChannel(std::string channelName)
 
 channel& channels::getChannel(std::string channelName)
 {
-    std::map< std::string, channel >::iterator m_ChannelListIterator;
-    m_ChannelListIterator = m_ChannelList.find(channelName);
-    if (m_ChannelListIterator == m_ChannelList.end())
+    std::map< std::string, channel >::iterator l_ChannelListIterator;
+    l_ChannelListIterator = m_ChannelList.find(channelName);
+    if (l_ChannelListIterator == m_ChannelList.end())
     {
         output::instance().addStatus(false, "channel& channels::getChannel(std::string channelName) channel not found");
         exit(EXIT_FAILURE);
     }
-    return (*m_ChannelListIterator).second;
+    return (*l_ChannelListIterator).second;
 }
 
 bool channels::addChannel(std::string channelName)
@@ -76,6 +76,7 @@ bool channels::addChannel(std::string channelName)
     ret = m_ChannelList.insert (std::pair< std::string, channel >(channelName, channel()));
     if (ret.second)
     {
+        output::instance().addStatus(true, "bool channels::addChannel(std::string channelName) add: " + channelName);
         return true;
     }
     output::instance().addStatus(false, "bool channels::addChannel(std::string channelName) channel already exists");

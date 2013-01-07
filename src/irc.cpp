@@ -123,22 +123,27 @@ bool irc::addConsumer(ircdata *ircData)
     // Consumers.push_back(d);
     if (ircData->getRaw() == true)
     {
+        output::instance().addOutput("bool irc::addConsumer(ircdata *ircData) raw consumer added");
         m_RawConsumers.push_back(ircData);
     }
     if (ircData->getEvents() == true)
     {
+        output::instance().addOutput("bool irc::addConsumer(ircdata *ircData) events consumer added");
         m_EventsConsumers.push_back(ircData);
     }
     if (ircData->getModes() == true)
     {
+        output::instance().addOutput("bool irc::addConsumer(ircdata *ircData) modes consumer added");
         m_ModesConsumers.push_back(ircData);
     }
     if (ircData->getWhois() == true)
     {
+        output::instance().addOutput("bool irc::addConsumer(ircdata *ircData) whois consumer added");
         m_WhoisConsumers.push_back(ircData);
     }
     if (ircData->getPrivmsg() == true)
     {
+        output::instance().addOutput("bool irc::addConsumer(ircdata *ircData) privmsg consumer added");
         m_PrivmsgConsumers.push_back(ircData);
     }
     return true;
@@ -467,9 +472,19 @@ void irc::parse()
         {
             if (result.size() >= 4)
             {
-                if (result[1] == "307" || result[1] == "318" || result[1] == "330" || result[1] == "402" || result[1] == "354")       //WHOIS regged userName
+                if (result[1] == "307" || result[1] == "318" || result[1] == "330" || result[1] == "402")       //WHOIS regged userName
                 {
-                    for (consumerIterator = 0; consumerIterator < m_PrivmsgConsumers.size(); consumerIterator++)
+                    for (consumerIterator = 0; consumerIterator < m_WhoisConsumers.size(); consumerIterator++)
+                    {
+                        m_WhoisConsumers[consumerIterator]->addWhoisQueue(result);
+                    }
+                }
+            }
+            if (result.size() == 7)
+            {
+                if (result[1] == "354")       //WHOEXTRA
+                {
+                    for (consumerIterator = 0; consumerIterator < m_WhoisConsumers.size(); consumerIterator++)
                     {
                         m_WhoisConsumers[consumerIterator]->addWhoisQueue(result);
                     }
@@ -479,7 +494,7 @@ void irc::parse()
             {
                 if (result[1] == "352")       //WHO
                 {
-                    for (consumerIterator = 0; consumerIterator < m_PrivmsgConsumers.size(); consumerIterator++)
+                    for (consumerIterator = 0; consumerIterator < m_WhoisConsumers.size(); consumerIterator++)
                     {
                         m_WhoisConsumers[consumerIterator]->addWhoisQueue(result);
                     }
