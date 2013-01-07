@@ -2,11 +2,11 @@
 //
 //  @ Project : ircppbot
 //  @ File Name : channel.h
-//  @ Date : 26-12-2012
+//  @ Date : 07-01-2013
 //  @ Author : Gijs Kwakkel
 //
 //
-// Copyright (c) 2011 Gijs Kwakkel
+// Copyright (c) 2013 Gijs Kwakkel
 //
 // This program is free software; you can redistribute it and/or
 // modify it under the terms of the GNU General Public License
@@ -33,7 +33,7 @@
 
 class channel
 {
-public:
+    public:
         channel();
         channel(const channel&);
         ~channel();

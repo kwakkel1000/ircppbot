@@ -53,8 +53,11 @@ bot::~bot()
 {
     output::instance().addOutput("bot::~bot()");
     m_Run = false;
+    m_Management->stop();
     m_TimerThread->join();
     output::instance().addOutput("m_TimerThread stopped", 2);
+    m_ManagementThread->join();
+    output::instance().addOutput("m_ManagementThread stopped", 2);
     std::vector< std::string > tmpm_ModuleList = m_ModuleList;
     for (size_t i = 0; i < tmpm_ModuleList.size(); i++)
     {
@@ -66,6 +69,8 @@ bot::~bot()
     output::instance().addOutput("m_IrcSocket disconnected");
     delete m_IrcSocket;
     output::instance().addOutput("m_IrcSocket deleted");
+    delete m_Management;
+    output::instance().addOutput("m_Management deleted");
 }
 
 void bot::init()
@@ -95,7 +100,7 @@ void bot::ircInit()
     m_Management = new management();
     ircdata* tmpircdata = new ircdata();
     m_Management->init(tmpircdata);
-    //m_ManagementThread = std::shared_ptr<std::thread>(new std::thread(std::bind(&management::read, this)));
+    m_ManagementThread = std::shared_ptr<std::thread>(new std::thread(std::bind(&management::read, m_Management)));
 }
 
 void bot::moduleInit()
@@ -124,20 +129,13 @@ void bot::run()
     }
     while (m_Run)
     {
-        std::string input_string;
-        std::cin >> input_string;
-        std::vector< std::string > split_data;
+        std::string input_string = "";
+        std::getline(std::cin, input_string);
+        output::instance().addOutput(" [" + input_string + "]");
         std::vector< std::string > args;
-        split_data = glib::split(input_string);
-        if (split_data.size() >= 1)
-        {
-            for (size_t split_dataIndex = 0; split_dataIndex < split_data.size(); split_dataIndex++)
-            {
-                args.push_back(split_data[split_dataIndex]);
-                output::instance().addOutput(" [" + split_data[split_dataIndex] + "]");
-            }
-        }
-        irc::instance().addSendQueue(reply::instance().ircPrivmsg(configreader::instance().getString("debugchannel"), parseCommands(args)));
+        args = glib::split(input_string);
+        parseCommands(args);
+        //irc::instance().addSendQueue(reply::instance().ircPrivmsg(configreader::instance().getString("debugchannel"), parseCommands(args)));
     }
 }
 
@@ -264,7 +262,8 @@ void bot::ircRun()
     *m_IrcSocket << USER;
     *m_IrcSocket << PASS;
     *m_IrcSocket << NICK;
-    m_Management->read();
+    *m_IrcSocket << "JOIN " + configreader::instance().getString("debugchannel") + "\r\n";
+    //m_Management->read();
 }
 
 void bot::moduleRun(size_t moduleIndex)
@@ -289,11 +288,12 @@ void bot::timer()
 std::string bot::parseCommands(std::vector<std::string> args)
 {
     std::string returnString = "";
-    for (size_t nArg = 0; nArg < args.size(); nArg++)
-    {
+    irc::instance().addSendQueue(reply::instance().ircPrivmsg(configreader::instance().getString("debugchannel"), args[0]));
+    //for (size_t nArg = 0; nArg < args.size(); nArg++)
+    //{
         if (args.size() == 1)
         {
-            if (glib::iequals(args[0], "broadcastversion"))
+            if (glib::iequals(args[0], "version"))
             {
                 std::vector< std::string > versionsVector;
                 versionsVector = versions::instance().getVersions();
@@ -304,14 +304,14 @@ std::string bot::parseCommands(std::vector<std::string> args)
                 {
                     for (size_t versionsVectorIterator = 0; versionsVectorIterator < versionsVector.size(); versionsVectorIterator++)
                     {
-                        //*m_IrcSocket << reply::instance().ircPrivmsg((*channelListIterator).first, versionsVector[versionsVectorIterator]);
+                        // *m_IrcSocket << reply::instance().ircPrivmsg((*channelListIterator).first, versionsVector[versionsVectorIterator]);
                         irc::instance().addSendQueue(reply::instance().ircPrivmsg(configreader::instance().getString("debugchannel"), "broadcastversion"));
                         irc::instance().addSendQueue(reply::instance().ircPrivmsg(configreader::instance().getString("debugchannel"), (*channelListIterator).first + " " + versionsVector[versionsVectorIterator]));
                     }
                 }
                 for (size_t versionsVectorIterator = 0; versionsVectorIterator < versionsVector.size(); versionsVectorIterator++)
                 {
-                    irc::instance().addSendQueue(reply::instance().ircPrivmsg(configreader::instance().getString("debugchannel"), versionsVector[versionsVectorIterator]));
+                    irc::instance().addSendQueue(reply::instance().ircPrivmsg(configreader::instance().getString("debugchannel"), reply::instance().ircBold() + versionsVector[versionsVectorIterator]));
                 }
                 returnString += "channels: " + glib::stringFromInt(channelList.size()) + " version lines: " + glib::stringFromInt(versionsVector.size()) + "\r\n";
             }
@@ -380,6 +380,6 @@ std::string bot::parseCommands(std::vector<std::string> args)
                 unLoadModule(args[0]);
             }
         }
-    }
+    //}
     return returnString;
 }

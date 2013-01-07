@@ -26,15 +26,26 @@
 #include "../include/management/channel.h"
 #include <gframe/output.h>
 
-channel::channel() : m_Topic("")
+channel::channel() :
+m_Users(),
+m_Bans(),
+m_Topic(""),
+m_Modes()
 {
     m_Users.clear();
     m_Bans.clear();
     m_Modes.clear();
 }
 
-channel::channel(const channel&)
+channel::channel(const channel&) :
+m_Users(),
+m_Bans(),
+m_Topic(""),
+m_Modes()
 {
+    m_Users.clear();
+    m_Bans.clear();
+    m_Modes.clear();
 }
 
 channel::~channel()
@@ -48,8 +59,12 @@ bool channel::addUser(std::string userName)
     output::instance().addOutput("bool channel::addUser(std::string userName) username: " + userName, 12);
     std::lock_guard< std::mutex > lock(m_UsersMutex);
     //std::pair< std::unordered_set< std::string >::iterator, bool > ret;
-    std::pair< std::set< std::string >::iterator, bool > ret;
-    ret = m_Users.insert(userName);
+    std::pair<std::set<std::string>::iterator,bool> ret;
+    ret 
+    = 
+    m_Users.insert(
+    userName
+    );
     return ret.second;
 }
 

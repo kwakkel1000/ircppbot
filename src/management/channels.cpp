@@ -26,7 +26,8 @@
 #include "../include/management/channels.h"
 #include <gframe/output.h>
 
-channels::channels()
+channels::channels() :
+m_ChannelList()
 {
 }
 
@@ -49,7 +50,7 @@ bool channels::findChannel(std::string channelName)
 {
     std::map< std::string, channel >::iterator m_ChannelListIterator;
     m_ChannelListIterator = m_ChannelList.find(channelName);
-    if (m_ChannelListIterator != m_ChannelList.end())
+    if (m_ChannelListIterator == m_ChannelList.end())
     {
         output::instance().addStatus(false, "bool channels::findChannel(std::string channelName) channel not found");
         return false;
@@ -61,7 +62,7 @@ channel& channels::getChannel(std::string channelName)
 {
     std::map< std::string, channel >::iterator m_ChannelListIterator;
     m_ChannelListIterator = m_ChannelList.find(channelName);
-    if (m_ChannelListIterator != m_ChannelList.end())
+    if (m_ChannelListIterator == m_ChannelList.end())
     {
         output::instance().addStatus(false, "channel& channels::getChannel(std::string channelName) channel not found");
         exit(EXIT_FAILURE);
@@ -71,6 +72,7 @@ channel& channels::getChannel(std::string channelName)
 
 bool channels::addChannel(std::string channelName)
 {
+    output::instance().addStatus(false, "bool channels::addChannel(std::string channelName) " + channelName);
     std::pair< std::map< std::string, channel >::iterator, bool > ret;
     ret = m_ChannelList.insert (std::pair< std::string, channel >(channelName, channel()));
     if (ret.second)

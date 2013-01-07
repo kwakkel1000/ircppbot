@@ -66,6 +66,8 @@ management::management() :
     m_WhoExtra(false),
     m_IrcData(NULL)
 {
+    channels::instance();
+    users::instance();
 }
 
 management::~management()
@@ -590,7 +592,7 @@ void management::getChannelInfo(std::string msChannel)
     C.InitSetting(msChannel, "giveops", BotLib::StringFromInt(DatabaseData::Instance().GetGiveOpsByChannel(msChannel)));
     C.InitSetting(msChannel, "givevoice", BotLib::StringFromInt(DatabaseData::Instance().GetGiveVoiceByChannel(msChannel)));
     C.SetCid(msChannel, DatabaseData::Instance().GetChannelUuidByChannel(msChannel));
-    /*C.SetGiveops(msChannel, DatabaseData::Instance().GetGiveOpsByChannel(msChannel));
+    / * C.SetGiveops(msChannel, DatabaseData::Instance().GetGiveOpsByChannel(msChannel));
     C.SetGivevoice(msChannel, DatabaseData::Instance().GetGiveVoiceByChannel(msChannel));*/
 /*
     std::vector< std::vector< std::string > > channels_vector;

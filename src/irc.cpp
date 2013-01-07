@@ -111,6 +111,7 @@ void irc::init(tcpsocket &ircsock)
         m_FloodProtect = true;
         bufferss >> m_FloodBuffer;
         timess >> m_FloodTime;
+        m_FloodTime = m_FloodTime * 1000000000;
         m_Buffer = 1;
         m_FloodThread = std::shared_ptr<std::thread>(new std::thread(std::bind(&irc::floodTimer, this)));
     }
@@ -508,8 +509,8 @@ void irc::floodTimer()
             m_FloodAvailable.notify_one();
         }
         struct timespec req, rem;
-        req.tv_sec = m_FloodTime;
-        req.tv_nsec = 0;
+        req.tv_sec = 0;
+        req.tv_nsec = m_FloodTime;
         rem.tv_sec = 0;
         rem.tv_nsec = 0;
         nanosleep(&req, &rem);
