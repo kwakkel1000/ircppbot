@@ -72,7 +72,6 @@ channel& channels::getChannel(std::string channelName)
 
 bool channels::addChannel(std::string channelName)
 {
-    output::instance().addStatus(false, "bool channels::addChannel(std::string channelName) " + channelName);
     std::pair< std::map< std::string, channel >::iterator, bool > ret;
     ret = m_ChannelList.insert (std::pair< std::string, channel >(channelName, channel()));
     if (ret.second)

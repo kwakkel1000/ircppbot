@@ -629,10 +629,8 @@ void management::leaveChannel(std::string channelName, std::string userName)
     //if (userName == Global::Instance().get_BotNick())
     if (userName == "bot")
     {
-        //std::unordered_set< std::string > channelUsers = channels::instance().getChannel(channelName).getUsers();
-        //std::unordered_set< std::string >::iterator channelUsersIterator;
-        std::set< std::string > channelUsers = channels::instance().getChannel(channelName).getUsers();
-        std::set< std::string >::iterator channelUsersIterator;
+        std::unordered_set< std::string > channelUsers = channels::instance().getChannel(channelName).getUsers();
+        std::unordered_set< std::string >::iterator channelUsersIterator;
         for (channelUsersIterator = channelUsers.begin(); channelUsersIterator != channelUsers.end(); ++channelUsersIterator)
         {
             users::instance().getUser(*channelUsersIterator).delChannel(channelName);

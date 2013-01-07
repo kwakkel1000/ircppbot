@@ -2,11 +2,11 @@
 //
 //  @ Project : ircppbot
 //  @ File Name : channel.cpp
-//  @ Date : 26-12-2012
+//  @ Date : 07-01-2013
 //  @ Author : Gijs Kwakkel
 //
 //
-// Copyright (c) 2011 Gijs Kwakkel
+// Copyright (c) 2013 Gijs Kwakkel
 //
 // This program is free software; you can redistribute it and/or
 // modify it under the terms of the GNU General Public License
@@ -37,15 +37,8 @@ m_Modes()
     m_Modes.clear();
 }
 
-channel::channel(const channel&) :
-m_Users(),
-m_Bans(),
-m_Topic(""),
-m_Modes()
+channel::channel(const channel&)
 {
-    m_Users.clear();
-    m_Bans.clear();
-    m_Modes.clear();
 }
 
 channel::~channel()
@@ -58,13 +51,8 @@ bool channel::addUser(std::string userName)
 {
     output::instance().addOutput("bool channel::addUser(std::string userName) username: " + userName, 12);
     std::lock_guard< std::mutex > lock(m_UsersMutex);
-    //std::pair< std::unordered_set< std::string >::iterator, bool > ret;
-    std::pair<std::set<std::string>::iterator,bool> ret;
-    ret 
-    = 
-    m_Users.insert(
-    userName
-    );
+    std::pair< std::unordered_set< std::string >::iterator, bool > ret;
+    ret = m_Users.insert(userName);
     return ret.second;
 }
 
@@ -79,8 +67,7 @@ bool channel::delUser(std::string userName)
     return false;
 }
 
-//std::unordered_set< std::string > channel::getUsers()
-std::set< std::string > channel::getUsers()
+std::unordered_set< std::string > channel::getUsers()
 {
     std::lock_guard< std::mutex > lock(m_UsersMutex);
     return m_Users;
