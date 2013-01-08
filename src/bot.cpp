@@ -98,8 +98,7 @@ void bot::ircInit()
     output::instance().addOutput("before irc::instance().init(*m_IrcSocket);");
     irc::instance().init(*m_IrcSocket);
     m_Management = new management();
-    ircdata* tmpircdata = new ircdata();
-    m_Management->init(tmpircdata);
+    m_Management->init();
     m_ManagementThread = std::shared_ptr<std::thread>(new std::thread(std::bind(&management::read, m_Management)));
 }
 
@@ -157,7 +156,8 @@ bool bot::loadModule(std::string moduleName)
         void* module;
         createModuleInterface* create_module;
         destroyModuleInterface* destroy_module;
-        std::string modulepath = "./" + configreader::instance().getString("moduledir") + moduleName + ".so";
+        //std::string modulepath = "./" + configreader::instance().getString("moduledir") + moduleName + ".so";
+        std::string modulepath = moduleName;
         // load the library
         module = dlopen(modulepath.c_str(), RTLD_LAZY);
         if (!module)
@@ -178,7 +178,7 @@ bool bot::loadModule(std::string moduleName)
         }
         // create an instance of the class
         pModuleInterface = create_module();
-        pModuleInterface->init(new ircdata());
+        pModuleInterface->init();
         m_ModuleList.push_back(moduleName);
         m_ModuleVector.push_back(module);
         m_ModuleInterfaceVector.push_back(pModuleInterface);
@@ -213,8 +213,11 @@ bool bot::unLoadModule(std::string moduleName)
             size_t moduleIndex = m_ModuleListIndex;
             //if (moduleIndex >= 0)
             {
+                output::instance().addOutput("m_ModuleListIndex=" + glib::stringFromInt(m_ModuleListIndex) + " m_ModuleThreadVector.size()=" + glib::stringFromInt(m_ModuleThreadVector.size()), 11);
                 m_ModuleInterfaceVector[moduleIndex]->stop();
+                std::shared_ptr<std::thread> tmp_thread = m_ModuleThreadVector[moduleIndex];
                 m_ModuleThreadVector.erase(m_ModuleThreadVector.begin()+moduleIndex);
+                //tmp_thread.reset();
                 m_DestroyVector[moduleIndex](m_ModuleInterfaceVector[moduleIndex]);
                 m_ModuleInterfaceVector.erase(m_ModuleInterfaceVector.begin()+moduleIndex);
                 dlclose(m_ModuleVector[moduleIndex]);
@@ -222,10 +225,12 @@ bool bot::unLoadModule(std::string moduleName)
                 m_ModuleVector.erase(m_ModuleVector.begin()+moduleIndex);
                 m_CreateVector.erase(m_CreateVector.begin()+moduleIndex);
                 m_DestroyVector.erase(m_DestroyVector.begin()+moduleIndex);
+                output::instance().addStatus(true, "bool bot::unLoadModule(std::string moduleName) done : " + moduleName);
                 return true;
             }
         }
     }
+    output::instance().addStatus(false, "bool bot::unLoadModule(std::string moduleName) done : " + moduleName);
     return false;
 }
 
@@ -270,7 +275,7 @@ void bot::ircRun()
 void bot::moduleRun(size_t moduleIndex)
 {
     output::instance().addOutput("void bot::moduleRun(size_t moduleIndex)", 10);
-    m_ModuleInterfaceVector[moduleIndex]->run();
+    m_ModuleInterfaceVector[moduleIndex]->read();
 }
 
 void bot::timer()

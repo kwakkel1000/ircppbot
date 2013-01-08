@@ -32,7 +32,7 @@
 #include <string>
 #include <vector>
 
-#include "interfaces/moduleinterface.h"
+#include "moduleinterface.h"
 #include "management/management.h"
 
 

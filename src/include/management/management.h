@@ -40,11 +40,10 @@ class management
         ~management();
         void read();
         void stop();
-        void init(ircdata* ircData);
+        void init();
         void timerrun(){}
 
     private:
-        //void ParseData(std::vector< std::string > data);
         //void RefreshChannel(std::string sChannel);
 
         std::atomic<bool> m_NickServer;

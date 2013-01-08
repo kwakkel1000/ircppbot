@@ -6,9 +6,10 @@ ACLOCAL_AMFLAGS = -I ../m4
 
 bin_PROGRAMS = ircppbot
 
-ircppbot_includedir = $(includedir)/include
+ircppbot_includedir = $(includedir)/ircppbot
 
 ircppbot_include_HEADERS = \
+	include/moduleinterface.h \
 	include/irc.h \
 	include/ircdata.h \
 	include/reply.h \

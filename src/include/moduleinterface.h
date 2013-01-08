@@ -2,11 +2,11 @@
 //
 //  @ Project : ircppbot
 //  @ File Name : moduleinterface.h
-//  @ Date : 25-12-2012
+//  @ Date : 08-01-2013
 //  @ Author : Gijs Kwakkel
 //
 //
-// Copyright (c) 2011 Gijs Kwakkel
+// Copyright (c) 2013 Gijs Kwakkel
 //
 // This program is free software; you can redistribute it and/or
 // modify it under the terms of the GNU General Public License
@@ -23,18 +23,18 @@
 //
 
 
-#ifndef SRC_INCLUDE_INTERFACES_MODULEINTERFACE_H
-#define SRC_INCLUDE_INTERFACES_MODULEINTERFACE_H
+#ifndef SRC_INCLUDE_MODULEINTERFACE_H
+#define SRC_INCLUDE_MODULEINTERFACE_H
 
-#include "../ircdata.h"
 class moduleinterface
 {
-public:
-    moduleinterface() { }
-    virtual void run()=0;
-    virtual void stop()=0;
-    virtual void init(ircdata* id)=0;
-    virtual void timerrun()=0;
+    public:
+        //moduleinterface(){}
+        virtual ~moduleinterface()=0;
+        virtual void read()=0;
+        virtual void stop()=0;
+        virtual void init()=0;
+        virtual void timerrun()=0;
 };
 
 typedef moduleinterface* createModuleInterface();
@@ -42,4 +42,4 @@ typedef moduleinterface* createModuleInterface();
 typedef void destroyModuleInterface(moduleinterface*);
 
 
-#endif // SRC_INCLUDE_INTERFACES_MODULEINTERFACE_H
+#endif // SRC_INCLUDE_MODULEINTERFACE_H

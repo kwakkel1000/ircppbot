@@ -33,7 +33,7 @@
 #include <gframe/configreader.h>
 #include <gframe/output.h>
 
-#include <management/Whois.h>
+//#include <management/Whois.h>
 
 #include <algorithm>
 #include <sstream>
@@ -77,28 +77,6 @@ management::~management()
     delete m_IrcData;
 }
 
-void management::stop()
-{
-    m_Run = false;
-    //m_IrcData->stop();
-    output::instance().addOutput("management::stop", 6);
-    m_ModesThread->join();
-    m_WhoisThread->join();
-    m_EventsThread->join();
-}
-
-void management::init(ircdata* ircData)
-{
-    m_NickServer = (configreader::instance().getString("nickserv") == "true");
-    m_WhoExtra = (configreader::instance().getString("whoextra") == "true");
-    getAuths();
-    m_IrcData = ircData;
-    m_IrcData->setModes(true);
-    m_IrcData->setWhois(true);
-    m_IrcData->setEvents(true);
-    irc::instance().addConsumer(m_IrcData);
-}
-
 void management::read()
 {
     m_Run = true;
@@ -125,6 +103,27 @@ void management::read()
         }*/
         usleep(1000000);
     }
+}
+
+void management::stop()
+{
+    m_Run = false;
+    output::instance().addOutput("management::stop", 6);
+    m_ModesThread->join();
+    m_WhoisThread->join();
+    m_EventsThread->join();
+}
+
+void management::init()
+{
+    m_NickServer = (configreader::instance().getString("nickserv") == "true");
+    m_WhoExtra = (configreader::instance().getString("whoextra") == "true");
+    getAuths();
+    m_IrcData = new ircdata();
+    m_IrcData->setModes(true);
+    m_IrcData->setWhois(true);
+    m_IrcData->setEvents(true);
+    irc::instance().addConsumer(m_IrcData);
 }
 
 void management::parseModes()

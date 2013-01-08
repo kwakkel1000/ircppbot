@@ -42,7 +42,7 @@ class ircdata
         // functions
         ircdata();
         ~ircdata();
-        void start();
+        void stop();
         void addRawQueue(std::vector< std::string > data);
         void addEventsQueue(std::vector< std::string > data);
         void addModesQueue(std::vector< std::string > data);

@@ -37,16 +37,41 @@ ircdata::ircdata() :
     m_WhoisQueue(),
     m_PrivmsgQueue()
 {
+    m_GetRaw = false;
+    m_GetEvents = false;
+    m_GetModes = false;
+    m_GetWhois = false;
+    m_GetPrivmsg = false;
 }
 
 ircdata::~ircdata()
 {
+    stop();
+}
+
+void ircdata::stop()
+{
     m_Run = false;
-    m_RawAvailable.notify_all();
-    m_EventsAvailable.notify_all();
-    m_ModesAvailable.notify_all();
-    m_WhoisAvailable.notify_all();
-    m_PrivmsgAvailable.notify_all();
+    if (m_GetRaw)
+    {
+        m_RawAvailable.notify_all();
+    }
+    if (m_GetEvents)
+    {
+        m_EventsAvailable.notify_all();
+    }
+    if (m_GetModes)
+    {
+        m_ModesAvailable.notify_all();
+    }
+    if (m_GetWhois)
+    {
+        m_WhoisAvailable.notify_all();
+    }
+    if (m_GetPrivmsg)
+    {
+        m_PrivmsgAvailable.notify_all();
+    }
 }
 
 void ircdata::setRaw(bool raw)
@@ -143,7 +168,7 @@ std::vector< std::string > ircdata::getRawQueue()
     {
         m_RawAvailable.wait(lock);
     }
-    if (!m_RawQueue.empty())
+    if (!m_RawQueue.empty() && m_Run)
     {
         std::vector< std::string > temp = m_RawQueue.front();
         m_RawQueue.pop();
@@ -161,7 +186,7 @@ std::vector< std::string > ircdata::getEventsQueue()
     {
         m_EventsAvailable.wait(lock);
     }
-    if (!m_EventsQueue.empty())
+    if (!m_EventsQueue.empty() && m_Run)
     {
         std::vector< std::string > temp = m_EventsQueue.front();
         m_EventsQueue.pop();
@@ -179,7 +204,7 @@ std::vector< std::string > ircdata::getModesQueue()
     {
         m_ModesAvailable.wait(lock);
     }
-    if (!m_ModesQueue.empty())
+    if (!m_ModesQueue.empty() && m_Run)
     {
         std::vector< std::string > temp = m_ModesQueue.front();
         m_ModesQueue.pop();
@@ -197,7 +222,7 @@ std::vector< std::string > ircdata::getWhoisQueue()
     {
         m_WhoisAvailable.wait(lock);
     }
-    if (!m_WhoisQueue.empty())
+    if (!m_WhoisQueue.empty() && m_Run)
     {
         std::vector< std::string > temp = m_WhoisQueue.front();
         m_WhoisQueue.pop();
@@ -215,7 +240,7 @@ std::vector< std::string > ircdata::getPrivmsgQueue()
     {
         m_PrivmsgAvailable.wait(lock);
     }
-    if (!m_PrivmsgQueue.empty())
+    if (!m_PrivmsgQueue.empty() && m_Run)
     {
         std::vector< std::string > temp = m_PrivmsgQueue.front();
         m_PrivmsgQueue.pop();
