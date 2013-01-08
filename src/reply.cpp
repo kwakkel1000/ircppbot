@@ -76,15 +76,19 @@ std::string reply::ircReply(std::string reply_name, std::string reply_language)
 }
 
 // irc_reply_replace
-std::string reply::ircReplyReplace(std::string source_string, std::string search_string, std::string replace_string)
+std::string reply::ircReplyReplace(std::string sourceString, std::string searchString, std::string replaceString)
 {
-    size_t search_pos;
-    search_pos = source_string.find(search_string);
-    if (search_pos != std::string::npos)
+    size_t l_SearchPos;
+    l_SearchPos = sourceString.find(searchString);
+    if (l_SearchPos != std::string::npos)
     {
-        source_string.replace(search_pos, search_string.length(), replace_string);
+        sourceString.replace(l_SearchPos, searchString.length(), replaceString);
     }
-    return source_string;
+    else
+    {
+        sourceString = sourceString + " " + searchString + ">" + replaceString;
+    }
+    return sourceString;
 }
 
 
