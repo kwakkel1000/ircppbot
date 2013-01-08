@@ -12,6 +12,7 @@ ircppbot_include_HEADERS = \
 	include/irc.h \
 	include/ircdata.h \
 	include/reply.h \
+	include/binds.h \
 	include/bot.h \
 	include/management/channels.h \
 	include/management/channel.h \
@@ -24,6 +25,7 @@ ircppbot_SOURCES = \
 	irc.cpp \
 	ircdata.cpp \
 	reply.cpp \
+	binds.cpp \
 	bot.cpp \
 	management/channels.cpp \
 	management/channel.cpp \

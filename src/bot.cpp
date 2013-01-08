@@ -34,6 +34,7 @@
 #include <gframe/database/mysqldatabase.h>
 
 #include "include/reply.h"
+#include "include/binds.h"
 #include "include/irc.h"
 #include "include/management/users.h"
 #include "include/management/channels.h"
@@ -83,6 +84,28 @@ void bot::init()
                                   configreader::instance().getString("database"),
                                   configreader::instance().getString("username"),
                                   configreader::instance().getString("password"));
+    binds::instance().setBind("versions", "version", 1000, "core");
+    binds::instance().setBind("version", "version", 1000, "core");
+    binds::instance().setBind("rehash", "rehash", 1000, "core");
+    binds::instance().setBind("stop", "stop", 1000, "core");
+    binds::instance().setBind("restart", "restart", 1000, "core");
+    binds::instance().setBind("listbinds", "listbinds", 1000, "core");
+    binds::instance().setBind("listmodules", "listmodules", 1000, "core");
+    binds::instance().setBind("reloadall", "reloadall", 1000, "core");
+    binds::instance().setBind("listchannels", "listchannels", 1000, "core");
+    binds::instance().setBind("listusers", "listusers", 1000, "core");
+    binds::instance().setBind("reload", "reload", 1000, "core");
+    binds::instance().setBind("load", "load", 1000, "core");
+    binds::instance().setBind("unload", "unload", 1000, "core");
+    binds::instance().setBind("listuserchannels", "listuserchannels", 1000, "core");
+    binds::instance().setBind("listchannelusers", "listchannelusers", 1000, "core");
+    binds::instance().setBind("join", "join", 1000, "core");
+    binds::instance().setBind("part", "part", 1000, "core");
+    binds::instance().setBind("raw", "raw", 1000, "core");
+    binds::instance().setBind("kick", "kick", 1000, "core");
+    binds::instance().setBind("delbind", "delbind", 1000, "core");
+    binds::instance().setBind("setbind", "setbind", 1000, "core");
+    binds::instance().setBind("addbind", "setbind", 1000, "core");
     ircInit();
     moduleInit();
     ircRun();
@@ -289,9 +312,19 @@ void bot::timer()
 std::string bot::parseCommands(std::vector<std::string> args)
 {
     std::string returnString = "";
+    std::string command = "";
+    if (args.size() >= 1)
+    {
+        binds::bindelement bindElement;
+        if (binds::instance().getBind(bindElement, args[0], "core"))
+        {
+            command = bindElement.command;
+        }
+    }
     if (args.size() == 1)
     {
-        if (glib::iequals(args[0], "version"))
+
+        if (glib::iequals(command, "version"))
         {
             std::vector< std::string > versionsVector;
             versionsVector = versions::instance().getVersions();
@@ -312,7 +345,7 @@ std::string bot::parseCommands(std::vector<std::string> args)
             }
             //returnString += "channels: " + glib::stringFromInt(channelList.size()) + " version lines: " + glib::stringFromInt(versionsVector.size()) + "\r\n";
         }
-        if (glib::iequals(args[0], "rehash"))
+        if (glib::iequals(command, "rehash"))
         {
             /*std::string returnstring = "PRIVMSG " + chan + " :reading config file now\r\n";
             Send(returnstring);*/
@@ -324,18 +357,38 @@ std::string bot::parseCommands(std::vector<std::string> args)
             }
             reply::instance().init();
         }
-        if (glib::iequals(args[0], "stop"))
+        if (glib::iequals(command, "stop"))
         {
             returnString += output::instance().addOutput("stop", 3);
             returnString += "\r\n";
             m_Run = false;
         }
-        if (glib::iequals(args[0], "restart"))
+        if (glib::iequals(command, "restart"))
         {
             /*std::string returnstring = "PRIVMSG " + chan + " :restarting now\r\n";
             Send(returnstring);*/
         }
-        if (glib::iequals(args[0], "listmodules"))
+        if (glib::iequals(command, "listbinds"))
+        {
+            std::map< std::string, std::map< std::string, binds::bindelement > > bindElements;
+            std::map< std::string, std::map< std::string, binds::bindelement > >::iterator bindElementsIterator;
+            if (binds::instance().getBinds(bindElements))
+            {
+                std::map< std::string, binds::bindelement > bindElement;
+                std::map< std::string, binds::bindelement >::iterator bindElementIterator;
+                for ( bindElementsIterator = bindElements.begin() ; bindElementsIterator != bindElements.end(); bindElementsIterator++ )
+                {
+                    irc::instance().addSendQueue(reply::instance().ircPrivmsg(configreader::instance().getString("debugchannel"), bindElementsIterator->first));
+                    bindElement.clear();
+                    bindElement = bindElementsIterator->second;
+                    for ( bindElementIterator = bindElement.begin() ; bindElementIterator != bindElement.end(); bindElementIterator++ )
+                    {
+                        irc::instance().addSendQueue(reply::instance().ircPrivmsg(configreader::instance().getString("debugchannel"), bindElementIterator->first + " " + bindElementIterator->second.command + " " + glib::stringFromInt(bindElementIterator->second.access)));
+                    }
+                }
+            }
+        }
+        if (glib::iequals(command, "listmodules"))
         {
             for (size_t i = 0; i < m_ModuleList.size(); i++)
             {
@@ -345,7 +398,7 @@ std::string bot::parseCommands(std::vector<std::string> args)
                 //ai->AddSendQueue(modname);
             }
         }
-        if (glib::iequals(args[0], "reloadall"))
+        if (glib::iequals(command, "reloadall"))
         {
             std::vector< std::string > tmpm_ModuleList = m_ModuleList;
             //std::string reply_string;
@@ -360,7 +413,7 @@ std::string bot::parseCommands(std::vector<std::string> args)
                 loadModule(modname);
             }
         }
-        if (glib::iequals(args[0], "listchannels"))
+        if (glib::iequals(command, "listchannels"))
         {
             std::map< std::string, channel > channelList;
             channels::instance().getChannels(channelList);
@@ -371,7 +424,7 @@ std::string bot::parseCommands(std::vector<std::string> args)
             }
             irc::instance().addSendQueue(reply::instance().ircPrivmsg(configreader::instance().getString("debugchannel"), "# channels: " + glib::stringFromInt(channelList.size())));
         }
-        if (glib::iequals(args[0], "listusers"))
+        if (glib::iequals(command, "listusers"))
         {
             std::map< std::string, user > userList;
             users::instance().getUsers(userList);
@@ -385,20 +438,20 @@ std::string bot::parseCommands(std::vector<std::string> args)
     }
     if (args.size() == 2)
     {
-        if (glib::iequals(args[0], "reload"))
+        if (glib::iequals(command, "reload"))
         {
             unLoadModule(args[1]);
             loadModule(args[1]);
         }
-        if (glib::iequals(args[0], "load"))
+        if (glib::iequals(command, "load"))
         {
             loadModule(args[1]);
         }
-        if (glib::iequals(args[0], "unload"))
+        if (glib::iequals(command, "unload"))
         {
             unLoadModule(args[1]);
         }
-        if (glib::iequals(args[0], "listuserchannels"))
+        if (glib::iequals(command, "listuserchannels"))
         {
             if (users::instance().findUser(args[1]))
             {
@@ -411,7 +464,7 @@ std::string bot::parseCommands(std::vector<std::string> args)
                 irc::instance().addSendQueue(reply::instance().ircPrivmsg(configreader::instance().getString("debugchannel"), "# channels: " + glib::stringFromInt(channelList.size())));
             }
         }
-        if (glib::iequals(args[0], "listchannelusers"))
+        if (glib::iequals(command, "listchannelusers"))
         {
             if (channels::instance().findChannel(args[1]))
             {
@@ -424,14 +477,14 @@ std::string bot::parseCommands(std::vector<std::string> args)
                 irc::instance().addSendQueue(reply::instance().ircPrivmsg(configreader::instance().getString("debugchannel"), "# users: " + glib::stringFromInt(userList.size())));
             }
         }
-        if (glib::iequals(args[0], "join"))
+        if (glib::iequals(command, "join"))
         {
             irc::instance().addSendQueue(reply::instance().ircJoin(args[1]));
         }
     }
     if (args.size() >= 2)
     {
-        if (glib::iequals(args[0], "part"))
+        if (glib::iequals(command, "part"))
         {
             std::string partReason = "";
             for (size_t argsIterator = 2; argsIterator < (args.size() - 1); argsIterator++)
@@ -444,7 +497,7 @@ std::string bot::parseCommands(std::vector<std::string> args)
             }
             irc::instance().addSendQueue(reply::instance().ircPart(args[1], partReason));
         }
-        if (glib::iequals(args[0], "raw"))
+        if (glib::iequals(command, "raw"))
         {
             std::string command = "";
             for (size_t argsIterator = 1; argsIterator < (args.size() - 1); argsIterator++)
@@ -458,9 +511,16 @@ std::string bot::parseCommands(std::vector<std::string> args)
             irc::instance().addSendQueue(command);
         }
     }
+    if (args.size() == 3)
+    {
+        if (glib::iequals(command, "delbind"))
+        {
+            binds::instance().delBind(args[1], args[2]);
+        }
+    }
     if (args.size() >= 3)
     {
-        if (glib::iequals(args[0], "kick"))
+        if (glib::iequals(command, "kick"))
         {
             std::string kickReason = "";
             for (size_t argsIterator = 3; argsIterator < (args.size() - 1); argsIterator++)
@@ -472,6 +532,13 @@ std::string bot::parseCommands(std::vector<std::string> args)
                 kickReason = kickReason + args[args.size()-1];
             }
             irc::instance().addSendQueue(reply::instance().ircKick(args[1], args[2], kickReason));
+        }
+    }
+    if (args.size() == 5)
+    {
+        if (glib::iequals(command, "setbind"))
+        {
+            binds::instance().setBind(args[1], args[2], glib::intFromString(args[3]), args[4]);
         }
     }
     return returnString;
