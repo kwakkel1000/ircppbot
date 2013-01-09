@@ -439,8 +439,11 @@ void management::nick(std::vector< std::string > eventData)
     {
         users::instance().setBotNick(newUserName);
     }
-    auths::instance().getAuth(authName).delUser(oldUserName);
-    auths::instance().getAuth(authName).addUser(newUserName);
+    if (auths::instance().findAuth(authName))
+    {
+        auths::instance().getAuth(authName).delUser(oldUserName);
+        auths::instance().getAuth(authName).addUser(newUserName);
+    }
     std::unordered_set< std::string > channelSet = users::instance().getUser(oldUserName).getChannels();
     std::unordered_set< std::string >::iterator channelSetIterator;
     for (channelSetIterator = channelSet.begin(); channelSetIterator != channelSet.end(); ++channelSetIterator)

@@ -25,6 +25,7 @@
 
 #include "../include/management/auths.h"
 #include <gframe/output.h>
+#include <cstddef>
 
 auths::auths()
 {
