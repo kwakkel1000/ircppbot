@@ -428,6 +428,11 @@ void management::nick(std::vector< std::string > eventData)
     std::string newUserName = eventData[2];
     std::string oldUserName = eventData[0];
     nickFromHostmask(oldUserName);
+    if (!users::instance().findUser(oldUserName))
+    {
+        output::instance().addOutput("void management::nick(std::vector< std::string > eventData) nickchange but oldnick not found? " + oldUserName, 11);
+        users::instance().addUser(oldUserName);
+    }
     std::string authName = users::instance().getUser(oldUserName).getAuth();
 
     if (oldUserName == users::instance().getBotNick())
