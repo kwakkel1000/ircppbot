@@ -3,9 +3,9 @@ botnick=tran
 ident=tran
 realname=tran
 chandebug=false
-loadmods=ChannelBot OCommands Support
-moduledir=.libs/
-defaultlanguage=en
+loadmods=libchannelbot libocommands libsupport
+moduledir=/usr/local/lib/
+defaultlanguage=english
 
 [channels]
 debugchannel=#chan.debug
@@ -17,15 +17,16 @@ teamchannel=#chan.team
 trigger=!
 channelbottrigger=!
 ocommandstrigger=?
+
 ircserver=irc.server.tld
 ircport=6667
 ircpass=passwd
+
 floodprotect=true
 floodbuffer=20
-floodtime=1500
+floodtime=1.5
 
 [ircserv]
-ircserv=UserManagement
 nickserv=false
 whoextra=true
 
