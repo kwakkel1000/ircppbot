@@ -19,6 +19,8 @@ ircppbot_include_HEADERS = \
 	include/management/channel.h \
 	include/management/users.h \
 	include/management/user.h \
+	include/management/auths.h \
+	include/management/auth.h \
 	include/management/management.h \
 	include/config.h
 
@@ -32,6 +34,8 @@ ircppbot_SOURCES = \
 	management/channel.cpp \
 	management/users.cpp \
 	management/user.cpp \
+	management/auths.cpp \
+	management/auth.cpp \
 	management/management.cpp \
 	main.cpp
 

@@ -106,3 +106,13 @@ user& users::getUser(std::string userName)
     }
     return (*m_UserListIterator).second;
 }
+
+void users::setBotNick(std::string botNick)
+{
+    output::instance().addOutput("BOTNICK: " + botNick);
+    m_BotNick = botNick;
+}
+std::string users::getBotNick()
+{
+    return m_BotNick;
+}

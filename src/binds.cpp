@@ -83,6 +83,7 @@ bool binds::getBind(bindelement& bindElement, std::string alias, std::string who
 {
     std::transform(alias.begin(), alias.end(), alias.begin(), (int(*)(int)) std::tolower);
     std::transform(who.begin(), who.end(), who.begin(), (int(*)(int)) std::tolower);
+    output::instance().addOutput("bool binds::getBind(bindelement& bindElement, std::string alias, std::string who) alias: " + alias + " who: " + who, 12);
     std::map< std::string, std::map< std::string, bindelement > >::iterator l_BindsIterator;
     std::map< std::string, bindelement > l_Alias;
     std::map< std::string, bindelement >::iterator l_AliasIterator;

@@ -2,7 +2,7 @@
 # Process this file with autoconf to produce a configure script.
 
 AC_PREREQ([2.69])
-AC_INIT([IRCPPBOT], [2.0], [VOID])
+AC_INIT([IRCPPBOT], [2.1], [VOID])
 AC_CANONICAL_TARGET
 AC_CANONICAL_SYSTEM
 AM_INIT_AUTOMAKE()
@@ -79,12 +79,10 @@ Configuration:
   IRCPPBOT details:
   Linker flags....:    $LDFLAGS $IRCPPBOT_LDFLAGS
   C++ Compiler....:    $CXX $CXXFLAGS $CPPFLAGS $IRCPPBOT_CPPFLAGS
-  Libraries.......:    $LIBS $IRCPPBOT_LIBS
-  gdb Debug.......:    ${gdbdebug}"
+  Libraries.......:    $LIBS $IRCPPBOT_LIBS"
 
 echo
 echo "***********************************************************"
-echo "*            Now run '${am_make}'                               *"
 echo "*            And run '${am_make}' install                       *"
 echo "*                                                         *"
 echo "*           Thank you for using IRCPPBOT!                 *"

@@ -36,6 +36,7 @@
 #include "include/reply.h"
 #include "include/binds.h"
 #include "include/irc.h"
+#include "include/management/auths.h"
 #include "include/management/users.h"
 #include "include/management/channels.h"
 //#include "include/management/Whois.h"
@@ -54,24 +55,31 @@ bot::~bot()
 {
     output::instance().addOutput("bot::~bot()");
     m_Run = false;
-    m_Management->stop();
     m_TimerThread->join();
     output::instance().addOutput("m_TimerThread stopped", 2);
-    m_ManagementThread->join();
-    output::instance().addOutput("m_ManagementThread stopped", 2);
+
+    // stop modules
     std::vector< std::string > tmpm_ModuleList = m_ModuleList;
     for (size_t i = 0; i < tmpm_ModuleList.size(); i++)
     {
         std::string sModuleName = tmpm_ModuleList[i];
         output::instance().addStatus(true, unLoadModule(sModuleName) + "Unloading " + sModuleName);
     }
-    output::instance().addOutput("bot::~bot()");
+
+    // stop management
+    m_Management->stop();
+    m_ManagementThread->join();
+    output::instance().addOutput("m_ManagementThread stopped", 2);
+    delete m_Management;
+    output::instance().addOutput("m_Management deleted");
+
+    irc::instance().stop();
+
+    // stop socket
     m_IrcSocket->disconnect();
     output::instance().addOutput("m_IrcSocket disconnected");
     delete m_IrcSocket;
     output::instance().addOutput("m_IrcSocket deleted");
-    delete m_Management;
-    output::instance().addOutput("m_Management deleted");
 }
 
 void bot::init()
@@ -94,11 +102,13 @@ void bot::init()
     binds::instance().setBind("reloadall", "reloadall", 1000, "core");
     binds::instance().setBind("listchannels", "listchannels", 1000, "core");
     binds::instance().setBind("listusers", "listusers", 1000, "core");
+    binds::instance().setBind("listauths", "listauths", 1000, "core");
     binds::instance().setBind("reload", "reload", 1000, "core");
     binds::instance().setBind("load", "load", 1000, "core");
     binds::instance().setBind("unload", "unload", 1000, "core");
     binds::instance().setBind("listuserchannels", "listuserchannels", 1000, "core");
     binds::instance().setBind("listchannelusers", "listchannelusers", 1000, "core");
+    binds::instance().setBind("listauthusers", "listauthusers", 1000, "core");
     binds::instance().setBind("join", "join", 1000, "core");
     binds::instance().setBind("part", "part", 1000, "core");
     binds::instance().setBind("raw", "raw", 1000, "core");
@@ -219,10 +229,12 @@ bool bot::loadModule(std::string moduleName)
                     tmp_thread = std::shared_ptr<std::thread>(new std::thread(std::bind(&bot::moduleRun, this, moduleIndex)));
                     m_ModuleThreadVector.push_back(tmp_thread);
                 }
+                output::instance().addStatus(true, "Module " + moduleName + " loaded succesfully");
                 return true;
             }
         }
     }
+    output::instance().addStatus(false, "Module " + moduleName + " already loaded");
     return false;
 }
 
@@ -237,13 +249,13 @@ bool bot::unLoadModule(std::string moduleName)
             //if (moduleIndex >= 0)
             {
                 output::instance().addOutput("m_ModuleListIndex=" + glib::stringFromInt(m_ModuleListIndex) + " m_ModuleThreadVector.size()=" + glib::stringFromInt(m_ModuleThreadVector.size()), 11);
-                m_ModuleInterfaceVector[moduleIndex]->stop();
                 std::shared_ptr<std::thread> tmp_thread = m_ModuleThreadVector[moduleIndex];
                 m_ModuleThreadVector.erase(m_ModuleThreadVector.begin()+moduleIndex);
-                //tmp_thread.reset();
                 m_DestroyVector[moduleIndex](m_ModuleInterfaceVector[moduleIndex]);
                 m_ModuleInterfaceVector.erase(m_ModuleInterfaceVector.begin()+moduleIndex);
                 dlclose(m_ModuleVector[moduleIndex]);
+                tmp_thread->join();
+                //tmp_thread.reset();
                 m_ModuleList.erase(m_ModuleList.begin()+moduleIndex);
                 m_ModuleVector.erase(m_ModuleVector.begin()+moduleIndex);
                 m_CreateVector.erase(m_CreateVector.begin()+moduleIndex);
@@ -254,27 +266,6 @@ bool bot::unLoadModule(std::string moduleName)
         }
     }
     output::instance().addStatus(false, "bool bot::unLoadModule(std::string moduleName) done : " + moduleName);
-    return false;
-}
-
-bool bot::unLoadModuleId(size_t moduleIndex)
-{
-    output::instance().addOutput("bool bot::unLoadModuleId(size_t moduleIndex)", 10);
-    if (moduleIndex < m_ModuleList.size())
-    {
-        //if (moduleIndex >= 0)
-        {
-            m_DestroyVector[moduleIndex](m_ModuleInterfaceVector[moduleIndex]);
-            dlclose(m_ModuleVector[moduleIndex]);
-            m_ModuleList.erase(m_ModuleList.begin()+moduleIndex);
-            m_ModuleVector.erase(m_ModuleVector.begin()+moduleIndex);
-            m_ModuleInterfaceVector.erase(m_ModuleInterfaceVector.begin()+moduleIndex);
-            m_CreateVector.erase(m_CreateVector.begin()+moduleIndex);
-            m_DestroyVector.erase(m_DestroyVector.begin()+moduleIndex);
-            output::instance().addOutput(m_ModuleList[moduleIndex] + " UnLoaded");
-            return true;
-        }
-    }
     return false;
 }
 
@@ -440,6 +431,17 @@ std::string bot::parseCommands(std::vector<std::string> args)
             }
             irc::instance().addSendQueue(reply::instance().ircPrivmsg(configreader::instance().getString("debugchannel"), "# users: " + glib::stringFromInt(userList.size())));
         }
+        if (glib::iequals(command, "listauths"))
+        {
+            std::map< std::string, auth > authList;
+            auths::instance().getAuths(authList);
+            std::map< std::string, auth >::iterator authListIterator;
+            for (authListIterator = authList.begin(); authListIterator != authList.end(); authListIterator++)
+            {
+                irc::instance().addSendQueue(reply::instance().ircPrivmsg(configreader::instance().getString("debugchannel"), (*authListIterator).first));
+            }
+            irc::instance().addSendQueue(reply::instance().ircPrivmsg(configreader::instance().getString("debugchannel"), "# auths: " + glib::stringFromInt(authList.size())));
+        }
     }
     if (args.size() == 2)
     {
@@ -474,6 +476,19 @@ std::string bot::parseCommands(std::vector<std::string> args)
             if (channels::instance().findChannel(args[1]))
             {
                 std::unordered_set< std::string > userList = channels::instance().getChannel(args[1]).getUsers();
+                std::unordered_set< std::string >::iterator userListIterator;
+                for (userListIterator = userList.begin(); userListIterator != userList.end(); userListIterator++)
+                {
+                    irc::instance().addSendQueue(reply::instance().ircPrivmsg(configreader::instance().getString("debugchannel"), (*userListIterator)));
+                }
+                irc::instance().addSendQueue(reply::instance().ircPrivmsg(configreader::instance().getString("debugchannel"), "# users: " + glib::stringFromInt(userList.size())));
+            }
+        }
+        if (glib::iequals(command, "listauthusers"))
+        {
+            if (auths::instance().findAuth(args[1]))
+            {
+                std::unordered_set< std::string > userList = auths::instance().getAuth(args[1]).getUsers();
                 std::unordered_set< std::string >::iterator userListIterator;
                 for (userListIterator = userList.begin(); userListIterator != userList.end(); userListIterator++)
                 {

@@ -41,7 +41,7 @@ int main(int argc, char *argv[])
     {
         args.push_back(argv[nArg]);
     }
-    while(forever)
+    //while(forever)
     {
         mainbase MainBase(mNAME);
         versions::instance().addVersion(mNAME + " " + mVERSION + " " + mGITVERSION);

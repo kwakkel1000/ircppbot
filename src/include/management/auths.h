@@ -1,7 +1,7 @@
 //
 //
 //  @ Project : ircppbot
-//  @ File Name : moduleinterface.h
+//  @ File Name : auths.h
 //  @ Date : 08-01-2013
 //  @ Author : Gijs Kwakkel
 //
@@ -23,23 +23,36 @@
 //
 
 
-#ifndef SRC_INCLUDE_MODULEINTERFACE_H
-#define SRC_INCLUDE_MODULEINTERFACE_H
+#ifndef SRC_INCLUDE_MANAGEMENT_AUTHS_H
+#define SRC_INCLUDE_MANAGEMENT_AUTHS_H
 
-class moduleinterface
+#include "auth.h"
+#include <string>
+#include <map>
+
+class auth;
+class auths
 {
-    public:
-        moduleinterface(){}
-        virtual ~moduleinterface(){};
-        virtual void read()=0;
-        virtual void stop()=0;
-        virtual void init()=0;
-        virtual void timerrun()=0;
+public:
+        static auths& instance()
+        {
+            static auths obj;
+            return obj;
+        }
+        bool addAuth(std::string userAuth);
+        bool delAuth(std::string userAuth);
+        bool renameAuth(std::string oldUserAuth, std::string newUserAuth);
+
+        bool findAuth(std::string userAuth);
+        bool getAuths(std::map< std::string, auth > &authList);
+        auth& getAuth(std::string userAuth);
+
+
+    private:
+        auths();
+        ~auths();
+
+        std::map< std::string, auth > m_AuthList;
 };
 
-typedef moduleinterface* createModuleInterface();
-
-typedef void destroyModuleInterface(moduleinterface*);
-
-
-#endif // SRC_INCLUDE_MODULEINTERFACE_H
+#endif // SRC_INCLUDE_MANAGEMENT_AUTHS_H

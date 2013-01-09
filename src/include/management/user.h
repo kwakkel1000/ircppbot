@@ -43,6 +43,9 @@ class user
         std::unordered_set< std::string > getChannels();
         // ### end user channels ###
 
+        void setAuth(std::string auth);
+        std::string getAuth();
+
         // ### irc user modes ###
         void setGone(bool gone);
         bool getGone() const;
@@ -59,6 +62,7 @@ class user
 
     private:
         std::unordered_set< std::string > m_Channels;
+        std::string m_Auth;
 
         // ### irc user modes ###
         std::atomic<bool> m_Gone;

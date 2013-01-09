@@ -24,8 +24,10 @@
 
 
 #include "../include/management/user.h"
+#include <cstddef>
 
 user::user() :
+m_Auth(""),
 m_Gone(false),
 m_X(false),
 m_Bot(false),
@@ -68,12 +70,20 @@ std::unordered_set< std::string > user::getChannels()
 }
 // ### end user channels ###
 
+void user::setAuth(std::string auth)
+{
+    m_Auth = auth;
+}
+std::string user::getAuth()
+{
+    return m_Auth;
+}
+
 // ### user irc modes ###
 void user::setGone(bool gone)
 {
     m_Gone = gone;
 }
-
 bool user::getGone() const
 {
     return m_Gone;
@@ -83,7 +93,6 @@ void user::setX(bool x)
 {
     m_X = x;
 }
-
 bool user::getX() const
 {
     return m_X;
@@ -93,7 +102,6 @@ void user::setBot(bool bot)
 {
     m_Bot = bot;
 }
-
 bool user::getBot() const
 {
     return m_Bot;
@@ -103,7 +111,6 @@ void user::setIrcOp(bool ircOp)
 {
     m_IrcOp = ircOp;
 }
-
 bool user::getIrcOp() const
 {
     return m_IrcOp;

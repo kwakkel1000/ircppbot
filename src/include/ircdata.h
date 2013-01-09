@@ -68,7 +68,7 @@ class ircdata
 
     private:
         // vars
-        std::atomic<bool> m_Run;
+        std::atomic<bool> m_Stop;
         std::atomic<bool> m_GetRaw;
         std::atomic<bool> m_GetEvents;
         std::atomic<bool> m_GetModes;

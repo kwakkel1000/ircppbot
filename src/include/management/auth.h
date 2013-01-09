@@ -26,13 +26,10 @@
 #ifndef SRC_INCLUDE_MANAGEMENT_AUTH_H
 #define SRC_INCLUDE_MANAGEMENT_AUTH_H
 #include <string>
-#include <map>
+#include <unordered_set>
 #include <atomic>
 #include <mutex>
 
-#include "user.h"
-
-class user;
 class auth
 {
     public:
@@ -40,21 +37,21 @@ class auth
         auth(const auth&);
         ~auth();
 
-        bool addUser(std::string userName, user* userPointer);
+        bool addUser(std::string userName);
         bool delUser(std::string userName);
-        bool getUsers(std::map< std::string, user* >& usersMap);
+        std::unordered_set< std::string > getUsers();
 
         // setters and getters
         void setLanguage(std::string language);
         std::string getLanguage();
-        void setWidth(std::atomic<size_t> width);
-        std::atomic<size_t> getWidth();
-        void setColumns(std::atomic<size_t> columns);
-        std::atomic<size_t> getColumns();
-        void setBotAccess(std::atomic<size_t> botAccess);
-        std::atomic<size_t> getBotAccess();
-        void setGod(std::atomic<bol> god);
-        std::atomic<bool> getGod();
+        void setWidth(size_t width);
+        size_t getWidth();
+        void setColumns(size_t columns);
+        size_t getColumns();
+        void setBotAccess(size_t botAccess);
+        size_t getBotAccess();
+        void setGod(bool god);
+        bool getGod();
 
     private:
         std::string m_Language;
@@ -63,7 +60,9 @@ class auth
         std::atomic<size_t> m_BotAccess;
         std::atomic<bool> m_God;
 
-        std::map< std::string, user* > m_Users;
+        std::unordered_set< std::string > m_Users;
+
+        std::mutex m_UsersMutex;
 };
 
 #endif // SRC_INCLUDE_MANAGEMENT_AUTH_H

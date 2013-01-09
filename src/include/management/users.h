@@ -47,11 +47,14 @@ public:
         bool getUsers(std::map< std::string, user > &userList);
         user& getUser(std::string userName);
 
+        void setBotNick(std::string botNick);
+        std::string getBotNick();
 
     private:
         users();
         ~users();
 
+        std::string m_BotNick;
         std::map< std::string, user > m_UserList;
 };
 

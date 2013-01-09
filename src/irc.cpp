@@ -36,7 +36,6 @@ irc::irc()
 
 irc::~irc()
 {
-    stop();
 }
 
 void irc::stop()
@@ -397,9 +396,12 @@ void irc::parse()
         std::string data;
         std::vector< std::string > result;
         data = getRecvQueue();
+        if (!m_Parse)
+        {
+            return;
+        }
         glib::trim(data);
         result = glib::split(data);
-        //boost::split(result, data, boost::is_any_of(" "), boost::token_compress_on);
         if (result.size() == 2)
         {
             if (result[0] == "PING")      // PING
@@ -473,6 +475,13 @@ void irc::parse()
             if (result.size() >= 4)
             {
                 if (result[1] == "307" || result[1] == "318" || result[1] == "330" || result[1] == "402")       //WHOIS regged userName
+                {
+                    for (consumerIterator = 0; consumerIterator < m_WhoisConsumers.size(); consumerIterator++)
+                    {
+                        m_WhoisConsumers[consumerIterator]->addWhoisQueue(result);
+                    }
+                }
+                if (result[1] == "001")       //Welcom (holds current nickname)
                 {
                     for (consumerIterator = 0; consumerIterator < m_WhoisConsumers.size(); consumerIterator++)
                     {

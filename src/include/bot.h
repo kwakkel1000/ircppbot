@@ -49,7 +49,6 @@ class bot
 
         bool loadModule(std::string moduleName);
         bool unLoadModule(std::string moduleName);
-        bool unLoadModuleId(size_t moduleIndex);
 
     private:
         tcpsocket *m_IrcSocket;

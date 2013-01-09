@@ -25,7 +25,7 @@
 #include "include/ircdata.h"
 
 ircdata::ircdata() :
-    m_Run(true),
+    m_Stop(false),
     m_GetRaw(false),
     m_GetEvents(false),
     m_GetModes(false),
@@ -51,26 +51,26 @@ ircdata::~ircdata()
 
 void ircdata::stop()
 {
-    m_Run = false;
-    if (m_GetRaw)
+    m_Stop = true;
+    if (m_GetRaw == true)
     {
-        m_RawAvailable.notify_all();
+        m_RawAvailable.notify_one();
     }
-    if (m_GetEvents)
+    if (m_GetEvents == true)
     {
-        m_EventsAvailable.notify_all();
+        m_EventsAvailable.notify_one();
     }
-    if (m_GetModes)
+    if (m_GetModes == true)
     {
-        m_ModesAvailable.notify_all();
+        m_ModesAvailable.notify_one();
     }
-    if (m_GetWhois)
+    if (m_GetWhois == true)
     {
-        m_WhoisAvailable.notify_all();
+        m_WhoisAvailable.notify_one();
     }
-    if (m_GetPrivmsg)
+    if (m_GetPrivmsg == true)
     {
-        m_PrivmsgAvailable.notify_all();
+        m_PrivmsgAvailable.notify_one();
     }
 }
 
@@ -164,94 +164,89 @@ void ircdata::addPrivmsgQueue(std::vector<std::string> data)
 std::vector< std::string > ircdata::getRawQueue()
 {
     std::unique_lock<std::mutex> lock(m_RawMutex);
-    while (m_RawQueue.empty() && m_Run)
+    while (!m_Stop && m_RawQueue.empty())
     {
         m_RawAvailable.wait(lock);
     }
-    if (!m_RawQueue.empty() && m_Run)
+    if (m_Stop)
     {
-        std::vector< std::string > temp = m_RawQueue.front();
-        m_RawQueue.pop();
-        lock.unlock();
-        return temp;
+        return NULLvector;
     }
+    std::vector< std::string > temp = m_RawQueue.front();
+    m_RawQueue.pop();
     lock.unlock();
-    return NULLvector;
+    return temp;
 }
 
 std::vector< std::string > ircdata::getEventsQueue()
 {
     std::unique_lock<std::mutex> lock(m_EventsMutex);
-    while (m_EventsQueue.empty() && m_Run)
+    while (!m_Stop && m_EventsQueue.empty())
     {
         m_EventsAvailable.wait(lock);
     }
-    if (!m_EventsQueue.empty() && m_Run)
+    if (m_Stop)
     {
-        std::vector< std::string > temp = m_EventsQueue.front();
-        m_EventsQueue.pop();
-        lock.unlock();
-        return temp;
+        return NULLvector;
     }
+    std::vector< std::string > temp = m_EventsQueue.front();
+    m_EventsQueue.pop();
     lock.unlock();
-    return NULLvector;
+    return temp;
 }
 
 std::vector< std::string > ircdata::getModesQueue()
 {
     std::unique_lock<std::mutex> lock(m_ModesMutex);
-    while (m_ModesQueue.empty() && m_Run)
+    while (!m_Stop && m_ModesQueue.empty())
     {
         m_ModesAvailable.wait(lock);
     }
-    if (!m_ModesQueue.empty() && m_Run)
+    if (m_Stop)
     {
-        std::vector< std::string > temp = m_ModesQueue.front();
-        m_ModesQueue.pop();
-        lock.unlock();
-        return temp;
+        return NULLvector;
     }
+    std::vector< std::string > temp = m_ModesQueue.front();
+    m_ModesQueue.pop();
     lock.unlock();
-    return NULLvector;
+    return temp;
 }
 
 std::vector< std::string > ircdata::getWhoisQueue()
 {
     std::unique_lock<std::mutex> lock(m_WhoisMutex);
-    while (m_WhoisQueue.empty() && m_Run)
+    while (!m_Stop && m_WhoisQueue.empty())
     {
         m_WhoisAvailable.wait(lock);
     }
-    if (!m_WhoisQueue.empty() && m_Run)
+    if (m_Stop)
     {
-        std::vector< std::string > temp = m_WhoisQueue.front();
-        m_WhoisQueue.pop();
-        lock.unlock();
-        return temp;
+        return NULLvector;
     }
+    std::vector< std::string > temp = m_WhoisQueue.front();
+    m_WhoisQueue.pop();
     lock.unlock();
-    return NULLvector;
+    return temp;
 }
 
 std::vector< std::string > ircdata::getPrivmsgQueue()
 {
     std::unique_lock<std::mutex> lock(m_PrivmsgMutex);
-    while (m_PrivmsgQueue.empty() && m_Run)
+    while (!m_Stop && m_PrivmsgQueue.empty())
     {
         m_PrivmsgAvailable.wait(lock);
     }
-    if (!m_PrivmsgQueue.empty() && m_Run)
+    if (m_Stop)
     {
-        std::vector< std::string > temp = m_PrivmsgQueue.front();
-        m_PrivmsgQueue.pop();
-        lock.unlock();
+        std::vector< std::string > temp;
+        temp.push_back("");
+        temp.push_back("");
+        temp.push_back("");
+        temp.push_back("");
         return temp;
     }
+    std::vector< std::string > temp = m_PrivmsgQueue.front();
+    m_PrivmsgQueue.pop();
     lock.unlock();
-    std::vector< std::string > temp;
-    temp.push_back("");
-    temp.push_back("");
-    temp.push_back("");
-    temp.push_back("");
     return temp;
 }
