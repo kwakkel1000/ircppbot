@@ -189,8 +189,8 @@ bool bot::loadModule(std::string moduleName)
         void* module;
         createModuleInterface* create_module;
         destroyModuleInterface* destroy_module;
-        //std::string modulepath = "./" + configreader::instance().getString("moduledir") + moduleName + ".so";
-        std::string modulepath = moduleName;
+        std::string modulepath = configreader::instance().getString("moduledir") + moduleName + ".so";
+        //std::string modulepath = moduleName;
         // load the library
         module = dlopen(modulepath.c_str(), RTLD_LAZY);
         if (!module)
