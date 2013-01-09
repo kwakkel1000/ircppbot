@@ -67,7 +67,6 @@ class management
         void userAuth(std::string mNick, std::string mAuth);
         void endWhois(std::string msNick);
 
-        void getChannelInfo(std::string data);
         void getUserInfo(std::string data);
         void getAuths();
 

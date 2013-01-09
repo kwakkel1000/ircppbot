@@ -49,10 +49,10 @@ void reply::init()
     keys.push_back("reply");
     keys.push_back("language");
     std::vector< std::map< std::string, std::string > > result;
-    result = databasedata::instance().get("reply", keys);
-    for (unsigned int _uiResultIndex = 0; _uiResultIndex < result.size(); _uiResultIndex++)
+    result = databasedata::instance().get(configreader::instance().getString("reply.table"), keys);
+    for (size_t resultResultIndex = 0; resultResultIndex < result.size(); resultResultIndex++)
     {
-        m_Reply[result[_uiResultIndex]["language"]][result[_uiResultIndex]["reply_name"]] = result[_uiResultIndex]["reply"];
+        m_Reply[result[resultResultIndex]["language"]][result[resultResultIndex]["reply_name"]] = result[resultResultIndex]["reply"];
     }
 }
 
@@ -174,33 +174,28 @@ std::string reply::ircWhois2(std::string target)
 std::string reply::ircBold()
 {
     return "\x02";
-//    return "" + char(2);
 }
 
 // irc_underline
 std::string reply::ircUnderline()
 {
     return "\x1f";
-//    return "" + char(31);
 }
 
 // irc_italic
 std::string reply::ircItalic()
 {
     return "\x15";
-//    return "" + char(22);
 }
 
 // irc_normal
 std::string reply::ircNormal()
 {
     return "\x0f";
-//    return "" + char(15);
 }
 
 // irc_color
 std::string reply::ircColor()
 {
     return "\x03";
-//    return "" + char(3);
 }

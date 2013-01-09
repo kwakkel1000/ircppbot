@@ -75,7 +75,6 @@ management::management() :
 
 management::~management()
 {
-    //stop();
 }
 
 void management::read()
@@ -277,7 +276,6 @@ void management::who(std::vector< std::string > data)
         bool added = users::instance().addUser(userName);
         //U.FirstJoin(userName);
         users::instance().getUser(userName).addChannel(channelName);
-        getChannelInfo(channelName);
 
         userModes(userName, modes);
         userChannelModes(channelName, userName, modes);
@@ -322,7 +320,6 @@ void management::whoextra(std::vector< std::string > data)
             }
             //U.FirstJoin(userName);
             userAuth(userName, auth);
-            getChannelInfo(channelName);
 
             userModes(userName, modes);
             userChannelModes(channelName, userName, modes);
@@ -342,7 +339,6 @@ void management::join(std::vector< std::string > eventData)
         output::instance().addOutput("void management::join(std::vector< std::string > eventData) bot(" + userName + ") joins channel(" + channelName + ")", 11);
         channels::instance().addChannel(channelName);
         whoChannel(channelName);
-        getChannelInfo(channelName);
     }
     else
     {
@@ -452,36 +448,6 @@ void management::nick(std::vector< std::string > eventData)
         channels::instance().getChannel(*channelSetIterator).addUser(newUserName);
     }
     users::instance().renameUser(oldUserName, newUserName);
-    /*UsersInterface& U = Global::Instance().get_Users();
-    ChannelsInterface& C = Global::Instance().get_Channels();
-    std::string oldnick = nickFromHostmask(data);
-    std::string userName = data[2];
-    boost::erase_all(userName, ":");
-    //vector<string> userName = Split(data[2], ":",true,true);
-    if (oldnick == Global::Instance().get_BotNick())
-    {
-        Global::Instance().set_BotNick(userName);
-        //botnick = userName[0];
-        U.ChangeNick(oldnick, userName);
-        std::vector< std::string > channels = U.GetChannels(userName);
-        for ( size_t i = 0 ; i < channels.size(); i++ )
-        {
-            C.DelNick(channels[i], oldnick);
-            C.AddNick(channels[i], userName);
-        }
-        //cout << "NICK" << endl;
-    }
-    else
-    {
-        U.ChangeNick(oldnick, userName);
-        std::vector< std::string > channels = U.GetChannels(userName);
-        for ( size_t i = 0 ; i < channels.size(); i++ )
-        {
-            C.DelNick(channels[i], oldnick);
-            C.AddNick(channels[i], userName);
-        }
-        //cout << "NICK" << endl;
-    }*/
 }
 
 void management::mode(std::vector< std::string > data)
@@ -658,28 +624,6 @@ void management::getUserInfo(std::string userName)
     }
 }
 
-void management::getChannelInfo(std::string msChannel)
-{
-    /*ChannelsInterface& C = Global::Instance().get_Channels();
-    C.InitSetting(msChannel, "giveops", BotLib::StringFromInt(DatabaseData::Instance().GetGiveOpsByChannel(msChannel)));
-    C.InitSetting(msChannel, "givevoice", BotLib::StringFromInt(DatabaseData::Instance().GetGiveVoiceByChannel(msChannel)));
-    C.SetCid(msChannel, DatabaseData::Instance().GetChannelUuidByChannel(msChannel));
-    / * C.SetGiveops(msChannel, DatabaseData::Instance().GetGiveOpsByChannel(msChannel));
-    C.SetGivevoice(msChannel, DatabaseData::Instance().GetGiveVoiceByChannel(msChannel));*/
-/*
-    std::vector< std::vector< std::string > > channels_vector;
-    std::string ChannelUuid = DatabaseData::Instance().GetChannelUuidByChannel(msChannel);
-    channels_vector = DatabaseData::Instance().GetUserUuidAndAccessByChannelUuid(ChannelUuid);
-    size_t i;
-    for (i = 0 ; i < channels_vector.size() ; i++)
-    {
-        std::string auth = DatabaseData::Instance().GetAuthByUserUuid(channels_vector[i][0]);
-        //std::cout << msChannel << " " << auth << " " << channels_vector[i][1] << std::endl;
-        C.AddAuth(msChannel, auth);
-        C.SetAccess(msChannel, auth, convertString(channels_vector[i][1]));
-    }*/
-}
-
 void management::getAuths()
 {
     std::vector< std::string > authsVector;
@@ -690,13 +634,9 @@ void management::getAuths()
     }
 }
 
-
-
-
 void management::leaveChannel(std::string channelName, std::string userName)
 {
-    //if (userName == Global::Instance().get_BotNick())
-    if (userName == "bot")
+    if (userName == users::instance().getBotNick())
     {
         std::unordered_set< std::string > channelUsers = channels::instance().getChannel(channelName).getUsers();
         std::unordered_set< std::string >::iterator channelUsersIterator;
@@ -709,7 +649,10 @@ void management::leaveChannel(std::string channelName, std::string userName)
                 if (users::instance().getUser(*channelUsersIterator).getChannels().empty())
                 {
                     output::instance().addOutput(*channelUsersIterator + ": no channels left, deleting.", 8);
-                    auths::instance().getAuth(users::instance().getUser(*channelUsersIterator).getAuth()).delUser(*channelUsersIterator);
+                    if (auths::instance().findAuth(users::instance().getUser(*channelUsersIterator).getAuth()))
+                    {
+                        auths::instance().getAuth(users::instance().getUser(*channelUsersIterator).getAuth()).delUser(*channelUsersIterator);
+                    }
                     users::instance().delUser(*channelUsersIterator);
                 }
             }
@@ -731,7 +674,10 @@ void management::leaveChannel(std::string channelName, std::string userName)
                 if (users::instance().getUser(userName).getChannels().empty())
                 {
                     output::instance().addOutput(userName + ": no channels left, deleting.", 8);
-                    auths::instance().getAuth(users::instance().getUser(userName).getAuth()).delUser(userName);
+                    if (auths::instance().findAuth(users::instance().getUser(userName).getAuth()))
+                    {
+                        auths::instance().getAuth(users::instance().getUser(userName).getAuth()).delUser(userName);
+                    }
                     users::instance().delUser(userName);
                 }
             }

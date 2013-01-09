@@ -355,8 +355,7 @@ std::string bot::parseCommands(std::vector<std::string> args)
         }
         if (glib::iequals(command, "stop"))
         {
-            returnString += output::instance().addOutput("stop", 3);
-            returnString += "\r\n";
+            irc::instance().addHighPrioritySendQueue(reply::instance().ircPrivmsg(configreader::instance().getString("debugchannel"), reply::instance().ircBold() + "Stopping the bot"));
             m_Run = false;
         }
         if (glib::iequals(command, "restart"))
