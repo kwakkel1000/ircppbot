@@ -334,25 +334,16 @@ void management::join(std::vector< std::string > eventData)
     }
     else
     {
-        std::shared_ptr<user> l_User;
         bool newuser = !users::instance().find(userName);
-        if (newuser)
-        {
-            l_User = users::instance().add(userName);
-            irc::instance().addSendQueue(reply::instance().ircWhois(userName));
-        }
-        else
-        {
-            l_User = users::instance().get(userName);
-        }
-        if (l_User == nullptr)
-        {
-            output::instance().addStatus(false, "void management::join(std::vector< std::string > eventData) l_User == nullptr, should be impossible");
-            //EXIT(EXIT_FAILURE);
-        }
-        std::shared_ptr<channel> l_Channel = channels::instance().add(channelName);
+        std::shared_ptr<user> l_User = users::instance().add(userName);
+        std::shared_ptr<channel> l_Channel = channels::instance().get(channelName);
         l_Channel->addUser(userName, l_User);
         l_User->addChannel(channelName, l_Channel);
+
+        if (newuser)
+        {
+            irc::instance().addSendQueue(reply::instance().ircWhois(userName));
+        }
 
         if (users::instance().get(userName)->getAuth().first != "")
         {
@@ -431,23 +422,19 @@ void management::nick(std::vector< std::string > eventData)
         output::instance().addOutput("void management::nick(std::vector< std::string > eventData) nickchange but oldnick not found? " + oldUserName, 11);
         users::instance().add(oldUserName);
     }
-    std::shared_ptr<auth> l_Auth = users::instance().get(oldUserName)->getAuth().second;
     if (oldUserName == g_BotNick)
     {
         g_BotNick = newUserName;
     }
-    /*if (l_Auth != nullptr)
-    {
-        l_Auth->delUser(oldUserName);
-        l_Auth->addUser(oldUserName);
-    }*/
     std::shared_ptr<user> l_User = users::instance().get(oldUserName);
     if (l_User != nullptr)
     {
+        users::instance().rename(oldUserName, newUserName);
+        std::shared_ptr<auth> l_Auth = l_User->getAuth().second;
         if (l_Auth != nullptr)
         {
             l_Auth->delUser(oldUserName);
-            l_Auth->addUser(oldUserName, l_User);
+            l_Auth->addUser(newUserName, l_User);
         }
         std::map< std::string, std::shared_ptr<channel> > userChannels = l_User->getChannels();
         std::map< std::string, std::shared_ptr<channel> >::iterator userChannelsIterator;
@@ -456,7 +443,6 @@ void management::nick(std::vector< std::string > eventData)
             userChannelsIterator->second->delUser(oldUserName);
             userChannelsIterator->second->addUser(newUserName, l_User);
         }
-        users::instance().rename(oldUserName, newUserName);
     }
 }
 
@@ -525,39 +511,14 @@ void management::mode(std::vector< std::string > data)
 void management::userAuth(std::string userName, std::string authName)
 {
     output::instance().addOutput("void management::userAuth(std::string userName, std::string authName)", 11);
-    //if (!managementsclass<auth>::instance().find(authName))
     if (!auths::instance().find(authName))
     {
-        auths::instance().add(authName);
         // insert into database
     }
-    std::shared_ptr<auth> l_Auth = auths::instance().get(authName);
+    std::shared_ptr<auth> l_Auth = auths::instance().add(authName);
     std::shared_ptr<user> l_User = users::instance().add(userName);
-    if (l_Auth != nullptr)
-    {
-        l_Auth->addUser(userName, l_User);
-    }
-    auths::instance().add(authName);
+    l_Auth->addUser(userName, l_User);
     l_User->setAuth(authName, l_Auth);
-//    if (!auths::instance().findAuth(authName))
-//    {
-//        auths::instance().addAuth(authName);
-//        // uuid maybe?
-//        //databasedata::instance().insert(something);
-//    }
-//    if (auths::instance().findAuth(authName))
-//    {
-//        l_Auth->addUser(userName);
-//    }
-//
-//    if (!users::instance().find(userName))
-//    {
-//        users::instance().addUser(userName);
-//    }
-//    if (users::instance().find(userName))
-//    {
-//        users::instance().get(userName).setAuth(authName);
-//    }
     if (!l_User->getChannels().empty())
     {
         getUserInfo(userName);
@@ -577,41 +538,17 @@ void management::userAuth(std::string userName, std::string authName)
         NoWhoisUsers.erase (msNick);
         */
     }
-    else
+    /*else
     {
         l_Auth->delUser(userName);
         users::instance().del(userName);
-    }
-//    if (!users::instance().get(userName).getChannels().empty())
-//    {
-//        getUserInfo(userName);
-//        /*
-//
-//        std::multimap< std::string, std::string>::iterator it;
-//        for ( it=NoWhoisUsers.begin() ; it != NoWhoisUsers.end(); it++ )
-//        {
-//            if ((*it).first == msNick)
-//            {
-//                Whois::Instance().AddQueue(std::pair< std::string, std::string >((*it).first, (*it).second));
-//                std::string outputString;
-//                outputString = "user " + (*it).first + " channel " + (*it).second;
-//                Output::Instance().addOutput(outputString, 4);
-//            }
-//        }
-//        NoWhoisUsers.erase (msNick);
-//        */
-//    }
-//    else
-//    {
-//        l_Auth->delUser(userName);
-//        users::instance().del(userName);
-//    }
+    }*/
 }
 
 void management::endWhois(std::string userName)
 {
     //NoWhoisUsers.erase (userName);
-    std::shared_ptr< user > l_User = users::instance().get(userName);
+    /*std::shared_ptr< user > l_User = users::instance().get(userName);
     if (l_User != nullptr)
     {
         std::shared_ptr< auth > l_Auth = l_User->getAuth().second;
@@ -620,7 +557,7 @@ void management::endWhois(std::string userName)
             l_Auth->delUser(userName);
             users::instance().del(userName);
         }
-    }
+    }*/
     /*
     if (managementsclass<users>::instance().get(userName).get()->empty())
     {

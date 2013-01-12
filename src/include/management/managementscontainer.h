@@ -82,6 +82,7 @@ std::shared_ptr< managementstemplate > managementscontainer<managementstemplate>
     std::lock_guard< std::mutex > lock(m_managementscontainerMutex);
     std::pair< typename std::map< std::string, std::shared_ptr< managementstemplate > >::iterator, bool > ret;
     ret = m_Objects.insert (std::pair< std::string, std::shared_ptr< managementstemplate > >(name, std::make_shared< managementstemplate >()));
+    output::instance().addStatus(ret.second, "bool managementscontainer<" + std::string(typeid(managementstemplate).name()) + ">::add(std::string name) name added: " + name);
     return ret.first->second;
 }
 
@@ -93,10 +94,10 @@ bool managementscontainer<managementstemplate>::del(std::string name)
     size_t ret = m_Objects.erase(name);
     if (ret == 1)
     {
-        output::instance().addStatus(true, "bool managementscontainer<managementstemplate>::del(std::string name) managementclass found, erase succesfull: " + name);
+        output::instance().addStatus(true, "bool managementscontainer<" + std::string(typeid(managementstemplate).name()) + ">::del(std::string name) name found, erase succesfull: " + name);
         return true;
     }
-    output::instance().addStatus(false, "bool managementscontainer<managementstemplate>::del(std::string name) managementclass found, erase failed: " + name);
+    output::instance().addStatus(false, "bool managementscontainer<" + std::string(typeid(managementstemplate).name()) + ">::del(std::string name) name found, erase failed: " + name);
     return false;
 }
 
@@ -112,7 +113,7 @@ bool managementscontainer<managementstemplate>::rename(std::string oldName, std:
         del(oldName);
         return true;
     }
-    output::instance().addStatus(false, "bool managementscontainer<managementstemplate>::rename(std::string oldName, std::string newName) managementclass already exists");
+    output::instance().addStatus(false, "bool managementscontainer<" + std::string(typeid(managementstemplate).name()) + ">::rename(std::string oldName, std::string newName) newName already exists " + newName);
     return false;
 }
 
@@ -125,7 +126,7 @@ bool managementscontainer<managementstemplate>::find(std::string name)
     l_managementclassListIterator = m_Objects.find(name);
     if (l_managementclassListIterator == m_Objects.end())
     {
-        output::instance().addStatus(false, "bool managementscontainer<managementstemplate>::find(std::string name) " + std::string(typeid(managementstemplate).name()) + " not found: " + name);
+        output::instance().addStatus(false, "bool managementscontainer<" + std::string(typeid(managementstemplate).name()) + ">::find(std::string name) name not found: " + name);
         return false;
     }
     return true;
@@ -148,7 +149,7 @@ std::shared_ptr< managementstemplate > managementscontainer<managementstemplate>
     l_managementclassListIterator = m_Objects.find(name);
     if (l_managementclassListIterator == m_Objects.end())
     {
-        output::instance().addStatus(false, "std::shared_ptr< managementstemplate > managementscontainer<managementstemplate>::get(std::string name) managementclass not found");
+        output::instance().addStatus(false, "std::shared_ptr< " + std::string(typeid(managementstemplate).name()) + " > managementscontainer<managementstemplate>::get(std::string name) name not found " + name);
         return nullptr;
     }
     return (*l_managementclassListIterator).second;
