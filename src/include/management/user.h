@@ -2,7 +2,7 @@
 //
 //  @ Project : ircppbot
 //  @ File Name : user.h
-//  @ Date : 07-01-2013
+//  @ Date : 10-01-2013
 //  @ Author : Gijs Kwakkel
 //
 //
@@ -26,10 +26,17 @@
 #ifndef SRC_INCLUDE_MANAGEMENT_USER_H
 #define SRC_INCLUDE_MANAGEMENT_USER_H
 #include <string>
-#include <unordered_set>
+#include <map>
 #include <atomic>
 #include <mutex>
+#include <memory>
+#include <cstddef>
 
+#include "auth.h"
+#include "channel.h"
+
+class auth;
+class channel;
 class user
 {
     public:
@@ -38,13 +45,13 @@ class user
         ~user();
 
         // ### user channels ###
-        bool addChannel(std::string channelName);
+        std::shared_ptr<channel> addChannel(std::string channelName, std::shared_ptr<channel> channelSharedPointer);
         bool delChannel(std::string channelName);
-        std::unordered_set< std::string > getChannels();
+        std::map< std::string, std::shared_ptr<channel> >& getChannels();
         // ### end user channels ###
 
-        void setAuth(std::string auth);
-        std::string getAuth();
+        void setAuth(std::string authName, std::shared_ptr<auth> authSharedPointer);
+        std::pair< std::string, std::shared_ptr<auth> >& getAuth();
 
         // ### irc user modes ###
         void setGone(bool gone);
@@ -61,8 +68,9 @@ class user
         // ### end irc user modes ###
 
     private:
-        std::unordered_set< std::string > m_Channels;
-        std::string m_Auth;
+        std::map< std::string, std::shared_ptr<channel> > m_Channels;
+
+        std::pair< std::string, std::shared_ptr<auth> > m_Auth;
 
         // ### irc user modes ###
         std::atomic<bool> m_Gone;

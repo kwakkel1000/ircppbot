@@ -26,10 +26,15 @@
 #ifndef SRC_INCLUDE_MANAGEMENT_AUTH_H
 #define SRC_INCLUDE_MANAGEMENT_AUTH_H
 #include <string>
-#include <unordered_set>
+#include <map>
 #include <atomic>
 #include <mutex>
+#include <memory>
+#include <cstddef>
 
+#include "user.h"
+
+class user;
 class auth
 {
     public:
@@ -37,9 +42,9 @@ class auth
         auth(const auth&);
         ~auth();
 
-        bool addUser(std::string userName);
+        std::shared_ptr<user> addUser(std::string userName, std::shared_ptr<user> userSharedPointer);
         bool delUser(std::string userName);
-        std::unordered_set< std::string > getUsers();
+        std::map< std::string, std::shared_ptr<user> >& getUsers();
 
         // setters and getters
         void setLanguage(std::string language);
@@ -60,7 +65,7 @@ class auth
         std::atomic<size_t> m_BotAccess;
         std::atomic<bool> m_God;
 
-        std::unordered_set< std::string > m_Users;
+        std::map< std::string, std::shared_ptr<user> > m_Users;
 
         std::mutex m_UsersMutex;
 };

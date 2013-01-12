@@ -1,8 +1,8 @@
 //
 //
 //  @ Project : ircppbot
-//  @ File Name : channels.h
-//  @ Date : 06-01-2013
+//  @ File Name : global.h
+//  @ Date : 12-01-2013
 //  @ Author : Gijs Kwakkel
 //
 //
@@ -22,36 +22,9 @@
 // Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301, USA.
 //
 
+#ifndef SRC_INCLUDE_GLOBAL_H
+#define SRC_INCLUDE_GLOBAL_H
 
-#ifndef SRC_INCLUDE_MANAGEMENT_CHANNELS_H
-#define SRC_INCLUDE_MANAGEMENT_CHANNELS_H
+static std::string g_BotNick;
 
-#include <string>
-#include <map>
-#include "channel.h"
-
-class channel;
-class channels
-{
-    public:
-        static channels& instance()
-        {
-            static channels obj;
-            return obj;
-        }
-        bool addChannel(std::string channelName);
-        bool delChannel(std::string channelName);
-
-        bool findChannel(std::string channelName);
-        bool getChannels(std::map< std::string, channel > &channelList);
-        channel& getChannel(std::string channelName);
-
-
-    private:
-        channels();
-        ~channels();
-
-        std::map< std::string, channel > m_ChannelList;
-};
-
-#endif // SRC_INCLUDE_MANAGEMENT_CHANNELS_H
+#endif // SRC_INCLUDE_GLOBAL_H

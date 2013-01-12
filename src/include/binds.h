@@ -41,6 +41,8 @@ class binds
             std::string command;
             int access;
         };
+
+        void init();
         bool setBind(std::string alias, std::string command, int access, std::string who);
         bool delBinds(std::string who);
         bool delBind(std::string alias, std::string who);

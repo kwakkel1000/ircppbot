@@ -15,11 +15,9 @@ ircppbot_include_HEADERS = \
 	include/reply.h \
 	include/binds.h \
 	include/bot.h \
-	include/management/channels.h \
+	include/management/managementscontainer.h \
 	include/management/channel.h \
-	include/management/users.h \
 	include/management/user.h \
-	include/management/auths.h \
 	include/management/auth.h \
 	include/management/management.h \
 	include/config.h
@@ -30,11 +28,8 @@ ircppbot_SOURCES = \
 	reply.cpp \
 	binds.cpp \
 	bot.cpp \
-	management/channels.cpp \
 	management/channel.cpp \
-	management/users.cpp \
 	management/user.cpp \
-	management/auths.cpp \
 	management/auth.cpp \
 	management/management.cpp \
 	main.cpp

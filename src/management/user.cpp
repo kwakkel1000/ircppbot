@@ -1,12 +1,12 @@
-////
+//
 //
 //  @ Project : ircppbot
 //  @ File Name : user.cpp
-//  @ Date : 26-12-2012
+//  @ Date : 10-01-2013
 //  @ Author : Gijs Kwakkel
 //
 //
-// Copyright (c) 2011 Gijs Kwakkel
+// Copyright (c) 2013 Gijs Kwakkel
 //
 // This program is free software; you can redistribute it and/or
 // modify it under the terms of the GNU General Public License
@@ -24,16 +24,18 @@
 
 
 #include "../include/management/user.h"
-#include <cstddef>
+#include <gframe/output.h>
 
 user::user() :
-m_Auth(""),
+m_Channels(),
+m_Auth(),
 m_Gone(false),
 m_X(false),
 m_Bot(false),
 m_IrcOp(false)
 {
     m_Channels.clear();
+    setAuth("", nullptr);
 }
 
 user::user(const user&)
@@ -45,36 +47,39 @@ user::~user()
 }
 
 // ### user channels ###
-bool user::addChannel(std::string channelName)
+std::shared_ptr<channel> user::addChannel(std::string channelName, std::shared_ptr<channel> channelSharedPointer)
 {
     std::lock_guard< std::mutex > lock(m_ChannelsMutex);
-    std::pair< std::unordered_set< std::string >::iterator, bool > ret;
-    ret = m_Channels.insert(channelName);
-    return ret.second;
+    std::pair< std::map< std::string, std::shared_ptr<channel> >::iterator, bool > ret;
+    ret = m_Channels.insert (std::pair< std::string, std::shared_ptr<channel> >(channelName, channelSharedPointer));
+    return ret.first->second;
 }
 
 bool user::delChannel(std::string channelName)
 {
     std::lock_guard< std::mutex > lock(m_ChannelsMutex);
-    if (m_Channels.erase(channelName))
+    size_t ret = m_Channels.erase(channelName);
+    if (ret == 1)
     {
+        output::instance().addStatus(true, "bool user::delChannel(std::string channelName) channel found, erase succesfull: " + channelName);
         return true;
     }
+    output::instance().addStatus(false, "bool user::delChannel(std::string channelName) channel found, erase failed: " + channelName);
     return false;
 }
 
-std::unordered_set< std::string > user::getChannels()
+std::map< std::string, std::shared_ptr<channel> >&  user::getChannels()
 {
     std::lock_guard< std::mutex > lock(m_ChannelsMutex);
     return m_Channels;
 }
 // ### end user channels ###
 
-void user::setAuth(std::string auth)
+void user::setAuth(std::string authName, std::shared_ptr<auth> authSharedPointer)
 {
-    m_Auth = auth;
+    m_Auth = std::pair< std::string, std::shared_ptr<auth> >(authName, authSharedPointer);
 }
-std::string user::getAuth()
+std::pair< std::string, std::shared_ptr<auth> >& user::getAuth()
 {
     return m_Auth;
 }

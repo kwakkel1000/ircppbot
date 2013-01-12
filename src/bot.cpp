@@ -36,9 +36,10 @@
 #include "include/reply.h"
 #include "include/binds.h"
 #include "include/irc.h"
-#include "include/management/auths.h"
-#include "include/management/users.h"
-#include "include/management/channels.h"
+#include "include/management/managementscontainer.h"
+/*#include "include/management/auth.h"
+#include "include/management/user.h"
+#include "include/management/channel.h"*/
 //#include "include/management/Whois.h"
 
 #include <iostream>
@@ -92,6 +93,9 @@ void bot::init()
                                   configreader::instance().getString("database"),
                                   configreader::instance().getString("username"),
                                   configreader::instance().getString("password"));
+
+    reply::instance().init();
+    binds::instance().init();
     binds::instance().setBind("versions", "version", 1000, "core");
     binds::instance().setBind("version", "version", 1000, "core");
     binds::instance().setBind("rehash", "rehash", 1000, "core");
@@ -138,7 +142,6 @@ void bot::ircInit()
 void bot::moduleInit()
 {
     output::instance().addOutput("void bot::moduleInit()", 10);
-    reply::instance().init();
     irc::instance().run();
     std::vector< std::string > vLoadMods = glib::split(configreader::instance().getString("loadmods"));
     for (size_t uiModuleIndex = 0; uiModuleIndex < vLoadMods.size(); uiModuleIndex++)
@@ -352,6 +355,7 @@ std::string bot::parseCommands(std::vector<std::string> args)
                 exit(EXIT_FAILURE);
             }
             reply::instance().init();
+            binds::instance().init();
         }
         if (glib::iequals(command, "stop"))
         {
@@ -410,36 +414,33 @@ std::string bot::parseCommands(std::vector<std::string> args)
         }
         if (glib::iequals(command, "listchannels"))
         {
-            std::map< std::string, channel > channelList;
-            channels::instance().getChannels(channelList);
-            std::map< std::string, channel >::iterator channelListIterator;
-            for (channelListIterator = channelList.begin(); channelListIterator != channelList.end(); channelListIterator++)
+            std::map< std::string, std::shared_ptr<channel> > l_Channels = channels::instance().get();
+            std::map< std::string, std::shared_ptr<channel> >::iterator l_ChannelsIterator;
+            for (l_ChannelsIterator = l_Channels.begin(); l_ChannelsIterator != l_Channels.end(); l_ChannelsIterator++)
             {
-                irc::instance().addSendQueue(reply::instance().ircPrivmsg(configreader::instance().getString("debugchannel"), (*channelListIterator).first));
+                irc::instance().addSendQueue(reply::instance().ircPrivmsg(configreader::instance().getString("debugchannel"), (*l_ChannelsIterator).first));
             }
-            irc::instance().addSendQueue(reply::instance().ircPrivmsg(configreader::instance().getString("debugchannel"), "# channels: " + glib::stringFromInt(channelList.size())));
+            irc::instance().addSendQueue(reply::instance().ircPrivmsg(configreader::instance().getString("debugchannel"), "# channels: " + glib::stringFromInt(l_Channels.size())));
         }
         if (glib::iequals(command, "listusers"))
         {
-            std::map< std::string, user > userList;
-            users::instance().getUsers(userList);
-            std::map< std::string, user >::iterator userListIterator;
-            for (userListIterator = userList.begin(); userListIterator != userList.end(); userListIterator++)
+            std::map< std::string, std::shared_ptr<user> > l_Users = users::instance().get();
+            std::map< std::string, std::shared_ptr<user> >::iterator l_UsersIterator;
+            for (l_UsersIterator = l_Users.begin(); l_UsersIterator != l_Users.end(); l_UsersIterator++)
             {
-                irc::instance().addSendQueue(reply::instance().ircPrivmsg(configreader::instance().getString("debugchannel"), (*userListIterator).first));
+                irc::instance().addSendQueue(reply::instance().ircPrivmsg(configreader::instance().getString("debugchannel"), (*l_UsersIterator).first));
             }
-            irc::instance().addSendQueue(reply::instance().ircPrivmsg(configreader::instance().getString("debugchannel"), "# users: " + glib::stringFromInt(userList.size())));
+            irc::instance().addSendQueue(reply::instance().ircPrivmsg(configreader::instance().getString("debugchannel"), "# users: " + glib::stringFromInt(l_Users.size())));
         }
         if (glib::iequals(command, "listauths"))
         {
-            std::map< std::string, auth > authList;
-            auths::instance().getAuths(authList);
-            std::map< std::string, auth >::iterator authListIterator;
-            for (authListIterator = authList.begin(); authListIterator != authList.end(); authListIterator++)
+            std::map< std::string, std::shared_ptr<auth> > l_Auths = auths::instance().get();
+            std::map< std::string, std::shared_ptr<auth> >::iterator l_AuthsIterator;
+            for (l_AuthsIterator = l_Auths.begin(); l_AuthsIterator != l_Auths.end(); l_AuthsIterator++)
             {
-                irc::instance().addSendQueue(reply::instance().ircPrivmsg(configreader::instance().getString("debugchannel"), (*authListIterator).first));
+                irc::instance().addSendQueue(reply::instance().ircPrivmsg(configreader::instance().getString("debugchannel"), (*l_AuthsIterator).first));
             }
-            irc::instance().addSendQueue(reply::instance().ircPrivmsg(configreader::instance().getString("debugchannel"), "# auths: " + glib::stringFromInt(authList.size())));
+            irc::instance().addSendQueue(reply::instance().ircPrivmsg(configreader::instance().getString("debugchannel"), "# auths: " + glib::stringFromInt(l_Auths.size())));
         }
     }
     if (args.size() == 2)
@@ -459,41 +460,41 @@ std::string bot::parseCommands(std::vector<std::string> args)
         }
         if (glib::iequals(command, "listuserchannels"))
         {
-            if (users::instance().findUser(args[1]))
+            if (users::instance().find(args[1]))
             {
-                std::unordered_set< std::string > channelList = users::instance().getUser(args[1]).getChannels();
-                std::unordered_set< std::string >::iterator channelListIterator;
-                for (channelListIterator = channelList.begin(); channelListIterator != channelList.end(); channelListIterator++)
+                std::map< std::string, std::shared_ptr<channel> > l_Channels = users::instance().get(args[1])->getChannels();
+                std::map< std::string, std::shared_ptr<channel> >::iterator l_ChannelsIterator;
+                for (l_ChannelsIterator = l_Channels.begin(); l_ChannelsIterator != l_Channels.end(); l_ChannelsIterator++)
                 {
-                    irc::instance().addSendQueue(reply::instance().ircPrivmsg(configreader::instance().getString("debugchannel"), (*channelListIterator)));
+                    irc::instance().addSendQueue(reply::instance().ircPrivmsg(configreader::instance().getString("debugchannel"), (*l_ChannelsIterator).first));
                 }
-                irc::instance().addSendQueue(reply::instance().ircPrivmsg(configreader::instance().getString("debugchannel"), "# channels: " + glib::stringFromInt(channelList.size())));
+                irc::instance().addSendQueue(reply::instance().ircPrivmsg(configreader::instance().getString("debugchannel"), "# channels: " + glib::stringFromInt(l_Channels.size())));
             }
         }
         if (glib::iequals(command, "listchannelusers"))
         {
-            if (channels::instance().findChannel(args[1]))
+            if (channels::instance().find(args[1]))
             {
-                std::unordered_set< std::string > userList = channels::instance().getChannel(args[1]).getUsers();
-                std::unordered_set< std::string >::iterator userListIterator;
-                for (userListIterator = userList.begin(); userListIterator != userList.end(); userListIterator++)
+                std::map< std::string, std::shared_ptr<user> > l_Users = channels::instance().get(args[1])->getUsers();
+                std::map< std::string, std::shared_ptr<user> >::iterator l_UsersIterator;
+                for (l_UsersIterator = l_Users.begin(); l_UsersIterator != l_Users.end(); l_UsersIterator++)
                 {
-                    irc::instance().addSendQueue(reply::instance().ircPrivmsg(configreader::instance().getString("debugchannel"), (*userListIterator)));
+                    irc::instance().addSendQueue(reply::instance().ircPrivmsg(configreader::instance().getString("debugchannel"), (*l_UsersIterator).first));
                 }
-                irc::instance().addSendQueue(reply::instance().ircPrivmsg(configreader::instance().getString("debugchannel"), "# users: " + glib::stringFromInt(userList.size())));
+                irc::instance().addSendQueue(reply::instance().ircPrivmsg(configreader::instance().getString("debugchannel"), "# users: " + glib::stringFromInt(l_Users.size())));
             }
         }
         if (glib::iequals(command, "listauthusers"))
         {
-            if (auths::instance().findAuth(args[1]))
+            if (auths::instance().find(args[1]))
             {
-                std::unordered_set< std::string > userList = auths::instance().getAuth(args[1]).getUsers();
-                std::unordered_set< std::string >::iterator userListIterator;
-                for (userListIterator = userList.begin(); userListIterator != userList.end(); userListIterator++)
+                std::map< std::string, std::shared_ptr<user> > l_Users = auths::instance().get(args[1])->getUsers();
+                std::map< std::string, std::shared_ptr<user> >::iterator l_UsersIterator;
+                for (l_UsersIterator = l_Users.begin(); l_UsersIterator != l_Users.end(); l_UsersIterator++)
                 {
-                    irc::instance().addSendQueue(reply::instance().ircPrivmsg(configreader::instance().getString("debugchannel"), (*userListIterator)));
+                    irc::instance().addSendQueue(reply::instance().ircPrivmsg(configreader::instance().getString("debugchannel"), (*l_UsersIterator).first));
                 }
-                irc::instance().addSendQueue(reply::instance().ircPrivmsg(configreader::instance().getString("debugchannel"), "# users: " + glib::stringFromInt(userList.size())));
+                irc::instance().addSendQueue(reply::instance().ircPrivmsg(configreader::instance().getString("debugchannel"), "# users: " + glib::stringFromInt(l_Users.size())));
             }
         }
         if (glib::iequals(command, "join"))

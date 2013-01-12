@@ -20,27 +20,11 @@ CREATE TABLE IF NOT EXISTS `auth` (
   `id` int(11) NOT NULL auto_increment,
   `UserUuid` varchar(64) NOT NULL,
   `auth` varchar(512) NOT NULL,
-  `oaccess` int(11) NOT NULL default '-1',
+  `botaccess` int(11) NOT NULL default '-1',
   `god` varchar(2) NOT NULL default '-1',
   `language` varchar(10) NOT NULL default 'en',
   PRIMARY KEY  (`id`,`auth`)
 ) ENGINE=MyISAM  DEFAULT CHARSET=latin1 AUTO_INCREMENT=1 ;
-
---
--- Table structure for table `cbans`
---
-
-CREATE TABLE IF NOT EXISTS `cbans` (
-  `id` int(5) unsigned NOT NULL auto_increment,
-  `cid` int(5) unsigned NOT NULL,
-  `uid` int(5) unsigned NOT NULL,
-  `host` varchar(64) NOT NULL,
-  `reason` varchar(128) NOT NULL,
-  `from` int(16) unsigned NOT NULL,
-  `till` int(16) unsigned NOT NULL,
-  PRIMARY KEY  (`id`)
-) ENGINE=MyISAM  DEFAULT CHARSET=latin1 AUTO_INCREMENT=2 ;
-
 
 -- --------------------------------------------------------
 

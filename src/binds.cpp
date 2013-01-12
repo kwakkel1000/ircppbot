@@ -25,7 +25,41 @@
 #include "include/binds.h"
 #include <gframe/output.h>
 #include <gframe/glib.h>
+#include <gframe/database.h>
+#include <gframe/configreader.h>
 #include <algorithm>
+
+
+// init
+void binds::init()
+{
+    m_Binds.clear();
+    std::vector< std::string > keys;
+    keys.push_back("alias");
+    keys.push_back("command");
+    keys.push_back("access");
+    keys.push_back("who");
+    std::vector< std::map< std::string, std::string > > result;
+    result = databasedata::instance().get(configreader::instance().getString("binds.table"), keys);
+    std::string alias;
+    std::string command;
+    std::string who;
+    int access;
+    for (size_t resultResultIndex = 0; resultResultIndex < result.size(); resultResultIndex++)
+    {
+        alias = result[resultResultIndex]["alias"];
+        command = result[resultResultIndex]["command"];
+        who = result[resultResultIndex]["who"];
+        access = glib::intFromString(result[resultResultIndex]["access"]);
+        std::transform(alias.begin(), alias.end(), alias.begin(), (int(*)(int)) std::tolower);
+        std::transform(command.begin(), command.end(), command.begin(), (int(*)(int)) std::tolower);
+        std::transform(who.begin(), who.end(), who.begin(), (int(*)(int)) std::tolower);
+        bindelement tmpBind;
+        tmpBind.command = command;
+        tmpBind.access = access;
+        m_Binds[who][alias] = tmpBind;
+    }
+}
 
 bool binds::setBind(std::string alias, std::string command, int access, std::string who)
 {

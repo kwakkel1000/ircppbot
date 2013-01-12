@@ -2,7 +2,7 @@
 //
 //  @ Project : ircppbot
 //  @ File Name : channel.h
-//  @ Date : 07-01-2013
+//  @ Date : 10-01-2013
 //  @ Author : Gijs Kwakkel
 //
 //
@@ -26,10 +26,16 @@
 #ifndef SRC_INCLUDE_MANAGEMENT_CHANNEL_H
 #define SRC_INCLUDE_MANAGEMENT_CHANNEL_H
 #include <string>
-#include <unordered_set>
-#include <unordered_map>
+#include <map>
+#include <set>
+#include <atomic>
 #include <mutex>
+#include <memory>
+#include <cstddef>
 
+#include "user.h"
+
+class user;
 class channel
 {
     public:
@@ -38,18 +44,18 @@ class channel
         ~channel();
 
         // ### channel users ###
-        bool addUser(std::string userName);
+        std::shared_ptr<user> addUser(std::string userName, std::shared_ptr<user> channelSharedPointer);
         bool delUser(std::string userName);
-        std::unordered_set< std::string > getUsers();
+        std::map< std::string, std::shared_ptr<user> >& getUsers();
         // ### end channel users ###
+
     private:
-        //std::unordered_map< std::string, std::unordered_set< std::string > > m_Users;
-        std::unordered_set< std::string > m_Users;
-        std::unordered_set< std::string > m_Bans;
+        std::map< std::string, std::shared_ptr<user> > m_Users;
+        std::set< std::string > m_Bans;
 
         // ### irc channel modes ###
         std::string m_Topic;
-        std::unordered_map< std::string, bool > m_Modes;
+        std::map< std::string, bool > m_Modes;
         // ### end irc channel modes ###
 
         std::mutex m_UsersMutex;

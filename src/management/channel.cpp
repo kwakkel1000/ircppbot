@@ -2,7 +2,7 @@
 //
 //  @ Project : ircppbot
 //  @ File Name : channel.cpp
-//  @ Date : 07-01-2013
+//  @ Date : 10-01-2013
 //  @ Author : Gijs Kwakkel
 //
 //
@@ -47,27 +47,28 @@ channel::~channel()
 
 
 // ### channel users ###
-bool channel::addUser(std::string userName)
+std::shared_ptr<user> channel::addUser(std::string userName, std::shared_ptr<user> userSharedPointer)
 {
-    output::instance().addOutput("bool channel::addUser(std::string userName) username: " + userName, 12);
     std::lock_guard< std::mutex > lock(m_UsersMutex);
-    std::pair< std::unordered_set< std::string >::iterator, bool > ret;
-    ret = m_Users.insert(userName);
-    return ret.second;
+    std::pair< std::map< std::string, std::shared_ptr<user> >::iterator, bool > ret;
+    ret = m_Users.insert (std::pair< std::string, std::shared_ptr<user> >(userName, userSharedPointer));
+    return ret.first->second;
 }
 
 bool channel::delUser(std::string userName)
 {
-    output::instance().addOutput("bool channel::delUser(std::string userName) username: " + userName, 12);
     std::lock_guard< std::mutex > lock(m_UsersMutex);
-    if (m_Users.erase(userName))
+    size_t ret = m_Users.erase(userName);
+    if (ret == 1)
     {
+        output::instance().addStatus(true, "bool user::delChannel(std::string userName) user found, erase succesfull: " + userName);
         return true;
     }
+    output::instance().addStatus(false, "bool user::delChannel(std::string userName) user found, erase failed: " + userName);
     return false;
 }
 
-std::unordered_set< std::string > channel::getUsers()
+std::map< std::string, std::shared_ptr<user> >&  channel::getUsers()
 {
     std::lock_guard< std::mutex > lock(m_UsersMutex);
     return m_Users;
