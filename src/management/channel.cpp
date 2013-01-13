@@ -61,10 +61,10 @@ bool channel::delUser(std::string userName)
     size_t ret = m_Users.erase(userName);
     if (ret == 1)
     {
-        output::instance().addStatus(true, "bool user::delChannel(std::string userName) user found, erase succesfull: " + userName);
+        output::instance().addStatus(true, "bool channel::delUser(std::string userName) user found, erase succesfull: " + userName);
         return true;
     }
-    output::instance().addStatus(false, "bool user::delChannel(std::string userName) user found, erase failed: " + userName);
+    output::instance().addStatus(false, "bool channel::delUser(std::string userName) user found, erase failed: " + userName);
     return false;
 }
 

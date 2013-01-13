@@ -268,24 +268,12 @@ void management::who(std::vector< std::string > data)
     std::string l_UserName = data[7];
     std::string l_Modes = data[8];
 
-    std::shared_ptr<channel> l_Channel;
-    std::shared_ptr<user> l_User;
-
-    if (managementscontainer<user>::instance().find(l_UserName))
+    if (!users::instance().find(l_UserName))
     {
-        l_User = users::instance().add(l_UserName);
         irc::instance().addSendQueue(reply::instance().ircWhois(l_UserName));
     }
-    else
-    {
-        l_User = users::instance().get(l_UserName);
-    }
-    if (l_User == nullptr)
-    {
-        output::instance().addStatus(false, "void management::join(std::vector< std::string > eventData) l_User == nullptr, should be impossible");
-        //EXIT(EXIT_FAILURE);
-    }
-    l_Channel = channels::instance().add(l_ChannelName);
+    std::shared_ptr<channel> l_Channel = channels::instance().add(l_ChannelName);
+    std::shared_ptr<user> l_User = users::instance().add(l_UserName);
     l_User->addChannel(l_ChannelName, l_Channel);
     l_Channel->addUser(l_UserName, l_User);
 
