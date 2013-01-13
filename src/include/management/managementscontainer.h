@@ -105,9 +105,19 @@ bool managementscontainer<managementstemplate>::del(std::string name)
 template <class managementstemplate>
 bool managementscontainer<managementstemplate>::rename(std::string oldName, std::string newName)
 {
-    //std::lock_guard< std::mutex > lock(m_UsersMutex);
+    std::unique_lock< std::mutex > lock(m_managementscontainerMutex);
     std::pair< typename std::map< std::string, std::shared_ptr< managementstemplate > >::iterator, bool > ret;
-    ret = m_Objects.insert (std::pair< std::string, std::shared_ptr< managementstemplate > >(newName, get(oldName)));
+
+    typename std::map< std::string, std::shared_ptr< managementstemplate > >::iterator l_managementclassListIterator;
+    l_managementclassListIterator = m_Objects.find(oldName);
+    if (l_managementclassListIterator == m_Objects.end())
+    {
+        output::instance().addStatus(false, "std::shared_ptr< " + std::string(typeid(managementstemplate).name()) + " > managementscontainer<managementstemplate>::rename(std::string oldName, std::string newName) oldName not found " + oldName);
+        return nullptr;
+    }
+
+    ret = m_Objects.insert (std::pair< std::string, std::shared_ptr< managementstemplate > >(newName, (*l_managementclassListIterator).second));
+    lock.unlock();
     if (ret.second)
     {
         del(oldName);

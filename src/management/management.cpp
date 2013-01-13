@@ -404,33 +404,41 @@ void management::nick(std::vector< std::string > eventData)
     output::instance().addOutput("void management::nick(std::vector< std::string > eventData)", 11);
     std::string newUserName = eventData[2];
     std::string oldUserName = eventData[0];
+    deleteFirst(newUserName, ":");
     nickFromHostmask(oldUserName);
-    if (!users::instance().find(oldUserName))
-    {
-        output::instance().addOutput("void management::nick(std::vector< std::string > eventData) nickchange but oldnick not found? " + oldUserName, 11);
-        users::instance().add(oldUserName);
-    }
     if (oldUserName == g_BotNick)
     {
         g_BotNick = newUserName;
     }
-    std::shared_ptr<user> l_User = users::instance().get(oldUserName);
-    if (l_User != nullptr)
+    if (users::instance().find(oldUserName))
     {
-        users::instance().rename(oldUserName, newUserName);
-        std::shared_ptr<auth> l_Auth = l_User->getAuth().second;
-        if (l_Auth != nullptr)
+        std::shared_ptr<user> l_User = users::instance().get(oldUserName);
+        if (l_User != nullptr)
         {
-            l_Auth->delUser(oldUserName);
-            l_Auth->addUser(newUserName, l_User);
+            users::instance().rename(oldUserName, newUserName);
+            std::shared_ptr<auth> l_Auth = l_User->getAuth().second;
+            if (l_Auth != nullptr)
+            {
+                l_Auth->delUser(oldUserName);
+                l_Auth->addUser(newUserName, l_User);
+            }
+            std::map< std::string, std::shared_ptr<channel> > userChannels = l_User->getChannels();
+            std::map< std::string, std::shared_ptr<channel> >::iterator userChannelsIterator;
+            for (userChannelsIterator = userChannels.begin(); userChannelsIterator != userChannels.end(); ++userChannelsIterator)
+            {
+                userChannelsIterator->second->delUser(oldUserName);
+                userChannelsIterator->second->addUser(newUserName, l_User);
+            }
         }
-        std::map< std::string, std::shared_ptr<channel> > userChannels = l_User->getChannels();
-        std::map< std::string, std::shared_ptr<channel> >::iterator userChannelsIterator;
-        for (userChannelsIterator = userChannels.begin(); userChannelsIterator != userChannels.end(); ++userChannelsIterator)
+        else
         {
-            userChannelsIterator->second->delUser(oldUserName);
-            userChannelsIterator->second->addUser(newUserName, l_User);
+            output::instance().addStatus(false, "void management::nick(std::vector< std::string > eventData) oldUserName found but nullptr? impossible");
         }
+    }
+    else
+    {
+        output::instance().addOutput("void management::nick(std::vector< std::string > eventData) nickchange but oldnick not found? " + oldUserName, 11);
+        users::instance().add(newUserName);
     }
 }
 
