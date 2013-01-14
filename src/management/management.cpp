@@ -141,15 +141,12 @@ void management::parseModes()
     while(m_Run)
     {
         data = m_IrcData->getModesQueue();
-        if (data.size() == 4)
+        if (data.size() >= 4)
         {
-            if (data[1] == "MODE")      //KICK
+            if (data[1] == "MODE")      //MODE
             {
                 mode(data);
             }
-        }
-        if (data.size() >= 4)
-        {
             if (data[1] == "TOPIC")      //TOPIC
             {
                 //topic(data);
@@ -190,7 +187,6 @@ void management::parseWhois()
             if (data[1] == "318")       //WHOIS end
             {
                 endWhois(data[3]);
-                //WHOIS(data);
             }
             if (data[1] == "330")       //WHOIS auth
             {
@@ -445,15 +441,21 @@ void management::nick(std::vector< std::string > eventData)
 void management::mode(std::vector< std::string > data)
 {
     output::instance().addOutput("void management::mode(std::vector< std::string > data)", 11);
-    /*std::string channelName = data[2];
-    std::string userName = nickFromHostmask(data);
-    if (userName == Global::Instance().get_BotNick())
+    /*if (l_UserName == g_BotNick())
     {
 
     }
     else
     {
 
+    }*/
+    std::string l_ChannelName = data[2];
+    std::string l_UserName = nickFromHostmask(data[0]);
+    std::shared_ptr<channel> l_Channel = channels::instance().get(l_ChannelName);
+    if (l_Channel == nullptr)
+    {
+        output::instance().addStatus(false, "void management::mode(std::vector< std::string > data) channel not found");
+        return;
     }
     bool add = false;
     int parsepos = 4;
@@ -474,34 +476,34 @@ void management::mode(std::vector< std::string > data)
         if (modeparse[i] == ownerchar)
         {
             //cout << "channelName: " << data[2] << " user: " << data[parsepos] << " " << ownerchar << endl;
-            //C.SetOp(data[2], data[parsepos], add);
+            l_Channel->setUserOwner(data[parsepos], add);
             parsepos++;
         }
         if (modeparse[i] == adminchar)
         {
             //cout << "channelName: " << data[2] << " user: " << data[parsepos] << " " << adminchar << endl;
-            //C.SetOp(data[2], data[parsepos], add);
+            l_Channel->setUserAdmin(data[parsepos], add);
             parsepos++;
         }
         if (modeparse[i] == opchar)
         {
             //cout << "channelName: " << data[2] << " user: " << data[parsepos] << " " << opchar << endl;
-            C.SetOp(data[2], data[parsepos], add);
+            l_Channel->setUserOp(data[parsepos], add);
             parsepos++;
         }
         if (modeparse[i] == halfopchar)
         {
             //cout << "channelName: " << data[2] << " user: " << data[parsepos] << " " << halfopchar << endl;
-            C.SetVoice(data[2], data[parsepos], add);
+            l_Channel->setUserHalfOp(data[parsepos], add);
             parsepos++;
         }
         if (modeparse[i] == voicechar)
         {
             //cout << "channelName: " << data[2] << " user: " << data[parsepos] << " " << voicechar << endl;
-            C.SetVoice(data[2], data[parsepos], add);
+            l_Channel->setUserVoice(data[parsepos], add);
             parsepos++;
         }
-    }*/
+    }
 }
 
 void management::userAuth(std::string userName, std::string authName)
@@ -509,7 +511,7 @@ void management::userAuth(std::string userName, std::string authName)
     output::instance().addOutput("void management::userAuth(std::string userName, std::string authName)", 11);
     if (!auths::instance().find(authName))
     {
-        // insert into database
+        databasedata::instance().insert(configreader::instance().getString("auth.table"), "auth", authName);
     }
     std::shared_ptr<auth> l_Auth = auths::instance().add(authName);
     std::shared_ptr<user> l_User = users::instance().add(userName);
@@ -517,7 +519,7 @@ void management::userAuth(std::string userName, std::string authName)
     l_User->setAuth(authName, l_Auth);
     if (!l_User->getChannels().empty())
     {
-        getUserInfo(userName);
+        //getUserInfo(userName);
         /*
 
         std::multimap< std::string, std::string>::iterator it;
@@ -599,35 +601,26 @@ bool management::deleteFirst(std::string& data, std::string character)
     return true;
 }
 
-
-void management::getUserInfo(std::string userName)
-{
-    std::shared_ptr<auth> l_Auth = users::instance().get(userName)->getAuth().second;
-    if (l_Auth != nullptr)
-    {
-        std::string language = "english";
-        size_t width = 0;
-        size_t columns = 0;
-        size_t botAccess = 0;
-        bool god = false;
-        //
-        // fill vars from database or something
-        //
-        l_Auth->setLanguage(language);
-        l_Auth->setWidth(width);
-        l_Auth->setColumns(columns);
-        l_Auth->setBotAccess(botAccess);
-        l_Auth->setGod(god);
-    }
-}
-
 void management::getAuths()
 {
-    std::vector< std::string > authsVector;
-    authsVector = databasedata::instance().get(configreader::instance().getString("authtable"), "auth");
-    for (size_t authsVectorIterator = 0; authsVectorIterator < authsVector.size(); authsVectorIterator++)
+    std::vector< std::map< std::string, std::string > > l_DatabaseAuths;
+    std::vector< std::string > l_Keys;
+    l_Keys.push_back("auth");
+    l_Keys.push_back("language");
+    l_Keys.push_back("width");
+    l_Keys.push_back("columns");
+    l_Keys.push_back("botaccess");
+    l_Keys.push_back("god");
+    l_DatabaseAuths = get(configreader::instance().getString("authtable"), l_Keys);
+    for (size_t l_DatabaseAuthsIndex = 0; l_DatabaseAuthsIndex < l_DatabaseAuths.size(); l_DatabaseAuthsIndex++)
     {
-        auths::instance().add(authsVector[authsVectorIterator]);
+        //auths::instance().add(authsVector[authsVectorIterator]);
+        std::shared_ptr<auth> l_Auth = auths::instance().add(l_DatabaseAuths[l_DatabaseAuthsIndex]["auth"]);
+        l_Auth->setLanguage(l_DatabaseAuths[l_DatabaseAuthsIndex]["language"]);
+        l_Auth->setWidth(glib::intFromString(l_DatabaseAuths[l_DatabaseAuthsIndex]["width"]));
+        l_Auth->setColumns(glib::intFromString(l_DatabaseAuths[l_DatabaseAuthsIndex]["columns"]));
+        l_Auth->setBotAccess(glib::intFromString(l_DatabaseAuths[l_DatabaseAuthsIndex]["botaccess"]));
+        //l_Auth->setGod(god);
     }
 }
 
@@ -709,34 +702,41 @@ void management::whoChannel(std::string channelName)
 void management::userModes(std::string userName, std::string userModes)
 {
     // ### user modes ###
-    size_t gonePos = userModes.find(gonechar);
-    if (gonePos != std::string::npos)
+    size_t modePos;
+    std::shared_ptr<user> l_User = users::instance().get(userName);
+    if (l_User == nullptr)
     {
-        users::instance().get(userName)->setGone(true);
+        output::instance().addStatus(false, "void management::userModes(std::string userName, std::string userModes) userName not found");
+        return;
+    }
+    modePos = userModes.find(gonechar);
+    if (modePos != std::string::npos)
+    {
+        l_User->setGone(true);
     }
 
-    size_t herePos = userModes.find(herechar);
-    if (herePos != std::string::npos)
+    modePos = userModes.find(herechar);
+    if (modePos != std::string::npos)
     {
-        users::instance().get(userName)->setGone(false);
+        l_User->setGone(false);
     }
 
-    size_t xPos = userModes.find("x");
-    if (xPos != std::string::npos)
+    modePos = userModes.find("x");
+    if (modePos != std::string::npos)
     {
-        users::instance().get(userName)->setX(true);
+        l_User->setX(true);
     }
 
-    size_t botPos = userModes.find(botchar);
-    if (botPos != std::string::npos)
+    modePos = userModes.find(botchar);
+    if (modePos != std::string::npos)
     {
-        users::instance().get(userName)->setBot(true);
+        l_User->setBot(true);
     }
 
-    size_t ircOpPos = userModes.find(operchar);
-    if (ircOpPos != std::string::npos)
+    modePos = userModes.find(operchar);
+    if (modePos != std::string::npos)
     {
-        users::instance().get(userName)->setIrcOp(true);
+        l_User->setIrcOp(true);
     }
     // ### end user modes ###
 }
@@ -744,34 +744,41 @@ void management::userModes(std::string userName, std::string userModes)
 void management::userChannelModes(std::string channelName, std::string userName, std::string channelUserModes)
 {
     // ### user channel modes ###
-    size_t ownerPos = channelUserModes.find(ownerwhochar);
-    if (ownerPos != std::string::npos)
+    size_t modePos;
+    std::shared_ptr<channel> l_Channel = channels::instance().get(channelName);
+    if (l_Channel == nullptr)
     {
-        //channels::instance().getChannel(channelName).a_random_function(userName, true);
+        output::instance().addStatus(false, "void management::userChannelModes(std::string channelName, std::string userName, std::string channelUserModes) channelName not found");
+        return;
+    }
+    modePos = channelUserModes.find(ownerwhochar);
+    if (modePos != std::string::npos)
+    {
+        l_Channel->setUserOwner(userName, true);
     }
 
-    size_t adminPos = channelUserModes.find(adminwhochar);
-    if (adminPos != std::string::npos)
+    modePos = channelUserModes.find(adminwhochar);
+    if (modePos != std::string::npos)
     {
-        //channels::instance().getChannel(channelName).a_random_function(userName, true);
+        l_Channel->setUserAdmin(userName, true);
     }
 
-    size_t opPos = channelUserModes.find(opwhochar);
-    if (opPos != std::string::npos)
+    modePos = channelUserModes.find(opwhochar);
+    if (modePos != std::string::npos)
     {
-        //channels::instance().getChannel(channelName).a_random_function(userName, true);
+        l_Channel->setUserOp(userName, true);
     }
 
-    size_t halfOpPos = channelUserModes.find(halfopwhochar);
-    if (halfOpPos != std::string::npos)
+    modePos = channelUserModes.find(halfopwhochar);
+    if (modePos != std::string::npos)
     {
-        //channels::instance().getChannel(channelName).a_random_function(userName, true);
+        l_Channel->setUserHalfOp(userName, true);
     }
 
-    size_t voicePos = channelUserModes.find(voicewhochar);
-    if (voicePos != std::string::npos)
+    modePos = channelUserModes.find(voicewhochar);
+    if (modePos != std::string::npos)
     {
-        //channels::instance().getChannel(channelName).a_random_function(userName, true);
+        l_Channel->setUserVoice(userName, true);
     }
     // ### end user channel modes ###
 }
