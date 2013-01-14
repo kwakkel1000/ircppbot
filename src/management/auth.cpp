@@ -2,7 +2,7 @@
 //
 //  @ Project : ircppbot
 //  @ File Name : auth.cpp
-//  @ Date : 08-01-2013
+//  @ Date : 14-01-2013
 //  @ Author : Gijs Kwakkel
 //
 //
@@ -30,6 +30,7 @@ auth::auth() :
 m_Language(""),
 m_Width(0),
 m_Columns(0),
+m_BotAccess(0),
 m_God(false),
 m_Users()
 {

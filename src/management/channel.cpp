@@ -75,7 +75,7 @@ std::map< std::string, std::shared_ptr<user> >&  channel::getUsers()
 }
 // ### end user channels ###
 
-// ### user irc modes ###
+// ### user channel modes ###
 /*void user::setGone(bool gone)
 {
     m_Gone = gone;
@@ -115,4 +115,8 @@ bool user::getIrcOp() const
 {
     return m_IrcOp;
 }*/
-// ### end user irc modes ###
+void channel::setUserVoice(std::string userName, bool set)
+{
+
+}
+// ### end user channel modes ###

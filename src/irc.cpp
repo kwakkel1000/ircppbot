@@ -444,17 +444,13 @@ void irc::parse()
         }
         for (consumerIterator = 0; consumerIterator < m_ModesConsumers.size(); consumerIterator++)
         {
-            if (result.size() == 4)
+            if (result.size() >= 4)
             {
                 if (result[1] == "MODE")
                 {
                     output::instance().addOutput("void irc::parse() if (result[1] == \"MODE\")", 11);
                     m_ModesConsumers[consumerIterator]->addModesQueue(result);
                 }
-            }
-            // own queue would be overkill
-            if (result.size() >= 4)
-            {
                 if (result[1] == "TOPIC")
                 {
                     output::instance().addOutput("void irc::parse() if (result[1] == \"TOPIC\")", 11);
