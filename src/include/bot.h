@@ -67,6 +67,7 @@ class bot
 
         std::string parseCommands(std::vector<std::string> args);
 
+        void botBindsInit();
         void ircRun();
         void moduleRun(size_t moduleIndex);
         void timer();

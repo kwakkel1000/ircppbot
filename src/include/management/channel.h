@@ -43,7 +43,7 @@ class channel
         channel(const channel&);
         ~channel();
 
-	typedef enum {
+        typedef enum {
             m_Private    = 'p',
             m_Secret     = 's',
             m_Moderated  = 'm',
@@ -64,9 +64,23 @@ class channel
         std::map< std::string, std::shared_ptr<user> >& getUsers();
         // ### end channel users ###
 
+        void setUserOwner(std::string userName, bool set);
+        bool getUserOwner(std::string userName);
+
+        void setUserAdmin(std::string userName, bool set);
+        bool getUserAdmin(std::string userName);
+
+        void setUserOp(std::string userName, bool set);
+        bool getUserOp(std::string userName);
+        void setUserHalfOp(std::string userName, bool set);
+        bool getUserHalfOp(std::string userName);
+
+        void setUserVoice(std::string userName, bool set);
+        bool getUserVoice(std::string userName);
+
     private:
         std::map< std::string, std::shared_ptr<user> > m_Users;
-        std::map< std::string, std::map< std::string, std::string > > m_UsersModes;
+        std::map< std::string, std::map< std::string, bool > > m_UsersModes;
         std::set< std::string > m_Bans;
 
         // ### irc channel modes ###

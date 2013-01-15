@@ -96,6 +96,14 @@ void bot::init()
 
     reply::instance().init();
     binds::instance().init();
+    botBindsInit();
+    ircInit();
+    moduleInit();
+    ircRun();
+}
+
+void bot::botBindsInit()
+{
     binds::instance().setBind("versions", "version", 1000, "core");
     binds::instance().setBind("version", "version", 1000, "core");
     binds::instance().setBind("rehash", "rehash", 1000, "core");
@@ -120,9 +128,6 @@ void bot::init()
     binds::instance().setBind("delbind", "delbind", 1000, "core");
     binds::instance().setBind("setbind", "setbind", 1000, "core");
     binds::instance().setBind("addbind", "setbind", 1000, "core");
-    ircInit();
-    moduleInit();
-    ircRun();
 }
 
 void bot::ircInit()
@@ -165,6 +170,8 @@ void bot::run()
     while (m_Run)
     {
         std::string input_string = "";
+        std::cin.clear();
+        // getline crashes on ctrl + c,
         std::getline(std::cin, input_string);
         output::instance().addOutput(" [" + input_string + "]");
         irc::instance().addSendQueue(reply::instance().ircPrivmsg(configreader::instance().getString("debugchannel"), "[" + input_string + "]"));
@@ -356,6 +363,7 @@ std::string bot::parseCommands(std::vector<std::string> args)
             }
             reply::instance().init();
             binds::instance().init();
+            botBindsInit();
         }
         if (glib::iequals(command, "stop"))
         {

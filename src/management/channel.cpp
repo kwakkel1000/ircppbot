@@ -76,47 +76,93 @@ std::map< std::string, std::shared_ptr<user> >&  channel::getUsers()
 // ### end user channels ###
 
 // ### user channel modes ###
-/*void user::setGone(bool gone)
+void channel::setUserOwner(std::string userName, bool set)
 {
-    m_Gone = gone;
+    std::map< std::string, std::map< std::string, bool > >::iterator l_UserModes = m_UsersModes.find(userName);
+    if (l_UserModes != m_UsersModes.end())
+    {
+        l_UserModes->second["owner"] = set;
+    }
+}
+bool channel::getUserOwner(std::string userName)
+{
+    std::map< std::string, std::map< std::string, bool > >::iterator l_UserModes = m_UsersModes.find(userName);
+    if (l_UserModes != m_UsersModes.end())
+    {
+        return l_UserModes->second["owner"];
+    }
+    return false;
 }
 
-bool user::getGone() const
+void channel::setUserAdmin(std::string userName, bool set)
 {
-    return m_Gone;
+    std::map< std::string, std::map< std::string, bool > >::iterator l_UserModes = m_UsersModes.find(userName);
+    if (l_UserModes != m_UsersModes.end())
+    {
+        l_UserModes->second["admin"] = set;
+    }
+}
+bool channel::getUserAdmin(std::string userName)
+{
+    std::map< std::string, std::map< std::string, bool > >::iterator l_UserModes = m_UsersModes.find(userName);
+    if (l_UserModes != m_UsersModes.end())
+    {
+        return l_UserModes->second["admin"];
+    }
+    return false;
 }
 
-void user::setX(bool x)
+void channel::setUserOp(std::string userName, bool set)
 {
-    m_X = x;
+    std::map< std::string, std::map< std::string, bool > >::iterator l_UserModes = m_UsersModes.find(userName);
+    if (l_UserModes != m_UsersModes.end())
+    {
+        l_UserModes->second["op"] = set;
+    }
+}
+bool channel::getUserOp(std::string userName)
+{
+    std::map< std::string, std::map< std::string, bool > >::iterator l_UserModes = m_UsersModes.find(userName);
+    if (l_UserModes != m_UsersModes.end())
+    {
+        return l_UserModes->second["op"];
+    }
+    return false;
 }
 
-bool user::getX() const
+void channel::setUserHalfOp(std::string userName, bool set)
 {
-    return m_X;
+    std::map< std::string, std::map< std::string, bool > >::iterator l_UserModes = m_UsersModes.find(userName);
+    if (l_UserModes != m_UsersModes.end())
+    {
+        l_UserModes->second["halfop"] = set;
+    }
+}
+bool channel::getUserHalfOp(std::string userName)
+{
+    std::map< std::string, std::map< std::string, bool > >::iterator l_UserModes = m_UsersModes.find(userName);
+    if (l_UserModes != m_UsersModes.end())
+    {
+        return l_UserModes->second["halfop"];
+    }
+    return false;
 }
 
-void user::setBot(bool bot)
-{
-    m_Bot = bot;
-}
-
-bool user::getBot() const
-{
-    return m_Bot;
-}
-
-void user::setIrcOp(bool ircOp)
-{
-    m_IrcOp = ircOp;
-}
-
-bool user::getIrcOp() const
-{
-    return m_IrcOp;
-}*/
 void channel::setUserVoice(std::string userName, bool set)
 {
-
+    std::map< std::string, std::map< std::string, bool > >::iterator l_UserModes = m_UsersModes.find(userName);
+    if (l_UserModes != m_UsersModes.end())
+    {
+        l_UserModes->second["voice"] = set;
+    }
+}
+bool channel::getUserVoice(std::string userName)
+{
+    std::map< std::string, std::map< std::string, bool > >::iterator l_UserModes = m_UsersModes.find(userName);
+    if (l_UserModes != m_UsersModes.end())
+    {
+        return l_UserModes->second["voice"];
+    }
+    return false;
 }
 // ### end user channel modes ###
