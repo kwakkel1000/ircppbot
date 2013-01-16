@@ -33,6 +33,7 @@
 // init
 void binds::init()
 {
+    std::lock_guard< std::mutex > lock(m_BindMutex);
     m_Binds.clear();
     std::vector< std::string > keys;
     keys.push_back("alias");
@@ -63,6 +64,7 @@ void binds::init()
 
 bool binds::setBind(std::string alias, std::string command, int access, std::string who)
 {
+    std::lock_guard< std::mutex > lock(m_BindMutex);
     std::transform(alias.begin(), alias.end(), alias.begin(), (int(*)(int)) std::tolower);
     std::transform(command.begin(), command.end(), command.begin(), (int(*)(int)) std::tolower);
     std::transform(who.begin(), who.end(), who.begin(), (int(*)(int)) std::tolower);
@@ -75,12 +77,14 @@ bool binds::setBind(std::string alias, std::string command, int access, std::str
 
 bool binds::delBinds(std::string who)
 {
+    std::lock_guard< std::mutex > lock(m_BindMutex);
     std::transform(who.begin(), who.end(), who.begin(), (int(*)(int)) std::tolower);
     return m_Binds.erase(who);
 }
 
 bool binds::delBind(std::string alias, std::string who)
 {
+    std::lock_guard< std::mutex > lock(m_BindMutex);
     std::transform(alias.begin(), alias.end(), alias.begin(), (int(*)(int)) std::tolower);
     std::transform(who.begin(), who.end(), who.begin(), (int(*)(int)) std::tolower);
     std::map< std::string, std::map< std::string, bindelement > >::iterator l_BindsIterator;
@@ -95,12 +99,14 @@ bool binds::delBind(std::string alias, std::string who)
 
 bool binds::getBinds(std::map< std::string, std::map< std::string, bindelement > >& bindElements)
 {
+    std::lock_guard< std::mutex > lock(m_BindMutex);
     bindElements = m_Binds;
     return true;
 }
 
 bool binds::getBinds(std::map< std::string, bindelement >& bindElements, std::string who)
 {
+    std::lock_guard< std::mutex > lock(m_BindMutex);
     std::transform(who.begin(), who.end(), who.begin(), (int(*)(int)) std::tolower);
     std::map< std::string, std::map< std::string, bindelement > >::iterator l_BindsIterator;
     l_BindsIterator = m_Binds.find(who);
@@ -115,6 +121,7 @@ bool binds::getBinds(std::map< std::string, bindelement >& bindElements, std::st
 
 bool binds::getBind(bindelement& bindElement, std::string alias, std::string who)
 {
+    std::lock_guard< std::mutex > lock(m_BindMutex);
     std::transform(alias.begin(), alias.end(), alias.begin(), (int(*)(int)) std::tolower);
     std::transform(who.begin(), who.end(), who.begin(), (int(*)(int)) std::tolower);
     output::instance().addOutput("bool binds::getBind(bindelement& bindElement, std::string alias, std::string who) alias: " + alias + " who: " + who, 12);

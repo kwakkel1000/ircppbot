@@ -28,6 +28,7 @@
 
 #include <map>
 #include <string>
+#include <mutex>
 
 class binds
 {
@@ -56,6 +57,8 @@ class binds
 
 
         std::map< std::string, std::map< std::string, bindelement > > m_Binds;
+
+        std::mutex m_BindMutex;
 
 };
 
