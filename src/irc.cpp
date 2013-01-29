@@ -68,12 +68,16 @@ void irc::stop()
         m_FloodThread->join();
         output::instance().addOutput("m_FloodThread stopped");
     }
+    // get error from irc server so we can close the recv thread
+    *m_IrcSocket << ".\r\n";
     m_SendThread->join();
     output::instance().addOutput("m_SendThread stopped");
     m_RecvThread->join();
     output::instance().addOutput("m_RecvThread stopped");
     m_ParseThread->join();
     output::instance().addOutput("m_ParseThread stopped");
+    // lets try to quit nice
+    *m_IrcSocket << "QUIT\r\n";
 }
 
 void irc::init(tcpsocket &ircsock)

@@ -1,1 +1,0 @@
-MODULES			= $(MODULE_DIR)ircserv $(MODULE_DIR)ChannelBot $(MODULE_DIR)OCommands $(MODULE_DIR)Support $(MODULE_DIR)Znc $(MODULE_DIR)Snmp $(MODULE_DIR)Example

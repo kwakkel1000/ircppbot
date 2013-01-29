@@ -1,40 +1,38 @@
 [global]
 botnick=tran
 ident=tran
-realname=tran
-chandebug=false
-loadmods=libchannelbot libocommands libsupport
+realname=tran irc c++ bot
+chandebug=true
+loadmods=libchannelbot
 moduledir=/usr/local/lib/
-defaultlanguage=english
+defaultlanguage=en
 
 [channels]
-debugchannel=#chan.debug
-overwatchchannel=#chan.overwatch
-supportchannel=#chan.support
-teamchannel=#chan.team
+debugchannel=#tran.debug
+overwatchchannel=#tran.debug
 
 [irc]
-trigger=!
-channelbottrigger=!
-ocommandstrigger=?
-
 ircserver=irc.server.tld
 ircport=6667
-ircpass=passwd
-
-floodprotect=true
+ircpass=
+floodprotect=false
 floodbuffer=20
 floodtime=1.5
 
 [ircserv]
+ircserv=UserManagement
 nickserv=false
 whoextra=true
 
 [database]
-hostname=localhost
-databasename=database
-username=dbuser
-password=dbpass
+mysqlserver=mysql.dns
+database=tran_bot
+username=user
+password=pass
+reply.table=reply
+binds.table=binds
 
-[config]
-#conf/fail.ini
+// channelbot.conf
+channelbotchannel.table=channelbotchannels
+channelbotauth.table=channelbotauths
+libchannelbot.trigger=.

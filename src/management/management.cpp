@@ -450,7 +450,8 @@ void management::mode(std::vector< std::string > data)
 
     }*/
     std::string l_ChannelName = data[2];
-    std::string l_UserName = nickFromHostmask(data[0]);
+    std::string l_UserName = data[0];
+    nickFromHostmask(l_UserName);
     std::shared_ptr<channel> l_Channel = channels::instance().get(l_ChannelName);
     if (l_Channel == nullptr)
     {
@@ -611,7 +612,7 @@ void management::getAuths()
     l_Keys.push_back("columns");
     l_Keys.push_back("botaccess");
     l_Keys.push_back("god");
-    l_DatabaseAuths = get(configreader::instance().getString("authtable"), l_Keys);
+    l_DatabaseAuths = databasedata::instance().get(configreader::instance().getString("auth.table"), l_Keys);
     for (size_t l_DatabaseAuthsIndex = 0; l_DatabaseAuthsIndex < l_DatabaseAuths.size(); l_DatabaseAuthsIndex++)
     {
         //auths::instance().add(authsVector[authsVectorIterator]);
