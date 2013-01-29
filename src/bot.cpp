@@ -96,7 +96,7 @@ void bot::init()
 
     reply::instance().init();
     binds::instance().init();
-    binds::instance().setBind("versions", "version", 1000, "core");
+/*    binds::instance().setBind("versions", "version", 1000, "core");
     binds::instance().setBind("version", "version", 1000, "core");
     binds::instance().setBind("rehash", "rehash", 1000, "core");
     binds::instance().setBind("stop", "stop", 1000, "core");
@@ -119,7 +119,7 @@ void bot::init()
     binds::instance().setBind("kick", "kick", 1000, "core");
     binds::instance().setBind("delbind", "delbind", 1000, "core");
     binds::instance().setBind("setbind", "setbind", 1000, "core");
-    binds::instance().setBind("addbind", "setbind", 1000, "core");
+    binds::instance().setBind("addbind", "setbind", 1000, "core"); */  // deprecated, should be in the db now
     ircInit();
     moduleInit();
     ircRun();

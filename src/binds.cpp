@@ -66,6 +66,25 @@ bool binds::setBind(std::string alias, std::string command, int access, std::str
     std::transform(alias.begin(), alias.end(), alias.begin(), (int(*)(int)) std::tolower);
     std::transform(command.begin(), command.end(), command.begin(), (int(*)(int)) std::tolower);
     std::transform(who.begin(), who.end(), who.begin(), (int(*)(int)) std::tolower);
+    std::vector< std::string > keys;
+    keys.push_back("alias");
+    keys.push_back("command");
+    keys.push_back("access");
+    keys.push_back("who");
+    std::vector< std::string > values;
+    values.push_back(alias);
+    values.push_back(command);
+    values.push_back(glib::stringFromInt(access));
+    values.push_back(who);
+    if (m_Binds[who][alias] == "") // new so insert
+    {
+        database::instance().insert(configreader::instance().getString("binds.table"), keys, values);
+    }
+    else
+    {
+        std::string condition = "alias = " + alias + " AND command = " + command + " AND who = " + who;
+        database::instance().update(configreader::instance().getString("binds.table"), keys, values, condition);
+    }
     bindelement tmpBind;
     tmpBind.command = command;
     tmpBind.access = access;
@@ -73,13 +92,13 @@ bool binds::setBind(std::string alias, std::string command, int access, std::str
     return true;
 }
 
-bool binds::delBinds(std::string who)
+bool binds::delBinds(std::string who)  // unload module
 {
     std::transform(who.begin(), who.end(), who.begin(), (int(*)(int)) std::tolower);
     return m_Binds.erase(who);
 }
 
-bool binds::delBind(std::string alias, std::string who)
+bool binds::delBind(std::string alias, std::string who) // delete a bind
 {
     std::transform(alias.begin(), alias.end(), alias.begin(), (int(*)(int)) std::tolower);
     std::transform(who.begin(), who.end(), who.begin(), (int(*)(int)) std::tolower);
@@ -90,6 +109,8 @@ bool binds::delBind(std::string alias, std::string who)
         output::instance().addStatus(false, "bool binds::delBind(std::string alias, std::string who) who not found");
         return false;
     }
+    std::string condition = "who = " + who + " AND alias = " + alias;
+    databasedata::instance().del(configreader::instance().getString("binds.table"), condition);
     return m_Binds[who].erase(alias);
 }
 
