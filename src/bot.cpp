@@ -334,7 +334,7 @@ std::string bot::parseCommands(std::vector<std::string> args)
             }
             reply::instance().init();
             binds::instance().init();
-            botBindsInit();
+//            botBindsInit();
         }
         if (glib::iequals(command, "stop"))
         {
