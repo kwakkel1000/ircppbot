@@ -78,7 +78,7 @@ bool binds::setBind(std::string alias, std::string command, int access, std::str
     values.push_back(command);
     values.push_back(glib::stringFromInt(access));
     values.push_back(who);
-    /*if (m_Binds[who][alias] == "") // new so insert
+    if (m_Binds[who][alias].command == "") // new so insert
     {
         databasedata::instance().insert(configreader::instance().getString("binds.table"), keys, values);
     }
@@ -86,7 +86,7 @@ bool binds::setBind(std::string alias, std::string command, int access, std::str
     {
         std::string condition = "alias = " + alias + " AND command = " + command + " AND who = " + who;
         databasedata::instance().update(configreader::instance().getString("binds.table"), keys, values, condition);
-    }*/
+    }
     bindelement tmpBind;
     tmpBind.command = command;
     tmpBind.access = access;
