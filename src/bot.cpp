@@ -96,9 +96,38 @@ void bot::init()
 
     reply::instance().init();
     binds::instance().init();
+    botBindsInit();
     ircInit();
     moduleInit();
     ircRun();
+}
+
+void bot::botBindsInit()
+{
+    binds::instance().setBind("versions", "version", 1000, "core");
+    binds::instance().setBind("version", "version", 1000, "core");
+    binds::instance().setBind("rehash", "rehash", 1000, "core");
+    binds::instance().setBind("stop", "stop", 1000, "core");
+    binds::instance().setBind("restart", "restart", 1000, "core");
+    binds::instance().setBind("listbinds", "listbinds", 1000, "core");
+    binds::instance().setBind("listmodules", "listmodules", 1000, "core");
+    binds::instance().setBind("reloadall", "reloadall", 1000, "core");
+    binds::instance().setBind("listchannels", "listchannels", 1000, "core");
+    binds::instance().setBind("listusers", "listusers", 1000, "core");
+    binds::instance().setBind("listauths", "listauths", 1000, "core");
+    binds::instance().setBind("reload", "reload", 1000, "core");
+    binds::instance().setBind("load", "load", 1000, "core");
+    binds::instance().setBind("unload", "unload", 1000, "core");
+    binds::instance().setBind("listuserchannels", "listuserchannels", 1000, "core");
+    binds::instance().setBind("listchannelusers", "listchannelusers", 1000, "core");
+    binds::instance().setBind("listauthusers", "listauthusers", 1000, "core");
+    binds::instance().setBind("join", "join", 1000, "core");
+    binds::instance().setBind("part", "part", 1000, "core");
+    binds::instance().setBind("raw", "raw", 1000, "core");
+    binds::instance().setBind("kick", "kick", 1000, "core");
+    binds::instance().setBind("delbind", "delbind", 1000, "core");
+    binds::instance().setBind("setbind", "setbind", 1000, "core");
+    binds::instance().setBind("addbind", "setbind", 1000, "core");
 }
 
 void bot::ircInit()
@@ -334,7 +363,7 @@ std::string bot::parseCommands(std::vector<std::string> args)
             }
             reply::instance().init();
             binds::instance().init();
-//            botBindsInit();
+            botBindsInit();
         }
         if (glib::iequals(command, "stop"))
         {
