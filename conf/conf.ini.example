@@ -32,7 +32,5 @@ password=pass
 reply.table=reply
 binds.table=binds
 
-// channelbot.conf
-channelbotchannel.table=channelbotchannels
-channelbotauth.table=channelbotauths
-libchannelbot.trigger=.
+[config]
+channelbot.conf
