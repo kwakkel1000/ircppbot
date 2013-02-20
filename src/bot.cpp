@@ -359,8 +359,7 @@ std::string bot::parseCommands(std::vector<std::string> args)
                 std::map< std::string, binds::bindelement >::iterator bindElementIterator;
                 for ( bindElementsIterator = bindElements.begin() ; bindElementsIterator != bindElements.end(); bindElementsIterator++ )
                 {
-                    irc::instance().addSendQueue(reply::instance().ircPrivmsg(configreader::instance().getString("debugchannel"), reply::instance().ircBold() + bindElementsIterator->first));
-                    irc::instance().addSendQueue(reply::instance().ircPrivmsg(configreader::instance().getString("debugchannel"), "___________________"));
+                    irc::instance().addSendQueue(reply::instance().ircPrivmsg(configreader::instance().getString("debugchannel"), reply::instance().ircBold() + reply::instance().ircUnderline() + bindElementsIterator->first));
                     bindElement.clear();
                     bindElement = bindElementsIterator->second;
                     for ( bindElementIterator = bindElement.begin() ; bindElementIterator != bindElement.end(); bindElementIterator++ )
