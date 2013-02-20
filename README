@@ -14,6 +14,7 @@ make install
 
 mysql database
 import bot.sql
+import binds.sql
 
 for default running:
 
