@@ -1,0 +1,6 @@
+autoreconf -ifv
+./configure
+make dist
+cp ircppbot-x.y.tar.gz download
+cp ircppbot-x.y.tar.gz download/ircppbot-latest.tar.gz
+

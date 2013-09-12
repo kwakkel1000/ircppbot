@@ -20,6 +20,7 @@ ircppbot_include_HEADERS = \
 	include/management/user.h \
 	include/management/auth.h \
 	include/management/management.h \
+	include/global.h
 	include/config.h
 
 ircppbot_SOURCES = \
