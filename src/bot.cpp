@@ -141,6 +141,7 @@ void bot::run()
     while (m_Run)
     {
         std::string input_string = "";
+        std::string return_string = "";
         std::cin.clear();
         // getline crashes on ctrl + c,
         std::getline(std::cin, input_string);
@@ -148,7 +149,8 @@ void bot::run()
         irc::instance().addSendQueue(reply::instance().ircPrivmsg(configreader::instance().getString("debugchannel"), "[" + input_string + "]"));
         std::vector< std::string > args;
         args = glib::split(input_string);
-        parseCommands(args);
+        return_string = parseCommands(args);
+        output::instance().addOutput(return_string);
         //irc::instance().addSendQueue(reply::instance().ircPrivmsg(configreader::instance().getString("debugchannel"), parseCommands(args)));
     }
 }
@@ -387,11 +389,13 @@ std::string bot::parseCommands(std::vector<std::string> args)
             {
                 std::string modname = tmpm_ModuleList[i];
                 unLoadModule(modname);
+                returnString += "unLoad: " + modname + "\r\n";
             }
             for (size_t i = 0; i < tmpm_ModuleList.size(); i++)
             {
                 std::string modname = tmpm_ModuleList[i];
                 loadModule(modname);
+                returnString += "Load: " + modname + "\r\n";
             }
         }
         if (glib::iequals(command, "listchannels"))
@@ -401,8 +405,10 @@ std::string bot::parseCommands(std::vector<std::string> args)
             for (l_ChannelsIterator = l_Channels.begin(); l_ChannelsIterator != l_Channels.end(); l_ChannelsIterator++)
             {
                 irc::instance().addSendQueue(reply::instance().ircPrivmsg(configreader::instance().getString("debugchannel"), (*l_ChannelsIterator).first));
+                returnString += (*l_ChannelsIterator).first + "\r\n";
             }
             irc::instance().addSendQueue(reply::instance().ircPrivmsg(configreader::instance().getString("debugchannel"), "# channels: " + glib::stringFromInt(l_Channels.size())));
+            returnString += "# channels: " + glib::stringFromInt(l_Channels.size());
         }
         if (glib::iequals(command, "listusers"))
         {
@@ -411,8 +417,10 @@ std::string bot::parseCommands(std::vector<std::string> args)
             for (l_UsersIterator = l_Users.begin(); l_UsersIterator != l_Users.end(); l_UsersIterator++)
             {
                 irc::instance().addSendQueue(reply::instance().ircPrivmsg(configreader::instance().getString("debugchannel"), (*l_UsersIterator).first));
+                returnString += (*l_UsersIterator).first + "\r\n";
             }
             irc::instance().addSendQueue(reply::instance().ircPrivmsg(configreader::instance().getString("debugchannel"), "# users: " + glib::stringFromInt(l_Users.size())));
+            returnString += "# users: " + glib::stringFromInt(l_Users.size());
         }
         if (glib::iequals(command, "listauths"))
         {
@@ -421,8 +429,10 @@ std::string bot::parseCommands(std::vector<std::string> args)
             for (l_AuthsIterator = l_Auths.begin(); l_AuthsIterator != l_Auths.end(); l_AuthsIterator++)
             {
                 irc::instance().addSendQueue(reply::instance().ircPrivmsg(configreader::instance().getString("debugchannel"), (*l_AuthsIterator).first));
+                returnString += (*l_AuthsIterator).first + "\r\n";
             }
             irc::instance().addSendQueue(reply::instance().ircPrivmsg(configreader::instance().getString("debugchannel"), "# auths: " + glib::stringFromInt(l_Auths.size())));
+            returnString += "# auths: " + glib::stringFromInt(l_Auths.size());
         }
     }
     if (args.size() == 2)
@@ -449,8 +459,10 @@ std::string bot::parseCommands(std::vector<std::string> args)
                 for (l_ChannelsIterator = l_Channels.begin(); l_ChannelsIterator != l_Channels.end(); l_ChannelsIterator++)
                 {
                     irc::instance().addSendQueue(reply::instance().ircPrivmsg(configreader::instance().getString("debugchannel"), (*l_ChannelsIterator).first));
+                    returnString += (*l_ChannelsIterator).first + "\r\n";
                 }
                 irc::instance().addSendQueue(reply::instance().ircPrivmsg(configreader::instance().getString("debugchannel"), "# channels: " + glib::stringFromInt(l_Channels.size())));
+                returnString += "# users: " + glib::stringFromInt(l_Channels.size());
             }
         }
         if (glib::iequals(command, "listchannelusers"))
@@ -462,8 +474,10 @@ std::string bot::parseCommands(std::vector<std::string> args)
                 for (l_UsersIterator = l_Users.begin(); l_UsersIterator != l_Users.end(); l_UsersIterator++)
                 {
                     irc::instance().addSendQueue(reply::instance().ircPrivmsg(configreader::instance().getString("debugchannel"), (*l_UsersIterator).first));
+                    returnString += (*l_UsersIterator).first + "\r\n";
                 }
                 irc::instance().addSendQueue(reply::instance().ircPrivmsg(configreader::instance().getString("debugchannel"), "# users: " + glib::stringFromInt(l_Users.size())));
+                returnString += "# users: " + glib::stringFromInt(l_Users.size());
             }
         }
         if (glib::iequals(command, "listauthusers"))
@@ -475,8 +489,10 @@ std::string bot::parseCommands(std::vector<std::string> args)
                 for (l_UsersIterator = l_Users.begin(); l_UsersIterator != l_Users.end(); l_UsersIterator++)
                 {
                     irc::instance().addSendQueue(reply::instance().ircPrivmsg(configreader::instance().getString("debugchannel"), (*l_UsersIterator).first));
+                    returnString += (*l_UsersIterator).first + "\r\n";
                 }
                 irc::instance().addSendQueue(reply::instance().ircPrivmsg(configreader::instance().getString("debugchannel"), "# users: " + glib::stringFromInt(l_Users.size())));
+                returnString += "# users: " + glib::stringFromInt(l_Users.size());
             }
         }
         if (glib::iequals(command, "join"))
@@ -540,7 +556,14 @@ std::string bot::parseCommands(std::vector<std::string> args)
     {
         if (glib::iequals(command, "setbind"))
         {
-            binds::instance().setBind(args[1], args[2], glib::intFromString(args[3]), args[4]);
+            if (binds::instance().setBind(args[1], args[2], glib::intFromString(args[3]), args[4]))
+            {
+                returnString = "ok";
+            }
+            else
+            {
+                returnString = "something went wrong";
+            }
         }
     }
     return returnString;
